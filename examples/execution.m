@@ -1,0 +1,6 @@
+step1_init_variables
+step2_read_trks
+step3_flips_trims_centerlines
+step4_addition_genu
+% step4_data_mdls
+%step5_save_niis_trks
