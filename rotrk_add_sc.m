@@ -30,7 +30,7 @@ TRKS_OUT.sstr=TRKS_IN.sstr;
 
 if ischar(vol_input_diffmetric_untyped)
     vol_input_diffmetric.filename={vol_input_diffmetric_untyped};
-    vol_input_diffmetric.identifier='null'
+    vol_input_diffmetric.identifier='null';
 else
     vol_input_diffmetric=vol_input_diffmetric_untyped;
 end

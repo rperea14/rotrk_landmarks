@@ -1,4 +1,4 @@
-function [ TRKS_OUT ] = rotrk_centerline(TRKS_IN, method, selected_metric)
+function [ TRKS_OUT OPT_distance] = rotrk_centerline(TRKS_IN, method, selected_metric)
 %function [ selected_header, selected_tracts ] = rotrk_centerline(header,tracts)
 %IN:
 %           TRKS_IN.header          : header file  (header structure format)
@@ -9,6 +9,9 @@ function [ TRKS_OUT ] = rotrk_centerline(TRKS_IN, method, selected_metric)
 %                                       streamline, then if high_sc (it
 %                                       selects the one with the highest
 %                                       mean selected_metric or viceversa)
+%                                     'hausdorff' outputs the streamline with
+%                                     the mean lowest distance value
+%                                     streamline
 %           *selected_diffmetric    :if method=high_sc then we need scalars
 %                                   that can be passed as [ GFA NQA0 ].
 %                                   This information should come from
@@ -29,8 +32,6 @@ TRKS_OUT.id=TRKS_IN.id;
 TRKS_OUT.filename=TRKS_IN.filename;
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-
 %%%ARGUMENT CHECKING...
 %if selected_metric is not included in the header of the image, sent an
 %error that the scalar does not exist
@@ -41,8 +42,8 @@ end
 
 if nargin < 2
     method='high_sc';
-    selected_metric='GFA';
-    warning('No metric selected as the flag for centerline. Using GFA (default)');
+    selected_metric='null';
+    warning('No metric selected as the flag for centerline. Using null (denoting unassigned)');
 end
 
 %Assigned metric to do the cut....
@@ -54,10 +55,6 @@ for pp=1:numel(TRKS_IN.header.scalar_IDs)
         assigned_col=3+pp; %This will assign the column we'll use to describe the method used
     end
 end
-%Verify that it has a non-empty value...
-if isempty(assigned_diffmetric) %~~~>related to "assign_col" (either check will work)
-        error(['The following metric: ' selected_metric ' (for selecting) ' method ' centerline method is not found. Exiting now...']);
-end
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 %INITIALZING VARIABLES...
@@ -66,27 +63,47 @@ median_vals=nan(size(TRKS_IN.sstr,2),1);
 highsc_vals=nan(size(TRKS_IN.sstr,2),1);
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-%CALCULATING THE SPECIFIC VARIABLES
-for ii=1:size(TRKS_IN.sstr,2)
-    mean_vals(ii)=mean(TRKS_IN.sstr(ii).vox_coord(:,assigned_col));
-    median_vals(ii)=mean(TRKS_IN.sstr(ii).vox_coord(:,assigned_col));
-   
+if strcmp(method,'hausdorff')
+    disp('You selected the min. hausdorff distance. This might take a while...')
+    fprintf(['Calculating the distance of fiber (n=' num2str(numel(TRKS_IN.sstr)) '): ' ])
+    for kk=1:numel(TRKS_IN.sstr)
+        fprintf([ num2str(kk) ' '])
+        if ~mod(kk,20) ; fprintf('\n'); end
+        for ii=1:numel(TRKS_IN.sstr);
+            hasdist1{kk}{ii}=ModHausdorffDist(TRKS_IN.sstr(kk).matrix,TRKS_IN.sstr(ii).matrix);
+        end
+        
+        AA(kk)=ModHausdorffDist(TRKS_IN.sstr(kk).matrix,TRKS_IN.sstr(1).matrix);
+        nstr1(kk)=TRKS_IN.sstr(kk).nPoints;
+        %[max1 idx_max1 ] = m ax(hasdist1);
+        %[min1 idx_min1 ] = min(hasdist1);
+    end
+    fprintf('...done \n');
+    %Mean distances:
+    for jj=1:numel(hasdist1)
+        mean_dist1(jj)=mean(cell2mat(hasdist1{jj}));
+    end
+    %Select the streamline whose Hausdorff distance is the lowers
+    [mindist1 idx_mindist1 ] = min(mean_dist1);
+    idx=idx_mindist1;    
+else
+    %CALCULATING THE SPECIFIC VARIABLES
+    for ii=1:size(TRKS_IN.sstr,2)
+        mean_vals(ii)=mean(TRKS_IN.sstr(ii).vox_coord(:,assigned_col));
+        median_vals(ii)=mean(TRKS_IN.sstr(ii).vox_coord(:,assigned_col));
+    end
+    %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    %SELECT THE METHOD TO BE USED
+    switch method
+        case 'high_sc'
+            [val_high, idx ] = max(mean_vals);
+        case 'low_sc'
+            [val_low, idx ] = min(mean_vals);
+        case 'median' %<~~~NOT TESTED AS 01/20/2017
+            [val_low, idx ] = median(median_vals);
+    end
 end
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-%SELECT THE METHOD TO BE USED
-todebug=1;
-
-switch method
-    case 'high_sc'
-        [val_high, idx ] = max(mean_vals);
-    case 'low_sc'
-        [val_low, idx ] = min(mean_vals);
-    case 'median' %<~~~NOT TESTED AS 01/20/2017
-        [val_low, idx ] = median(median_vals);
-end
-
 TRKS_OUT.sstr.matrix=TRKS_IN.sstr(idx).matrix;
 TRKS_OUT.sstr.vox_coord=TRKS_IN.sstr(idx).vox_coord;
 TRKS_OUT.sstr.nPoints=size(TRKS_IN.sstr(idx).matrix,1);

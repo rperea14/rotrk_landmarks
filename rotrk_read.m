@@ -97,23 +97,32 @@ if strcmp(ronii_ext,'.gz') ;  system([ 'gzip ' ro_filename  ] ); end
 %I'll add a tolerance comparator
 tolerance=0.0001;
 flag_x=0;flag_y=0; flag_z=0;
-
+warn=0;
 if ~(abs(tmp_vol.mat(1,1) - header.vox_to_ras(1,1))) < tolerance
-    warning('Volume matrix in the x coordinate is not equal to the trk matrix. Flipping to fit same orientation')
-    warning('Double check orientation after using this!')
-%    flag_x=-1;
+    warn=1;
+    %warning('Volume matrix in the x coordinate is not equal to the trk matrix. Flipping to fit same orientation')
+    %warning('Double check orientation after using this!')
+    %flag_x=-1;
+ 
 end
 
 if ~(abs(tmp_vol.mat(2,2) - header.vox_to_ras(2,2))) < tolerance
-    warning('Volume matrix in the y coordinate is not equal to the trk matrix. Flipping to fit same orientation')
-    warning('Double check orientation after using this!')
+    %warning('Volume matrix in the y coordinate is not equal to the trk matrix. Flipping to fit same orientation')
+    %warning('Double check orientation after using this!')
 %    flag_y=-1;
+    warn=1;
 end
 
 if ~(abs(tmp_vol.mat(3,3) - header.vox_to_ras(3,3)) < tolerance)
+    warn=1;
     warning('Volume matrix in the z coordinate is not equal to the trk matrix. Flipping to fit same orientation')
     warning('Double check orientation after using this!')
 %    flag_z=-1;
+end
+
+if warn==1
+   % warning('Volume matrix in the xyz coordinate is not equal to the trk matrix. Flipping to fit same orientation')
+   % warning('Double check orientation after using this!')
 end
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~/
 
@@ -259,23 +268,23 @@ for ii=1:size(tracts,2)
     %REMOVING DUPLICATES:
     for hh=1:size(pos,1)
         %Check all subsequent but the last one
-        if hh~=size(pos,1)
-            %Check if XYZ are the same coordinates, if so skip the
-            %coordinate
-            if ~(pos(hh,1) == pos(hh+1,1) && pos(hh,2) == pos(hh+1,2) && pos(hh,3) == pos(hh+1,3))
-                posnew_idx=1+posnew_idx;
-                %posnew{ii}(posnew_idx,:)=pos(hh,:);
-                tract_out.sstr(ii).matrix(posnew_idx,1:3)=tracts(ii).matrix(hh,1:3);
-                tract_out.sstr(ii).vox_coord(posnew_idx,1:3)=pos(hh,1:3);
-            end
-        else
+%         if hh~=size(pos,1)
+%             %Check if XYZ are the same coordinates, if so skip the
+%             %coordinate
+%             if ~(pos(hh,1) == pos(hh+1,1) && pos(hh,2) == pos(hh+1,2) && pos(hh,3) == pos(hh+1,3))
+%                 posnew_idx=1+posnew_idx;
+%                 %posnew{ii}(posnew_idx,:)=pos(hh,:);
+%                 tract_out.sstr(ii).matrix(posnew_idx,1:3)=tracts(ii).matrix(hh,1:3);
+%                 tract_out.sstr(ii).vox_coord(posnew_idx,1:3)=pos(hh,1:3);
+%             end
+%         else
             %Copying the last value...(if equal to previous, the
             %previous if statment will take care of it)
             posnew_idx=1+posnew_idx;
             %posnew{ii}(posnew_idx,:)=pos(hh,:);
             tract_out.sstr(ii).matrix(posnew_idx,1:3)=tracts(ii).matrix(hh,1:3);
             tract_out.sstr(ii).vox_coord(posnew_idx,1:3)=pos(hh,1:3);
-        end
+%        end
     end
     % "END CHECKING FOR DUPLICATES
     tract_out.sstr(ii).nPoints=size(tract_out.sstr(ii).matrix,1);

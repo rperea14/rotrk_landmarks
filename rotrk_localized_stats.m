@@ -101,17 +101,17 @@ HH2=scatter3(xref_L,yref_L,zref_L,2000,t_val_L,'filled');
 
 
 %RED ASTERISK BEING PLOTTED
-% if ~isnan(x_1marked)
-% TT=scatter3(x_1marked,y_1marked,z_1marked,2000,t_1marked,'filled'); %T-vals above significance!
-% TT.MarkerEdgeColor='red';
-% TT.Marker='*';
-% end
-% 
-% if ~isnan(x_2marked)
-% TT2=scatter3(x_2marked,y_2marked,z_2marked,2000,t_2marked,'filled'); 
-% TT2.MarkerEdgeColor='red';
-% TT2.Marker='*';
-% end
+if ~isnan(x_1marked)
+TT=scatter3(x_1marked,y_1marked,z_1marked,2000,t_1marked,'filled'); %T-vals above significance!
+TT.MarkerEdgeColor='red';
+TT.Marker='*';
+end
+
+if ~isnan(x_2marked)
+TT2=scatter3(x_2marked,y_2marked,z_2marked,2000,t_2marked,'filled'); 
+TT2.MarkerEdgeColor='red';
+TT2.Marker='*';
+end
 
 
 c=colorbar;
