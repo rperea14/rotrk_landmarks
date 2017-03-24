@@ -7,7 +7,7 @@ function [ rotrk_format ] = rotrk_list2(DIR, PREFIX, SUFFIX, EXT)
 %(by the "_" chracter)
 
 
-roiLIST=dir_wfp2( [DIR filesep PREFIX '*' SUFFIX] );
+roiLIST=dir_wfp2( [DIR filesep PREFIX '*' SUFFIX EXT] );
 for ii=1:numel(roiLIST)
     rotrk_format{ii}.filename=roiLIST(ii);
     FILENAME=strrep(roiLIST(ii), [DIR filesep PREFIX  ],'');

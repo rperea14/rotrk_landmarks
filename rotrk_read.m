@@ -72,8 +72,6 @@ fid    = fopen(filePath, 'r');
 header = get_header(fid);
 
 header.specific_name = specific_name;
-
-
 %/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %Reading the vol_data orientation to find the same orientation...
 if isstruct(vol_data)

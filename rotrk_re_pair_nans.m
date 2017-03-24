@@ -5,7 +5,20 @@ fields_table=fields(unclean_Table);
 if nargin < 3 ; start_after=2 ; end
 
 pair_nan_Table=unclean_Table;
-%INIT cleaned_T
+
+%NaNing the values where no agematched_ids are found
+for ii=1:size(unclean_Table.(agematched_id),1)
+    tmp_size=find(unclean_Table.(agematched_id)==unclean_Table.(agematched_id)(ii));
+    
+    if size(tmp_size,1) ~=2
+        pair_nan_Table(ii,start_after:end)={nan};
+    end
+    clear tmp_size
+end
+
+
+
+%NaNing the values that it's age matched pair is a Nana
 for ii=start_after:size(fields_table,1)-1
     %disp(['in ii: ' num2str(ii) ' ' fields_table(ii)])
     [idx_nan , ~ ] = find (isnan(unclean_Table.(cell2char(fields_table(ii)))));

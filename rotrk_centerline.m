@@ -29,15 +29,31 @@ function [ TRKS_OUT OPT_distance] = rotrk_centerline(TRKS_IN, method, selected_m
 TRKS_OUT.header=TRKS_IN.header;
 TRKS_OUT.header.n_count=1;
 TRKS_OUT.id=TRKS_IN.id;
-TRKS_OUT.filename=TRKS_IN.filename;
+TRKS_OUT.filename=strrep(TRKS_IN.filename,'.trk','_cline.trk');
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 %%%ARGUMENT CHECKING...
 %if selected_metric is not included in the header of the image, sent an
 %error that the scalar does not exist
-if isempty(TRKS_IN.header.scalar_IDs) 
-    error('Make sure that the field TRKS_IN.header.scalar_IDs exists.') 
-    error('Exiting...') ; 
+if ~strcmp(method,'hausdorff')
+    try
+        if ~isempty(TRKS_IN.header.scalar_IDs)
+            %Assigned metric to do the cut....
+            assigned_diffmetric='';
+            assigned_col='';
+            for pp=1:numel(TRKS_IN.header.scalar_IDs)
+                if strcmp(selected_metric,TRKS_IN.header.scalar_IDs(pp))
+                    assigned_diffmetric=TRKS_IN.header.scalar_IDs(pp);
+                    assigned_col=3+pp; %This will assign the column we'll use to describe the method used
+                end
+            end
+            %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            
+        end
+    catch
+        error('Make sure that the field TRKS_IN.header.scalar_IDs exists.')
+        error('Exiting...') ;
+    end
 end
 
 if nargin < 2
@@ -46,16 +62,6 @@ if nargin < 2
     warning('No metric selected as the flag for centerline. Using null (denoting unassigned)');
 end
 
-%Assigned metric to do the cut....
-assigned_diffmetric='';
-assigned_col='';
-for pp=1:numel(TRKS_IN.header.scalar_IDs)
-    if strcmp(selected_metric,TRKS_IN.header.scalar_IDs(pp))
-        assigned_diffmetric=TRKS_IN.header.scalar_IDs(pp);
-        assigned_col=3+pp; %This will assign the column we'll use to describe the method used
-    end
-end
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 %INITIALZING VARIABLES...
 mean_vals=nan(size(TRKS_IN.sstr,2),1);
@@ -70,10 +76,10 @@ if strcmp(method,'hausdorff')
         fprintf([ num2str(kk) ' '])
         if ~mod(kk,20) ; fprintf('\n'); end
         for ii=1:numel(TRKS_IN.sstr);
-            hasdist1{kk}{ii}=ModHausdorffDist(TRKS_IN.sstr(kk).matrix,TRKS_IN.sstr(ii).matrix);
+           hasdist1{kk}{ii}=rotrk_get_distance_HDorff(TRKS_IN.sstr(kk).matrix,TRKS_IN.sstr(ii).matrix);
         end
         
-        AA(kk)=ModHausdorffDist(TRKS_IN.sstr(kk).matrix,TRKS_IN.sstr(1).matrix);
+        AA(kk)=rotrk_get_distance_HDorff(TRKS_IN.sstr(kk).matrix,TRKS_IN.sstr(1).matrix);
         nstr1(kk)=TRKS_IN.sstr(kk).nPoints;
         %[max1 idx_max1 ] = m ax(hasdist1);
         %[min1 idx_min1 ] = min(hasdist1);
@@ -83,7 +89,7 @@ if strcmp(method,'hausdorff')
     for jj=1:numel(hasdist1)
         mean_dist1(jj)=mean(cell2mat(hasdist1{jj}));
     end
-    %Select the streamline whose Hausdorff distance is the lowers
+    %Select the streamline whose Hausdorff distance is the lowest
     [mindist1 idx_mindist1 ] = min(mean_dist1);
     idx=idx_mindist1;    
 else
