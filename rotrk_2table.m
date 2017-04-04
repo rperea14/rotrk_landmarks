@@ -63,7 +63,7 @@ for ii=1:numel(var_fields.id) % on every SUBJECT
                 var_fields.(cur_numstr_name)(ii,1)=size(varargin_w_TRKS_IN{pp}{jj}.sstr,2);
                 for idx_str=1:size(varargin_w_TRKS_IN{pp}{jj}.sstr,2)
                    %temp_maxlen(idx_str)=varargin_w_TRKS_IN{pp}{jj}.sstr(idx_str).nPoints;
-                   temp_maxlen(idx_str)=norm(varargin_w_TRKS_IN{pp}{jj}.sstr(idx_str).matrix(1,1:3)-varargin_w_TRKS_IN{pp}{jj}.sstr(idx_str).matrix(end,1:3))
+                   temp_maxlen(idx_str)=norm(varargin_w_TRKS_IN{pp}{jj}.sstr(idx_str).matrix(1,1:3)-varargin_w_TRKS_IN{pp}{jj}.sstr(idx_str).matrix(end,1:3));
                 end
                 var_fields.(cur_maxlen_name)(ii,1)=max(temp_maxlen);
                 clear temp_maxlen

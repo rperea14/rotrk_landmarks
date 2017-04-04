@@ -12,27 +12,39 @@ function TRKS_OUT = rotrk_rm_byHDorff(CLINE_IN, TRKS_IN, defparam_TRKS_OUT)
 %       Optional: defparam_TRKS_OUT is an optional parameter used to pass
 %       TRKS_OUT.header and TRKS_OUT.filename information if needed.
 
-if numel(TRKS_IN.sstr) < 5
-    TRKS_OUT=TRKS_IN;
+%Copying defparams
+if nargin >2
+    TRKS_OUT.header=defparam_TRKS_OUT.header;
+    TRKS_OUT.id=defparam_TRKS_OUT.id;
+    TRKS_OUT.filename=defparam_TRKS_OUT.filename;
+end
+
+
+if numel(TRKS_IN.sstr) < 5 %Less than 5 streamlines, so we just copy the TRK_IN to TRKS_OUT
+    TRKS_OUT.header=TRKS_IN.header;
+    TRKS_OUT.id=TRKS_IN.id;
+    TRKS_OUT.sstr=TRKS_IN.sstr;
+    
     disp('In rotrk_rm_byHDorff');
     disp([ TRKS_IN.header.id ' and fiber  ' TRKS_IN.header.specific_name ...
         ' have ' num2str(numel(TRKS_IN.sstr)) '. Copying TRKS_IN to TRKS_OUT']);
 else
     
-    
-    %Init header
-    TRKS_OUT.header=TRKS_IN.header;
-    
-    %Copying defparams
-    if nargin >2
-        TRKS_OUT.header=defparam_TRKS_OUT.header;
-        TRKS_OUT.id=defparam_TRKS_OUT.id;
-        TRKS_OUT.filename=defparam_TRKS_OUT.filename;
-    else
+    if ~isfield(TRKS_OUT,'header')
+    %Init header if no 3 argument was passed (conatining the def params)
         TRKS_OUT.header=TRKS_IN.header;
-        TRKS_OUT.header='noID';
-        TRKS_OUT.filename=['./trk_rmbylen_' TRKS_IN.header.id];
     end
+    
+    if ~isfield(TRKS_OUT,'id') %same for id 
+        TRKS_OUT.id=TRKS_IN.id
+    end
+    
+    if ~isfield(TRKS_OUT,'id') %same for filename. The name will change
+       TRKS_OUT.filename=['./trk_rmbyHDorff_' TRKS_IN.header.id 'nodefparams.trk' ];
+    end
+    
+    
+    
     
     %Compute the modified Hausdorff distance
     for ii=1:numel(TRKS_IN.sstr)

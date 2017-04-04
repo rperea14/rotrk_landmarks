@@ -25,6 +25,9 @@ TRKS_OUT.header=TRKS_IN.header;
 TRKS_OUT.id=TRKS_IN.id;
 TRKS_OUT.filename=TRKS_IN.filename;
 TRKS_OUT.sstr=TRKS_IN.sstr;
+if isfield(TRKS_IN,'trk_name')
+    TRKS_OUT.trk_name=TRKS_IN.trk_name;
+end
 %~~~> NOT YET AS IT WILL CHANGE BASED ON DUPLICATE COORDINATES --> TRKS_OUT.sstr=TRKS_IN.sstr;
 %~~~
 

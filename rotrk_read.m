@@ -19,6 +19,7 @@ function [tract_out] = rotrk_read(filePath, identifier, vol_data_untyped,specifi
 % Outputs:
 %    tract
 %           tract.header - Header information from .trk file [struc]
+%           tract.trk_name - (field will pass what specific_name is...)
 %           tract.sstr - tract data structure array [1 x ntracts]
 %           tract.sstr.nPoints - # of points in each streamline
 %           tract.sstr.matrix  - XYZ coordinates (in mm) and associated scalars [nPoints x 3+nScalars]
@@ -49,7 +50,7 @@ if iscell(identifier) ; identifier=cell2char(identifier); end
 
 %TRKS.trk.gz
 [ ro_dirpath, ro_filename, ro_ext ] = fileparts(filePath);
-if strcmp(ro_ext,'.gz') 
+if strcmp(ro_ext,'.gz')
     disp(['Gunzipping...' filePath ]);
     system([ 'gunzip ' filePath] );
     filePath=[ro_dirpath ro_filename ];
@@ -57,7 +58,7 @@ end
 
 [ ronii_dirpath, ronii_filename, ronii_ext ] = fileparts(cell2char(vol_data.filename));
 %VOLDATA.nii.gz
-if strcmp(ronii_ext,'.gz') 
+if strcmp(ronii_ext,'.gz')
     disp(['Gunzipping...' vol_data.filename ]);
     system([ 'gunzip ' cell2char(vol_data.filename) ] );
     vol_data.filename=[ronii_dirpath filesep ronii_filename ];
@@ -75,12 +76,12 @@ header.specific_name = specific_name;
 %/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %Reading the vol_data orientation to find the same orientation...
 if isstruct(vol_data)
-    if iscell(vol_data.filename) 
-        tmp_vol=spm_vol(cell2char(vol_data.filename)); 
+    if iscell(vol_data.filename)
+        tmp_vol=spm_vol(cell2char(vol_data.filename));
     else
-        tmp_vol=spm_vol(vol_data.filename); 
+        tmp_vol=spm_vol(vol_data.filename);
     end
-        
+    
 else
     tmp_vol=spm_vol(vol_data);
 end
@@ -101,13 +102,13 @@ if ~(abs(tmp_vol.mat(1,1) - header.vox_to_ras(1,1))) < tolerance
     %warning('Volume matrix in the x coordinate is not equal to the trk matrix. Flipping to fit same orientation')
     %warning('Double check orientation after using this!')
     %flag_x=-1;
- 
+    
 end
 
 if ~(abs(tmp_vol.mat(2,2) - header.vox_to_ras(2,2))) < tolerance
     %warning('Volume matrix in the y coordinate is not equal to the trk matrix. Flipping to fit same orientation')
     %warning('Double check orientation after using this!')
-%    flag_y=-1;
+    %    flag_y=-1;
     warn=1;
 end
 
@@ -115,12 +116,12 @@ if ~(abs(tmp_vol.mat(3,3) - header.vox_to_ras(3,3)) < tolerance)
     warn=1;
     warning('Volume matrix in the z coordinate is not equal to the trk matrix. Flipping to fit same orientation')
     warning('Double check orientation after using this!')
-%    flag_z=-1;
+    %    flag_z=-1;
 end
 
 if warn==1
-   % warning('Volume matrix in the xyz coordinate is not equal to the trk matrix. Flipping to fit same orientation')
-   % warning('Double check orientation after using this!')
+    % warning('Volume matrix in the xyz coordinate is not equal to the trk matrix. Flipping to fit same orientation')
+    % warning('Double check orientation after using this!')
 end
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~/
 
@@ -236,7 +237,7 @@ header.voxel_order=header.voxel_order;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %GZIPPING BACK IF NEEDED:
-if strcmp(ro_ext,'.gz') 
+if strcmp(ro_ext,'.gz')
     disp(['gzipping now...' filePath ])
     system(['gzip ' filePath] )
     filePath=[ filePath '.gz' ];
@@ -252,7 +253,9 @@ tract_out.header=header;
 %%These should be of a 'char' type:
 tract_out.filename=fullfile(filePath);
 tract_out.id=identifier;
-
+if ~strcmp(specific_name,'none')
+    tract_out.trk_name=specific_name;
+end
 for ii=1:size(tracts,2)
     pos=round(tracts(ii).matrix(:,1:3) ./ repmat(header.voxel_size, tracts(ii).nPoints,1));
     %pos=pos+1;
@@ -260,30 +263,30 @@ for ii=1:size(tracts,2)
     posnew_idx=0;
     
     %WITHOUT REMOVING DUPLICATES:
-%     tract_out.sstr(ii).matrix(:,1:3)=tracts(ii).matrix(:,1:3);
-%     tract_out.sstr(ii).vox_coord(:,1:3)=pos(:,1:3);
+    tract_out.sstr(ii).matrix(:,1:3)=tracts(ii).matrix(:,1:3);
+    tract_out.sstr(ii).vox_coord(:,1:3)=pos(:,1:3);
     
     %REMOVING DUPLICATES:
-    for hh=1:size(pos,1)
-        %Check all subsequent but the last one
-%         if hh~=size(pos,1)
-%             %Check if XYZ are the same coordinates, if so skip the
-%             %coordinate
-%             if ~(pos(hh,1) == pos(hh+1,1) && pos(hh,2) == pos(hh+1,2) && pos(hh,3) == pos(hh+1,3))
-%                 posnew_idx=1+posnew_idx;
-%                 %posnew{ii}(posnew_idx,:)=pos(hh,:);
-%                 tract_out.sstr(ii).matrix(posnew_idx,1:3)=tracts(ii).matrix(hh,1:3);
-%                 tract_out.sstr(ii).vox_coord(posnew_idx,1:3)=pos(hh,1:3);
-%             end
-%         else
-            %Copying the last value...(if equal to previous, the
-            %previous if statment will take care of it)
-            posnew_idx=1+posnew_idx;
-            %posnew{ii}(posnew_idx,:)=pos(hh,:);
-            tract_out.sstr(ii).matrix(posnew_idx,1:3)=tracts(ii).matrix(hh,1:3);
-            tract_out.sstr(ii).vox_coord(posnew_idx,1:3)=pos(hh,1:3);
-%        end
-    end
+    %    for hh=1:size(pos,1)
+    %Check all subsequent but the last one
+    %         if hh~=size(pos,1)
+    %             %Check if XYZ are the same coordinates, if so skip the
+    %             %coordinate
+    %             if ~(pos(hh,1) == pos(hh+1,1) && pos(hh,2) == pos(hh+1,2) && pos(hh,3) == pos(hh+1,3))
+    %                 posnew_idx=1+posnew_idx;
+    %                 %posnew{ii}(posnew_idx,:)=pos(hh,:);
+    %                 tract_out.sstr(ii).matrix(posnew_idx,1:3)=tracts(ii).matrix(hh,1:3);
+    %                 tract_out.sstr(ii).vox_coord(posnew_idx,1:3)=pos(hh,1:3);
+    %             end
+    %         else
+    %Copying the last value...(if equal to previous, the
+    %            %previous if statment will take care of it)
+    posnew_idx=1+posnew_idx;
+    %posnew{ii}(posnew_idx,:)=pos(hh,:);
+    %           tract_out.sstr(ii).matrix(posnew_idx,1:3)=tracts(ii).matrix(hh,1:3);
+    %           tract_out.sstr(ii).vox_coord(posnew_idx,1:3)=pos(hh,1:3);
+    %        end
+    %end
     % "END CHECKING FOR DUPLICATES
     tract_out.sstr(ii).nPoints=size(tract_out.sstr(ii).matrix,1);
 end
