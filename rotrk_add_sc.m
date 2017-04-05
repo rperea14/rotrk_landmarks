@@ -25,11 +25,19 @@ TRKS_OUT.header=TRKS_IN.header;
 TRKS_OUT.id=TRKS_IN.id;
 TRKS_OUT.filename=TRKS_IN.filename;
 TRKS_OUT.sstr=TRKS_IN.sstr;
+
+%Check if other fields exist...
 if isfield(TRKS_IN,'trk_name')
     TRKS_OUT.trk_name=TRKS_IN.trk_name;
 end
-%~~~> NOT YET AS IT WILL CHANGE BASED ON DUPLICATE COORDINATES --> TRKS_OUT.sstr=TRKS_IN.sstr;
-%~~~
+
+if isfield(TRKS_IN,'unique_voxels')
+    TRKS_OUT.unique_voxels=TRKS_IN.unique_voxels;
+end
+
+if isfield(TRKS_IN,'num_uvox')
+    TRKS_OUT.num_uvox=TRKS_IN.num_uvox;
+end
 
 if ischar(vol_input_diffmetric_untyped)
     vol_input_diffmetric.filename={vol_input_diffmetric_untyped};
@@ -104,5 +112,27 @@ for pp=1:size(vol_input_diffmetric,1)
         TRKS_OUT.sstr(ii).nPoints = TRKS_IN.sstr(ii).nPoints;
     end
     
+    
+    %This will occur if TRKS_IN.unique_voxles struct array exist!
+    if isfield(TRKS_IN,'unique_voxels')
+         %**
+        % **For some reason, pos (X Y Z coordinates) are +1 indexed (eg. in
+        %   FSLView the value at 88 80 30 will make pos to have coordinates 89 81 31
+        %   (now in function rotrk_ROIxyz.m, where we get the exact coordinates (and others),
+        %   we get rid of this indexing problem (by -1ing all coordinates) to get the
+        %   correct coordinates. Here pos values don't matter as we only extract the
+        %   values at exact position. Though, it has been checked that values with function
+        %   rotrk_trk2roi.m has the same problem with pos but denote the output needed.
+        %   ***Most likely this is a problem with indexing either starting at 0
+        %   or 1
+        %**
+        pos =TRKS_IN.unique_voxels(:,1:3);
+        pos=pos+1;
+        %%======================================================================
+        % Index into volume to extract scalar values
+        ind                = sub2ind(TRKS_IN.header.dim, pos(:,1), pos(:,2), pos(:,3));
+        cur_scalar             = V_vol(ind);
+        TRKS_OUT.unique_voxels = [TRKS_OUT.unique_voxels, cur_scalar];
+    end
 end
 

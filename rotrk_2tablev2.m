@@ -1,4 +1,4 @@
-function [ myTable cellTable_out ] = rotrk_2table(TRKS_IN, varargin)
+function [ myTable cellTable_out ] = rotrk_2table(TRKS_IN, FA,varargin)
 %function [ myTable  cellTable_out] = rotrk_2table(TRKS_IN, varargin)
 % Self explanatory, it generates a table based on the values given
 % *!! The first hdrs or strs should be longer in size!!
@@ -32,8 +32,10 @@ for pp=1:numel(varargin_w_TRKS_IN) %on every TRKS passed
             trk_name=strrep(trk_name,'-','_');              % will remove the '-' that is invalid for naming purposes
             numstr_varargin_w_TRKS_IN=strcat('numsstr_',trk_name);
             maxlen_varargin_w_TRKS_IN=strcat('maxlen_',trk_name);
+            volume_varargin_w_TRKS_IN=strcat('volume_',trk_name);
             var_fields.(numstr_varargin_w_TRKS_IN)=nan(numel(init_subids),1);
             var_fields.(maxlen_varargin_w_TRKS_IN)=nan(numel(init_subids),1);
+            var_fields.(volume_varargin_w_TRKS_IN)=nan(numel(init_subids),1);
             
             %On every single mask (add diffmetrics:)
             if isfield(TRKS_IN{1}.header,'scalar_IDs')
@@ -47,17 +49,19 @@ for pp=1:numel(varargin_w_TRKS_IN) %on every TRKS passed
         end
         
     else            %values contained within the first TRKS_IN...
-        
         %initializing the names we'll use for each varargin_w_TRKS_IN
         trk_name=strrep(varargin_w_TRKS_IN{pp}{1}.header.specific_name,'trk_','');
         numstr_varargin_w_TRKS_IN=strcat('numsstr_',trk_name);
         maxlen_varargin_w_TRKS_IN=strcat('maxlen_',trk_name);
+        volume_varargin_w_TRKS_IN=strcat('volume_',trk_name);
+
         %Now on every value that makes up the vararing TRKS (e.g. n=42 for L or
         %45 for R)
         
         %number of streamlines passed:
         var_fields.(numstr_varargin_w_TRKS_IN)=nan(numel(varargin_w_TRKS_IN{pp}),1);
         var_fields.(maxlen_varargin_w_TRKS_IN)=nan(numel(varargin_w_TRKS_IN{pp}),1);
+        var_fields.(volume_varargin_w_TRKS_IN)=nan(numel(init_subids),1);
         if isfield(varargin_w_TRKS_IN{pp}{1}.header,'scalar_IDs')
             for kk=1:size(varargin_w_TRKS_IN{pp}{1}.header.scalar_IDs,2)
                 sc_name=cell2char(varargin_w_TRKS_IN{pp}{1}.header.scalar_IDs(kk));
@@ -72,38 +76,53 @@ end
 %NOW WORKING ON varargin_w_TRKS_IN
 for pp=1:numel(varargin_w_TRKS_IN)               %on every TRKS passed
     for jj=1:numel(varargin_w_TRKS_IN{pp})       %on every SUBJECT within a specific TRKS
-        for ii=1:numel(var_fields.id)                        % On every SUBJECT/TRK (from outTable generated locally)
-            trk_name=strrep(varargin_w_TRKS_IN{pp}{jj}.header.specific_name,'trk_','');
-            trk_name=strrep(trk_name,'-','_');              % will remove the '-' that is invalid for naming purposes
-            cur_numstr_name=strcat('numsstr_',trk_name);
-            cur_maxlen_name=strcat('maxlen_',trk_name);
-            if strcmp(varargin_w_TRKS_IN{pp}{jj}.id,var_fields.id{ii});
-                %GETTING THE NUMBER OF STRLINES PASSED:
-                var_fields.(cur_numstr_name)(ii,1)=size(varargin_w_TRKS_IN{pp}{jj}.sstr,2);
-                for idx_str=1:size(varargin_w_TRKS_IN{pp}{jj}.sstr,2)
-                    %temp_maxlen(idx_str)=varargin_w_TRKS_IN{pp}{jj}.sstr(idx_str).nPoints;
-                    temp_maxlen(idx_str)=norm(varargin_w_TRKS_IN{pp}{jj}.sstr(idx_str).matrix(1,1:3) ...
-                        - varargin_w_TRKS_IN{pp}{jj}.sstr(idx_str).matrix(end,1:3));        %using the norm (or euclidean distance btw. first and last point)
-                end
-                [  var_fields.(cur_maxlen_name)(ii,1), idx_max ] =max(temp_maxlen);
-                clear temp_maxlen
-                %DEALING WITH DIFFMETRICS (IF EXIST):
-                if isfield(varargin_w_TRKS_IN{pp}{1}.header,'scalar_IDs')
-                    for kk=1:size(varargin_w_TRKS_IN{pp}{jj}.header.scalar_IDs,2)
-                        sc_name=cell2char(varargin_w_TRKS_IN{pp}{jj}.header.scalar_IDs(kk));
-                        sc_ref=3+kk;
-                        mean_sc_name=strcat('mean',sc_name,'_',trk_name);
-                        
-                        %varargin_w_TRKS_IN{pp}{jj}.header.id
-                        for gg=1:size(varargin_w_TRKS_IN{pp}{jj}.sstr,2) %on every streamline...
-                            temp_avg(gg)=mean(varargin_w_TRKS_IN{pp}{jj}.sstr(end).vox_coord(:,sc_ref));
-                            %
-                        end
-                        var_fields.(mean_sc_name)(ii,1)=mean(temp_avg);
-                        clear temp_avg
-                    end
-                end
+        disp([ 'In ' varargin_w_TRKS_IN{pp}{jj}.id ' ' varargin_w_TRKS_IN{pp}{jj}.header.specific_name ]);
+        clear id_idx;
+        %Getting the index of the id
+        id_idx=getnameidx(var_fields.id,varargin_w_TRKS_IN{pp}{jj}.id);
+        %Not sure why I keep initializing these guys...
+        trk_name=strrep(varargin_w_TRKS_IN{pp}{jj}.header.specific_name,'trk_','');
+        trk_name=strrep(trk_name,'-','_');              % will remove the '-' that is invalid for naming purposes
+        cur_numstr_name=strcat('numsstr_',trk_name);
+        cur_maxlen_name=strcat('maxlen_',trk_name);
+        cur_volume_name=strcat('volume_',trk_name);
+        if strcmp(varargin_w_TRKS_IN{pp}{jj}.id,var_fields.id{id_idx});
+            %GETTING THE NUMBER OF STRLINES PASSED:
+            var_fields.(cur_numstr_name)(id_idx,1)=size(varargin_w_TRKS_IN{pp}{jj}.sstr,2);
+            clear temp_len
+            %Get the streamline length for every streamline:
+            %TODEBUG: tic
+            temp_len=rotrk_get_sstrlength(varargin_w_TRKS_IN{pp}{jj});
+            %TODEBUG: toc
+            [  var_fields.(cur_maxlen_name)(id_idx,1), idx_max ] =max(temp_len);
+            %Get the unique volume (if available)
+            if isfield(varargin_w_TRKS_IN{pp}{jj},'num_uvox')
+                var_fields.(cur_volume_name)(id_idx,1) =varargin_w_TRKS_IN{pp}{jj}.num_uvox;
             end
+            %DEALING WITH DIFFMETRICS (IF EXIST):
+            
+            if isfield(varargin_w_TRKS_IN{pp}{1}.header,'scalar_IDs')
+                for kk=1:size(varargin_w_TRKS_IN{pp}{jj}.header.scalar_IDs,2)
+                    sc_name=cell2char(varargin_w_TRKS_IN{pp}{jj}.header.scalar_IDs(kk));
+                    sc_ref=3+kk;
+                    mean_sc_name=strcat('mean',sc_name,'_',trk_name);
+                    
+                    %varargin_w_TRKS_IN{pp}{jj}.header.id
+                    
+%                      for gg=1:size(varargin_w_TRKS_IN{pp}{jj}.sstr,2) %on every streamline...
+%                          temp_avg(gg)=mean(varargin_w_TRKS_IN{pp}{jj}.sstr(end).vox_coord(:,sc_ref));
+%                          %
+%                      end
+%                    var_fields.(mean_sc_name)(id_idx,1)=mean(temp_avg);
+                    if isfield(varargin_w_TRKS_IN{pp}{jj},'unique_voxels')
+                        var_fields.(mean_sc_name)(id_idx,1)=mean(varargin_w_TRKS_IN{pp}{jj}.unique_voxels(:,sc_ref));
+                    else
+                        error([ varargin_w_TRKS_IN{pp}{jj}.id ' in trk: ' varargin_w_TRKS_IN{pp}{jj}.trk_name ' has no .unique_voxels field'])
+                    end
+                    clear temp_avg
+                end                
+            end
+            
         end
     end
 end
@@ -159,9 +178,9 @@ for ii=1:numel(unique_IDs)
     end
 end
 %Making specific variables categorical:
-spec_field.sex=nominal(spec_field.sex); %(done here so it passes the name when creating the table)
-spec_field.dx=nominal(spec_field.dx);
-spec_field.dx_pse=nominal(spec_field.dx_pse);
+spec_field.sex=categorical(spec_field.sex); %(done here so it passes the name when creating the table)
+spec_field.dx=categorical(spec_field.dx);
+spec_field.dx_pse=categorical(spec_field.dx_pse);
 
 %Making a structure type variable to a table
 outTable=struct2table(spec_field);

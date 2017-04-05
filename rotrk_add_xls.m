@@ -30,6 +30,7 @@ end
 TRKS_OUT=TRKS_IN;
 %Doing the for loop...
 for ii=1:numel(TRKS_OUT)
+   %TODEBUG: disp( num2str(ii))
     for jj=1:numel(xls_struct.id)
         if strcmp(TRKS_OUT{ii}.header.id,xls_struct.id{jj})
             fn=fieldnames(xls_struct);

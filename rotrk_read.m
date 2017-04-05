@@ -290,6 +290,18 @@ for ii=1:size(tracts,2)
     % "END CHECKING FOR DUPLICATES
     tract_out.sstr(ii).nPoints=size(tract_out.sstr(ii).matrix,1);
 end
+
+
+%Get the volume of non-overlapping XYZ vox_coord values
+AA=1;
+all_vox=tract_out.sstr(1).vox_coord ;        %initializing vox_coord
+for ii=2:size(tract_out.sstr,2)
+    all_vox=vertcat(all_vox,tract_out.sstr(ii).vox_coord);
+end
+%s_all_vox=sort(all_vox); %sort if bad! I believe it doesn't freeze the Y
+%and Z columns so no good to do this! 
+tract_out.unique_voxels=unique(all_vox,'rows');
+tract_out.num_uvox=size(tract_out.unique_voxels,1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
