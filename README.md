@@ -1,5 +1,6 @@
 # rotrk_landmarks
-A set of tools to read, write and modify *.trk files from diffusion imaging tractography. 
+A set of tools to read, write and modify *.trk or *.nii files from diffusion imaging tractography. 
+
 
 The *trk file format is explained in detailed here: 
 http://trackvis.org/docs/?subsect=fileformat
