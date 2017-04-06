@@ -13,3 +13,9 @@ The dependencies:
 
 *In Matlab v.2017a
 *There is a bug in spm_vol() making it loop forever when reading a filename when using Matlab 2017a
+
+
+Ideal naming format for the *.trk files:
+
+trk_<METHOD>_<PROJECTID>_<SUBJID>_<TRK_NAME>.trk
+ Example: trk_rmlen_193231_SJIT03437_Fmi.trk
