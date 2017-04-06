@@ -17,7 +17,7 @@ The dependencies:
 
 Ideal naming format for the *.trk files:
 
-trk_\<METHOD>_\<PROJECTID>_\<SUBJID>_\<TRK_NAME>.trk
+trk_\<METHOD>\_\<PROJECTID>_\<SUBJID>_\<TRK_NAME>.trk
 
 Example: 
     trk_rmlen_193231_SJIT03437_Fmi.trk
