@@ -53,7 +53,7 @@ if iscell(identifier) ; identifier=cell2char(identifier); end
 if strcmp(ro_ext,'.gz')
     disp(['Gunzipping...' filePath ]);
     system([ 'gunzip ' filePath] );
-    filePath=[ro_dirpath ro_filename ];
+    filePath=[ro_dirpath filesep ro_filename ];
 end
 
 [ ronii_dirpath, ronii_filename, ronii_ext ] = fileparts(cell2char(vol_data.filename));

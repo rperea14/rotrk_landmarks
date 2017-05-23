@@ -17,6 +17,15 @@ function trk_write(header,tracks,savePath)
 %
 % See also: TRK_READ
 
+[ cur_folder, cur_name, cur_ext ] = fileparts(savePath)
+
+if strcmp(cur_ext,'.gz')
+    if isempty(cur_folder)
+        savePath = [ '.' filesep cur_name ] ;
+    else
+        savePath = [ cur_folder filesep cur_name ] ;
+    end
+end
 
 fid = fopen(savePath, 'w');
 
@@ -77,3 +86,7 @@ for iTrk = 1:header.n_count
 end
 
 fclose(fid);
+
+if strcmp(cur_ext,'.gz')
+    system(['gzip ' savePath ]);
+end

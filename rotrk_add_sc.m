@@ -1,5 +1,5 @@
-function [ TRKS_OUT ] = rotrk_add_sc(TRKS_IN, vol_input_diffmetric_untyped )
-%function [ TRKS_OUT ] = rotrk_add_sc(TRKS_IN,vol_input_diffmetric)
+function [ TRKS_OUT ] = rotrk_add_sc(TRKS_IN, vol_input_diffmetric_untyped,opt )
+%function [ TRKS_OUT ] = rotrk_add_sc(TRKS_IN,vol_input_diffmetric,opt)
 %
 %**Modified from along-tracts. Many issues with coregistering FA to the exact
 %location due to mismatch LR/ assigments or +-1 locations...
@@ -12,8 +12,8 @@ function [ TRKS_OUT ] = rotrk_add_sc(TRKS_IN, vol_input_diffmetric_untyped )
 % Inputs:
 %    TRKS_IN.header - Header information from .trk file [struc]
 %    TRKS_IN.tracts - Tract data struc array [1 x ntracts]
-%    vol_input_diffmetric - Scalar MRI volume to be added into the tract data struct
-%
+%    vol_input_diffmetric_untyprf - Scalar MRI volume to be added into the tract data struct
+%    opt - designates the metric of the vol_input (e.g. FA)
 % Outputs:
 %    TRKS.OUT.header - Updated header
 %    TRKS.OUT.sstr - Updated tracts structure
@@ -41,7 +41,11 @@ end
 
 if ischar(vol_input_diffmetric_untyped)
     vol_input_diffmetric.filename={vol_input_diffmetric_untyped};
-    vol_input_diffmetric.identifier='null';
+    if nargin > 2
+        vol_input_diffmetric.identifier=opt;
+    else
+        vol_input_diffmetric.identifier='null';
+    end
 else
     vol_input_diffmetric=vol_input_diffmetric_untyped;
 end
@@ -58,6 +62,23 @@ if isfield(TRKS_IN.header,'scalar_IDs')
 else
     scalar_count=1;
 end
+
+
+
+%WORKING WITH GZIP NII:
+%IS IT GZIPPED??
+%VOL_INPUT NII:
+[ ronii_dirpath, ronii_filename, ronii_ext ] = fileparts(vol_input_diffmetric.filename{end});
+if strcmp(ronii_ext,'.gz')
+    disp(['Gunzipping...' vol_input_diffmetric.filename{end} ]);
+    system([ 'gunzip ' vol_input_diffmetric.filename{end} ] );
+    vol_input_diffmetric.filename{end} = [ ronii_dirpath filesep ronii_filename ];
+end
+
+
+
+
+
 for pp=1:size(vol_input_diffmetric,1)
     if size(vol_input_diffmetric,1) ==1 
         H_vol= spm_vol(cell2char(vol_input_diffmetric.filename));
@@ -134,5 +155,9 @@ for pp=1:size(vol_input_diffmetric,1)
         cur_scalar             = V_vol(ind);
         TRKS_OUT.unique_voxels = [TRKS_OUT.unique_voxels, cur_scalar];
     end
+end
+
+if strcmp(ronii_ext,'.gz')
+    system([ 'gzip ' vol_input_diffmetric.filename{end} ] );
 end
 

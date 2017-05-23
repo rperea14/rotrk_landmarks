@@ -16,7 +16,7 @@ function TRKS_OUT = rotrk_rm_byHDorff(CLINE_IN, TRKS_IN, defparam_TRKS_OUT)
 if nargin >2
     TRKS_OUT.header=defparam_TRKS_OUT.header;
     TRKS_OUT.id=defparam_TRKS_OUT.id;
-    TRKS_OUT.filename=defparam_TRKS_OUT.filename;
+
 end
 
 
@@ -94,7 +94,16 @@ else
         end
     end
     TRKS_OUT.header.n_count=numel(TRKS_OUT.sstr);
-    
+    %Get the volume of non-overlapping XYZ vox_coord values
+    all_vox=TRKS_OUT.sstr(1).vox_coord ;        %initializing vox_coord
+    for ii=2:size(TRKS_OUT.sstr,2)
+        all_vox=vertcat(all_vox,TRKS_OUT.sstr(ii).vox_coord);
+    end
+    %s_all_vox=sort(all_vox); %sort if bad! I believe it doesn't freeze the Y
+    %and Z columns so no good to do this!
+    TRKS_OUT.unique_voxels=unique(all_vox,'rows');
+    TRKS_OUT.num_uvox=size(TRKS_OUT.unique_voxels,1);
+    TRKS_OUT.trk_name=[ 'cleanHDorff_' TRKS_IN.trk_name ] ;
 end
 
 

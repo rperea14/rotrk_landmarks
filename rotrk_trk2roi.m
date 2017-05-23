@@ -60,6 +60,25 @@ if nargin < 7
 end
 %~~~~~~~~~~end of checking variables initialization~~~~~~~~
  
+%IS IT GZIPPED??
+%VOL_INPUT NII:
+[ ronii_dirpath, ronii_filename, ronii_ext ] = fileparts(vol_input);
+if strcmp(ronii_ext,'.gz')
+    disp(['Gunzipping...' vol_input ]);
+    system([ 'gunzip ' vol_input ] );
+    vol_input = [ ronii_dirpath filesep ronii_filename ];
+end
+
+%ROI_NAME:
+[ roii_folder, roii_name, roii_ext ] = fileparts(roi_name);
+if strcmp(roii_ext,'.gz')
+    if isempty(roii_folder)
+        roi_name = [ '.' filesep roii_name ] ;
+    else
+        roi_name = [ roii_folder filesep roii_name ] ;
+    end
+end
+
  
 %CHECKING STRUCTURE TYPE FOR vol_input
 if isstruct(vol_input)
@@ -131,6 +150,17 @@ else
    if ~isempty(find(new_ROI_R==1)) ;  local_write_filename(H_vol,new_ROI_R, 1,roi_name,'.nii','_R.nii'); end
 end
 display(' ');
+
+
+
+%GZIP ISSUES:
+if strcmp(roii_ext,'.gz')
+   system(['gzip ' roi_name ] )
+end
+if strcmp(ronii_ext,'.gz')
+    system([ 'gzip ' vol_input ] );
+end
+
  
 %%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
@@ -238,5 +268,5 @@ try
 catch
     error('Cannot save the file. *Make sure *.nii is added as the roi_name! Is SPM installed?')
 end
-%~~~~~~~~~~~~~~~~~~~~~~END OF FUNCTION
+%~~~~~~~~~~~~~~~~~~~~~~END OF LOCAL FUNCTION
 %write_filename~~~~~~~~~~~~~~~~~~~~~~
