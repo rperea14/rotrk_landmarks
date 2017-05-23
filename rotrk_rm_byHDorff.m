@@ -79,11 +79,13 @@ else
     
     %Finding the 5th and 95th percentile:
     percntiles=prctile(sort_hdorff, [5 95] );
+    %percntiles=prctile(sort_hdorff, [5 95] );
     
     %For loop to remove  values that are beyond the 5th and 95th percentile
     newidx=1;
     for ii=1:numel(sort_hdorff)
-        if sort_hdorff(ii) > percntiles(1) && sort_hdorff(ii) < percntiles(2)
+      %  if sort_hdorff(ii) > percntiles(1)  sort_hdorff(ii) < percntiles(2)
+      if  sort_hdorff(ii) < percntiles(2)
             %Allocating the corresponding values:
             TRKS_OUT.sstr(newidx).matrix=TRKS_IN.sstr(sort_hdorffidx(ii)).matrix;
             TRKS_OUT.sstr(newidx).vox_coord=TRKS_IN.sstr(sort_hdorffidx(ii)).vox_coord;

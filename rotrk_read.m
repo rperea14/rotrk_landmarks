@@ -262,32 +262,23 @@ for ii=1:size(tracts,2)
     %CHECKING FOR DUPLICATED:"
     posnew_idx=0;
     
+    %REPLACE <1 index values with the lowest voxel space value (e.g. 1)
+    neg_pos=find(pos<1) ; for gg=1:numel(neg_pos); pos(neg_pos(gg))=1 ; end
+    
+    %Same replacing but for extreme values (based of header.dim(x/y/z)
+    extreme_x=find(pos>=header.dim(1)) ; for gg=1:numel(extreme_x); pos(extreme_x(gg))=header.dim(1) ; end
+    extreme_y=find(pos>=header.dim(2)) ; for gg=1:numel(extreme_y); pos(extreme_y(gg))=header.dim(2) ; end
+    extreme_z=find(pos>=header.dim(3)) ; for gg=1:numel(extreme_z); pos(extreme_z(gg))=header.dim(3) ; end
+    
     %WITHOUT REMOVING DUPLICATES:
     tract_out.sstr(ii).matrix(:,1:3)=tracts(ii).matrix(:,1:3);
     tract_out.sstr(ii).vox_coord(:,1:3)=pos(:,1:3);
     
-    %REMOVING DUPLICATES:
-    %    for hh=1:size(pos,1)
-    %Check all subsequent but the last one
-    %         if hh~=size(pos,1)
-    %             %Check if XYZ are the same coordinates, if so skip the
-    %             %coordinate
-    %             if ~(pos(hh,1) == pos(hh+1,1) && pos(hh,2) == pos(hh+1,2) && pos(hh,3) == pos(hh+1,3))
-    %                 posnew_idx=1+posnew_idx;
-    %                 %posnew{ii}(posnew_idx,:)=pos(hh,:);
-    %                 tract_out.sstr(ii).matrix(posnew_idx,1:3)=tracts(ii).matrix(hh,1:3);
-    %                 tract_out.sstr(ii).vox_coord(posnew_idx,1:3)=pos(hh,1:3);
-    %             end
-    %         else
-    %Copying the last value...(if equal to previous, the
-    %            %previous if statment will take care of it)
+    %REMOVING DUPLICATES CODE WAS REMOVED AND REPLACED WITH:
+    %~~~~> tract_out.unique_voxels and tract_out.num_uvox
+    
+    
     posnew_idx=1+posnew_idx;
-    %posnew{ii}(posnew_idx,:)=pos(hh,:);
-    %           tract_out.sstr(ii).matrix(posnew_idx,1:3)=tracts(ii).matrix(hh,1:3);
-    %           tract_out.sstr(ii).vox_coord(posnew_idx,1:3)=pos(hh,1:3);
-    %        end
-    %end
-    % "END CHECKING FOR DUPLICATES
     tract_out.sstr(ii).nPoints=size(tract_out.sstr(ii).matrix,1);
 end
 

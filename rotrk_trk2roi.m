@@ -113,9 +113,11 @@ for ii = 1:numel(tracts)
     pos=tracts(ii).vox_coord;
     pos=pos+1;
     %DUE TO INDEXING ISSUES STARTING AT 1 or 0...
-
-    %pos = ceil(tracts(ii).matrix(:,1:3) ./ repmat(header.voxel_size, tracts(ii).nPoints,1));
-
+    %Same replacing but for extreme values (based of header.dim(x/y/z)
+    extreme_x=find(pos>header.dim(1)) ; for gg=1:numel(extreme_x); pos(extreme_x(gg))=header.dim(1) ; end
+    extreme_y=find(pos>header.dim(2)) ; for gg=1:numel(extreme_y); pos(extreme_y(gg))=header.dim(2) ; end
+    extreme_z=find(pos>header.dim(3)) ; for gg=1:numel(extreme_z); pos(extreme_z(gg))=header.dim(3) ; end
+    
     %disp([ 'in ii: ' num2str(ii)]); 
     switch split
         case 'no_split'  %No unilateral split...
@@ -200,36 +202,6 @@ else    %Else apply some sort of splitting...
     ind_bil_or_L=nan;
     flag_notR=0;
     flag_notL=0;
-    
-    %Initial split
-    %check what happens if they start in the same position....
-    
-    %###DEBUGGING CODE
-    %     pos(1:5,:)
-    %     pos(end-5:end,:)
-    %     AA=1
-    %##END OF DEBUGGING CODE
-    %     if pos(1,cut_label) <= split_value % || pos(end,cut_label) < split_value
-    %         for jj=2:size(pos,1)
-    %             if pos(jj,cut_label)-tolerance > split_slice(cut_label)
-    %                 flag_notR=1;
-    %             end
-    %         end
-    %         %If none go to the other hemisphere, then return a number of idxs
-    %         if ~flag_notR
-    %             ind_R= sub2ind(header.dim, pos(:,1), pos(:,2), pos(:,3));
-    %         end
-    %     else % pos(1,cut_label) >= split_value % || pos(end,cut_label) > split_value )
-    %         for jj=2:size(pos,1)
-    %             if pos(jj,cut_label)+tolerance < split_slice(cut_label)
-    %                 flag_notL=1;
-    %             end
-    %         end
-    %         %If none go to the other hemisphere, then return a number of idxs
-    %         if ~flag_notL
-    %             ind_bil_or_L = sub2ind(header.dim, pos(:,1), pos(:,2), pos(:,3));
-    %         end
-    %     end
     
     for jj=2:size(pos,1)
         if pos(jj,cut_label)-tolerance > split_value(cut_label)%split_slice(cut_label)

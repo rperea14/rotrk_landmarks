@@ -121,6 +121,10 @@ for pp=1:size(vol_input_diffmetric,1)
         % Translate continuous vertex coordinates into discrete voxel coordinates
         pos =TRKS_IN.sstr(ii).vox_coord(:,1:3);
         pos=pos+1;
+        %Same replacing but for extreme values (based of header.dim(x/y/z)
+        extreme_x=find(pos>=TRKS_IN.header.dim(1)) ; for gg=1:numel(extreme_x); pos(extreme_x(gg))=TRKS_IN.header.dim(1) ; end
+        extreme_y=find(pos>=TRKS_IN.header.dim(2)) ; for gg=1:numel(extreme_y); pos(extreme_y(gg))=TRKS_IN.header.dim(2) ; end
+        extreme_z=find(pos>=TRKS_IN.header.dim(3)) ; for gg=1:numel(extreme_z); pos(extreme_z(gg))=TRKS_IN.header.dim(3) ; end
         
         %%======================================================================
         % Index into volume to extract scalar values
@@ -149,6 +153,10 @@ for pp=1:size(vol_input_diffmetric,1)
         %**
         pos =TRKS_IN.unique_voxels(:,1:3);
         pos=pos+1;
+        %Same replacing but for extreme values (based of header.dim(x/y/z)
+        extreme_x=find(pos>=TRKS_IN.header.dim(1)) ; for gg=1:numel(extreme_x); pos(extreme_x(gg))=TRKS_IN.header.dim(1) ; end
+        extreme_y=find(pos>=TRKS_IN.header.dim(2)) ; for gg=1:numel(extreme_y); pos(extreme_y(gg))=TRKS_IN.header.dim(2) ; end
+        extreme_z=find(pos>=TRKS_IN.header.dim(3)) ; for gg=1:numel(extreme_z); pos(extreme_z(gg))=TRKS_IN.header.dim(3) ; end
         %%======================================================================
         % Index into volume to extract scalar values
         ind                = sub2ind(TRKS_IN.header.dim, pos(:,1), pos(:,2), pos(:,3));
