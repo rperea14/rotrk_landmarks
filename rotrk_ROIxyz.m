@@ -42,9 +42,12 @@ V_vol=spm_read_vols(H_vol);
 
 ind=find(V_vol>0);
 [ x y z ]  = ind2sub(size(V_vol),ind);
-tmp_xyz = [ x-1 y-1 z-1 ones(numel(x),1) ] ;
+%Verified and Oked on 4/18/17 by RDP20:
+%All in Voxel coordinate space:
+tmp_xyz = [ x y z ];
+roi_xyz.vox_coord = tmp_xyz-1; %Dealing with the 0 vs. 1 index
 
-roi_xyz.value =abs(tmp_xyz*mat2);
-%roi_xyz.value =tmp_xyz;
 
-roi_xyz.value=roi_xyz.value(:,1:3);
+tmp2_xyz = [ x-1 y-1 z-1 ones(numel(x),1) ] ;
+additional_step = abs(tmp2_xyz*mat2);
+roi_xyz.trk_coord = additional_step(:,1:3);

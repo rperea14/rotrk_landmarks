@@ -34,7 +34,7 @@ if nargin <2 ; plot_color=''; end
 if nargin <3 ; sortedby=''; end
 if nargin <4 ; dx=''; end
 
-if nargin < 3  %ONLY A SINGLE PLOT CONFIGURATION
+if nargin < 3   %ONLY A SINGLE PLOT CONFIGURATION
     n_plots=numel(TRKS_IN);
     n_subplots=ceil(n_plots/9); %e.g. for 23 values, we need at least 3 subplots (9x9x5)
     %~~~end of checking # of plots needed.
@@ -225,7 +225,8 @@ for numtrks = 1:size(single_TRKS_IN.sstr,2)
             end
         case 'r'
             plot3(matrix(:,1), matrix(:,2), matrix(:,3),'r')
-    
+        case '.'
+            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'.')
         case 'rr'
             plot3(matrix(:,1), matrix(:,2), matrix(:,3),'r')
         case 'r.'
@@ -336,17 +337,22 @@ if strcmp(what_plot,'1st')
             end
         end
         if strcmp(varargin{1}{ii},'add_roi')
+            for sd=1:numel(varargin{1}{ii+1}) IDs_var(sd)=varargin{1}{ii+1}{sd}.id; end
             try
+                yy=getnameidx(IDs_var,subjid);
                 %the follow up argument will tell you what to add...
-                for yy=1:numel(varargin{1}{ii+1})
-                    if strcmp(varargin{1}{ii+1}{yy}.id,subjid)
-                        color_roi=varargin{1}{ii+1}{yy}.plot_params.color;
-                        plot3(varargin{1}{ii+1}{yy}.value(:,1),varargin{1}{ii+1}{yy}.value(:,2),...
-                            varargin{1}{ii+1}{yy}.value(:,3),color_roi,'markersize',40)
-                    end
-                end
+                %
+                %                 for yy=1:numel(varargin{1}{ii+1})
+                %                     if strcmp(varargin{1}{ii+1}{yy}.id,subjid)
+                color_roi=varargin{1}{ii+1}{yy}.plot_params.color;
+                plot3(varargin{1}{ii+1}{yy}.trk_coord(:,1),varargin{1}{ii+1}{yy}.trk_coord(:,2),...
+                    varargin{1}{ii+1}{yy}.trk_coord(:,3),color_roi,'markersize',40)
+%                     end
+%                 end
             catch
-                error('error when adding the add_roi option. Have you added a 2nd argument?');
+                disp('Error when adding the add_roi option. Have you added a 2nd argument?');
+                disp('Maybe you dont have a TRK for this instance (if so, disregards');
+                
             end
         end
         if strcmp(varargin{1}{ii},'orientation')

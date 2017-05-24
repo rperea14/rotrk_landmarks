@@ -1,8 +1,8 @@
-function [ t_val_R, p_val_R, t_val_L, p_val_L ] = rotrk_localized_stats2(diffmetric, ref_id, identifier, TRKS_IN_R, TRKS_IN_L)
-%function [ t_val_R, p_val_R, t_val_L, p_val_R ] = rotrk_localized_stats2(diffmetric, ref_id, identifier, TRKS_IN_R, TRKS_IN_L)
+function [ MYTRKS, t_val_R, p_val_R, t_val_L, p_val_L ] = rotrk_localized_stats(diffmetric, ref_id, identifier, TRKS_IN_R, TRKS_IN_L,TBL_IN,formula, plotting)
+%function [ MYTRKS, t_val_R, p_val_R, t_val_L, p_val_L ] = rotrk_localized_stats(diffmetric, ref_id, identifier, TRKS_IN_R, TRKS_IN_L,TBL_IN,formula, plotting)
 %Goal: To plot are retrieved the mean values of a centerline
 %Input:
-%       diffmetric  : diffmetric to be used (e.g. 'GFA' or 'NQA1' or etc.
+%       diffmetric  : diffmetric to be used (e.g. 'FA' or 'GFA' or 'NQA1' or etc.
 %                     *Info should be a 4/5/6th column in the sstr.matrix
 %       ref_id      : id used as a reference for plotting
 %       identifier  : tells you how to split the data (e.g. "dx" for NCvsAD)
@@ -10,7 +10,10 @@ function [ t_val_R, p_val_R, t_val_L, p_val_L ] = rotrk_localized_stats2(diffmet
 %       TRKS_IN_L   : TRKS_IN of interest for left and right locations)
 %                ***TRKS_IN_R should be the larger in size (not
 %                  *necessary the right side!
-%
+%       TBL_IN      : TABLE to input values
+%       formula     : (defaults) [ '1 + ' identifier  ]formula to use based on the linear model
+%       plotting    : (default) 'yes' - plots the value. 
+%                               'no'  - does not plot.
 %
 %Created by Rodrigo Perea, rpereacamargo@mgh.harvard.edu
 
@@ -23,7 +26,13 @@ if nargin < 4
     warning('Using only onse header and strline list. Probably unilateral results?')
 end
 
+if nargin < 7 
+    formula = [' 1 + ' identifier ] ;
+end
 
+if nargin < 8
+    plotting = 'yes';
+end
 
 %CODE IMPLEMENTATION STARTS HERE:
 
@@ -47,13 +56,16 @@ end
 [ TRKS_L_NC TRKS_L_AD ] = local_check_age_matched(TRKS_L_NC_tmp, TRKS_L_AD_tmp) ;
 [ TRKS_R_NC TRKS_R_AD ] = local_check_age_matched(TRKS_R_NC_tmp, TRKS_R_AD_tmp) ;
 
+MYTRKS.L_CLINE = [ TRKS_L_NC TRKS_L_AD ];
+MYTRKS.R_CLINE = [ TRKS_R_NC TRKS_R_AD ];
+
 %NOW GENERATE A TABLE PER EACH POINT:
-[ theTable_L, nTableL ] = local_gen_tables(TRKS_L_NC , TRKS_L_AD, diffmetric);
-[ theTable_R, nTableR ] = local_gen_tables(TRKS_R_NC , TRKS_R_AD, diffmetric);
+[ theTable_L, nTableL ] = local_gen_tables(TRKS_L_NC , TRKS_L_AD, diffmetric, TBL_IN );
+[ theTable_R, nTableR ] = local_gen_tables(TRKS_R_NC , TRKS_R_AD, diffmetric, TBL_IN );
 
 %CREATING fitlm and retrieve the p_values and t-stats
-[ p_val_L, t_val_L ] = local_get_stats(theTable_L, nTableL, diffmetric);
-[ p_val_R, t_val_R ] = local_get_stats(theTable_R, nTableR, diffmetric);
+[ p_val_L, t_val_L ] = local_get_stats(theTable_L, nTableL, diffmetric,'L',formula);
+[ p_val_R, t_val_R ] = local_get_stats(theTable_R, nTableR, diffmetric,'R',formula );
 
 %FOR NEGATIVITY, LETS ABSOLUTE THE T VALUES
 t_val_L=abs(t_val_L);
@@ -88,60 +100,61 @@ for ii=1:numel(t_val_L)
 end
 
 %PLOTTING NOW....
-figure
-hold on
-%Plotting the values now...
-tomaxmin=[ t_val_R t_val_L];
-mincolor=median(tomaxmin)-std(tomaxmin);
-maxcolor=median(tomaxmin)+std(tomaxmin);
-
-HH=scatter3(xref_R,yref_R,zref_R,2000,t_val_R,'filled');
-%t_2(10:30)=-200 --> Checkin which side is left and/or right
-HH2=scatter3(xref_L,yref_L,zref_L,2000,t_val_L,'filled');
-
-
-%RED ASTERISK BEING PLOTTED
-if ~isnan(x_1marked)
-TT=scatter3(x_1marked,y_1marked,z_1marked,2000,t_1marked,'filled'); %T-vals above significance!
-TT.MarkerEdgeColor='red';
-TT.Marker='*';
+if strcmp(plotting,'yes')
+    figure
+    hold on
+    %Plotting the values now...
+    tomaxmin=[ t_val_R t_val_L];
+    mincolor=median(tomaxmin)-std(tomaxmin);
+    maxcolor=median(tomaxmin)+std(tomaxmin);
+    
+    HH=scatter3(xref_R,yref_R,zref_R,2000,t_val_R,'filled');
+    %t_2(10:30)=-200 --> Checkin which side is left and/or right
+    HH2=scatter3(xref_L,yref_L,zref_L,2000,t_val_L,'filled');
+    
+    
+    %RED ASTERISK BEING PLOTTED
+    if ~isnan(x_1marked)
+        TT=scatter3(x_1marked,y_1marked,z_1marked,2000,t_1marked,'filled'); %T-vals above significance!
+        TT.MarkerEdgeColor='red';
+        TT.Marker='*';
+    end
+    
+    if ~isnan(x_2marked)
+        TT2=scatter3(x_2marked,y_2marked,z_2marked,2000,t_2marked,'filled');
+        TT2.MarkerEdgeColor='red';
+        TT2.Marker='*';
+    end
+    
+    
+    c=colorbar;
+    c.Label.String = diffmetric;
+    colormap('parula') %can try jet as well
+    %caxis([mincolor maxcolor ])
+    caxis([0 2.5 ]);
+    title( [ 'T-values for ' diffmetric ],'fontsize',30 );
+    %xlim([100 160]) ; ylim([110 160]) ; zlim([55 85]) ;
+    
+    view(43,10)
+    %view(-45,14) %or view(45,14)
+    % view(51,8) or view(51,-8)
+    %set(c,'YTick',[2.02])
+    
+    %%Removing the axis but keeping other variables..
+    hFig=gcf;
+    color = get(hFig,'Color');
+    set(gca,'XColor',color,'YColor',color,'Zcolor',color,'TickDir','out');
+    set(gca,'FontSize',24)
+    %Removing XYZ units...
+    set(gca,'XTickLabelMode','Manual') ; set(gca,'YTickLabelMode','Manual') ; set(gca,'ZTickLabelMode','Manual')
+    
+    % %Adding lateral view
+    % text(xref_L(end)+5,yref_L(end)+5,zref_L(end) ,'Left','fontsize',20 );
+    % text(xref_R(end)+5,yref_R(end)+5,zref_R(end)-3 ,'Right','fontsize',20 );
+    
+    %Some verifications....
+    hold off
 end
-
-if ~isnan(x_2marked)
-TT2=scatter3(x_2marked,y_2marked,z_2marked,2000,t_2marked,'filled'); 
-TT2.MarkerEdgeColor='red';
-TT2.Marker='*';
-end
-
-
-c=colorbar;
-c.Label.String = diffmetric;
-colormap('parula') %can try jet as well
-%caxis([mincolor maxcolor ])
-caxis([0 2.5 ]);
-title( [ 'T-values for ' diffmetric ],'fontsize',30 );
-%xlim([100 160]) ; ylim([110 160]) ; zlim([55 85]) ; 
-
-view(43,10)
-%view(-45,14) %or view(45,14)
-% view(51,8) or view(51,-8)
-%set(c,'YTick',[2.02])
-
-%%Removing the axis but keeping other variables..
-hFig=gcf;
-color = get(hFig,'Color');
-set(gca,'XColor',color,'YColor',color,'Zcolor',color,'TickDir','out');
-set(gca,'FontSize',24)
-%Removing XYZ units...
-set(gca,'XTickLabelMode','Manual') ; set(gca,'YTickLabelMode','Manual') ; set(gca,'ZTickLabelMode','Manual')
-
-% %Adding lateral view
-% text(xref_L(end)+5,yref_L(end)+5,zref_L(end) ,'Left','fontsize',20 );
-% text(xref_R(end)+5,yref_R(end)+5,zref_R(end)-3 ,'Right','fontsize',20 );
-
-%Some verifications....
-hold off
-
 %%#########################################################################
 %%##################LOCAL FUNCTIONS START HERE: ###########################
 
@@ -191,7 +204,7 @@ end
 
 %#########################
 %FUNCTION local_gen_tables:
-function [ table_out, num_points ] = local_gen_tables(TRKS_IN_NC , TRKS_IN_AD, diffmetric)
+function [ table_out, num_points ] = local_gen_tables(TRKS_IN_NC , TRKS_IN_AD, diffmetric, TABLE_IN)
 table_out={''};
 
 %MERGING BOTH TRACTS:
@@ -223,15 +236,41 @@ for ii=1:num_points
         cur_table.(cur_diffmetric)(jj,1)=ALL_TRKS{jj}.sstr.vox_coord(ii,diff_cc);
     end
 end
+%Values from the other table...
+for ii=1:size(TABLE_IN.id,1)
+    ttt.id{ii}=TABLE_IN.id{ii};
+end
+ttt.id=ttt.id';
+ttt.Lvvol=TABLE_IN.vvol_fx_dotfimbriaR;
+ttt.Rvvol=TABLE_IN.vvol_fx_dotfimbriaR;
+
+%COMBINING BOTH TABLES
+for jj=1:size(cur_table.id,1)
+    clear cur_idx
+    cur_idx=getnameidx(ttt.id,cur_table.id{jj});
+    
+    cur_table.vvol_fx_dotfimbriaL(jj)=ttt.Lvvol(cur_idx);
+    cur_table.vvol_fx_dotfimbriaR(jj)=ttt.Rvvol(cur_idx);
+end
+
+cur_table.vvol_fx_dotfimbriaL=cur_table.vvol_fx_dotfimbriaL';
+cur_table.vvol_fx_dotfimbriaR=cur_table.vvol_fx_dotfimbriaR';
+
+
 table_out=struct2table(cur_table);
 
 %#########################
 %FUNCTION local_get_stats
-function [ p_val, t_val ] = local_get_stats(table_IN, num_points, diffmetric)
+function [ p_val, t_val ] = local_get_stats(table_IN, num_points, diffmetric,side,formulita)
 for ii=1:num_points
     n_diffmetric=[ diffmetric '_n' num2str(ii) ];
-    mdl_tmp=fitlm(table_IN, [ (n_diffmetric) '~dx+diffmotion']);
-    
+    if strcmp(side,'L')
+        %mdl_tmp=fitlm(table_IN, [ (n_diffmetric) '~1 + dx + diffmotion + vvol_fx_dotfimbriaL + fimbria_volL']);
+        mdl_tmp=fitlm(table_IN, [ (n_diffmetric) ' ~ ' strrep(formulita,'L/R','L')] );
+    elseif strcmp(side,'R')
+        %mdl_tmp=fitlm(table_IN, [ (n_diffmetric) '~1 + dx + diffmotion + vvol_fx_dotfimbriaR + fimbria_volR']);
+        mdl_tmp=fitlm(table_IN, [ (n_diffmetric) ' ~' strrep(formulita,'L/R','R') ] );
+    end
     p_val(ii)=mdl_tmp.Coefficients.pValue(2);
     t_val(ii)=mdl_tmp.Coefficients.tStat(2);
     clear mdl_tmp

@@ -17,7 +17,7 @@ function trk_write(header,tracks,savePath)
 %
 % See also: TRK_READ
 
-[ cur_folder, cur_name, cur_ext ] = fileparts(savePath)
+[ cur_folder, cur_name, cur_ext ] = fileparts(savePath);
 
 if strcmp(cur_ext,'.gz')
     if isempty(cur_folder)

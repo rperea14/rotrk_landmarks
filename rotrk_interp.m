@@ -134,3 +134,16 @@ end
 TRKS_OUT.sstr=tmp_tracts_interp;
 TRKS_OUT.header=tmp_header_interp;
 
+
+
+%ADDING UNIQUE VOXELS!
+
+%ADDING UNIQUE VOXELS!
+all_vox=TRKS_OUT.sstr(1).vox_coord ;        %initializing vox_coord
+for ii=2:size(TRKS_OUT.sstr,2)
+    all_vox=vertcat(all_vox,TRKS_OUT.sstr(ii).vox_coord);
+end
+
+TRKS_OUT.unique_voxels=unique(all_vox,'rows');
+TRKS_OUT.num_uvox=size(TRKS_OUT.unique_voxels,1); 
+
