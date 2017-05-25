@@ -71,7 +71,7 @@ end
 [ ronii_dirpath, ronii_filename, ronii_ext ] = fileparts(vol_input_diffmetric.filename{end});
 if strcmp(ronii_ext,'.gz')
     disp(['Gunzipping...' vol_input_diffmetric.filename{end} ]);
-    system([ 'gunzip ' vol_input_diffmetric.filename{end} ] );
+    system([ 'gunzip -f ' vol_input_diffmetric.filename{end} ] );
     vol_input_diffmetric.filename{end} = [ ronii_dirpath filesep ronii_filename ];
 end
 
@@ -174,6 +174,6 @@ for pp=1:size(vol_input_diffmetric,1)
 end
 
 if strcmp(ronii_ext,'.gz')
-    system([ 'gzip ' vol_input_diffmetric.filename{end} ] );
+    system([ 'gzip -f ' vol_input_diffmetric.filename{end} ] );
 end
 

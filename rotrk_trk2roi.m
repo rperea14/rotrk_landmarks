@@ -157,10 +157,10 @@ display(' ');
 
 %GZIP ISSUES:
 if strcmp(roii_ext,'.gz')
-   system(['gzip ' roi_name ] )
+   system(['gzip -f ' roi_name ] )
 end
 if strcmp(ronii_ext,'.gz')
-    system([ 'gzip ' vol_input ] );
+    system([ 'gzip -f ' vol_input ] );
 end
 
  

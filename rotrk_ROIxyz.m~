@@ -35,11 +35,6 @@ end
 %Read the volume:
 H_vol = spm_vol(roi_filename);
 mat2=H_vol.mat;
-%Check if the matfile is 
-AA=1;
-
-
-
 V_vol=spm_read_vols(H_vol);
 
 %was it gzipped?

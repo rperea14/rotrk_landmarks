@@ -181,12 +181,37 @@ while iTrk <= max_n_trks
     
     if flag_x < 0 %Change by reversing all if vol_data differs from tract!
         coords(:,ix) = header.dim(ix)*header.voxel_size(ix) - coords(:,ix);
+        %Now changing parameters...
+        header.invert_x=1;
+        if header.voxel_order(1) == 'L'
+            header.voxel_order(1) = 'R';
+            header.pad2(1) = 'R';
+        else
+            header.voxel_order(1) = 'L';
+            header.pad2(1) = 'L';
+        end
     end
     if flag_y < 0
         coords(:,iy) = header.dim(iy)*header.voxel_size(iy) - coords(:,iy);
+        header.invert_y=1;
+        if header.voxel_order(2) == 'P'
+            header.voxel_order(2) = 'A';
+            header.pad2(2) = 'A';
+        else
+            header.voxel_order(2) = 'P';
+            header.pad2(2) = 'P';
+        end
     end
     if flag_z < 0
         coords(:,iz) = header.dim(iz)*header.voxel_size(iz) - coords(:,iz);
+        header.invert_z=1;
+        if header.voxel_order(3) == 'S'
+            header.voxel_order(3) = 'A';
+            header.pad2(3) = 'A';
+        else
+            header.voxel_order(3) = 'S';
+            header.pad2(3) = 'S';
+        end
     end
     %~~~~~~~~~~~~~~~~~~~~/
     
@@ -203,37 +228,7 @@ end
 
 
 %MODIFY HEADER BASED ON ORIENTATION
-if flag_x < 0 %Change by reversing all if vol_data differs from tract!
-    %Now changing parameters...
-    header.invert_x=1;
-    if header.voxel_order(1) == 'L'
-        header.voxel_order(1) = 'R';
-        header.pad2(1) = 'R';
-    else
-        header.voxel_order(1) = 'L';
-        header.pad2(1) = 'L';
-    end
-end
-if flag_y < 0
-     header.invert_y=1;
-    if header.voxel_order(2) == 'P'
-        header.voxel_order(2) = 'A';
-        header.pad2(2) = 'A';
-    else
-        header.voxel_order(2) = 'P';
-        header.pad2(2) = 'P';
-    end
-end
-if flag_z < 0
-    header.invert_z=1;
-    if header.voxel_order(3) == 'S'
-        header.voxel_order(3) = 'A';
-        header.pad2(3) = 'A';
-    else
-        header.voxel_order(3) = 'S';
-        header.pad2(3) = 'S';
-    end
-end
+
 
 fclose(fid);
 header.voxel_order=header.voxel_order;

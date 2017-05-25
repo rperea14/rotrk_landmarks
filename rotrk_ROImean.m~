@@ -17,31 +17,23 @@ if isstruct(roi_input)
     roi_mean_xyz.id=roi_input.id;
 elseif iscell(roi_input)
     roi_filenamecell2char(roi_input);
-    roi_mean_xyz.id='No ID';
+    roi_mean_xyz.id='No ID, since roi_input.filename was not input (no in struct form)!';
 else
     roi_filename= roi_input;
-    roi_mean_xyz.id='No ID';
+    roi_mean_xyz.id='No ID, since roi_input.filename was not input (no in struct form)!';
 end
 %Is it gzip?
 [ roi_dir , roi_name , roi_ext ] = fileparts(roi_filename);
 if strcmp(roi_ext,'.gz')
     system(['gunzip ' roi_filename])
-    if isempty(roi_dir)
-        roi_filename = [ '.' filesep filesep roi_name ]; 
-    else
-        roi_filename = [ roi_dir filesep roi_name ];
-    end
+    roi_filename = [ roi_dir filesep roi_name ]; 
 end
 %Read the volume:
 H_vol = spm_vol(roi_filename);
 mat2=H_vol.mat;
-
-%Check if the matfile is 
-AA=1;
-
 V_vol=spm_read_vols(H_vol);
 %was it gzipped?
- if strcmp(roi_ext,'.gz');  system(['gzip -f ' roi_filename ]) ; end
+ if strcmp(roi_ext,'.gz');  system(['gzip -f ' roi_input.filename ]) ; end
  
 try
     ind=find(V_vol>0);

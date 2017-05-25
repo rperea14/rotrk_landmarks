@@ -88,5 +88,5 @@ end
 fclose(fid);
 
 if strcmp(cur_ext,'.gz')
-    system(['gzip ' savePath ]);
+    system(['gzip -f ' savePath ]);
 end
