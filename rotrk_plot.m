@@ -396,7 +396,7 @@ if strcmp(what_plot,'1st')
             end
         end
     end
-    xlim([80 165] ) ;ylim([105 165]) ; zlim([25 85])
+    %xlim([80 165] ) ;ylim([105 165]) ; zlim([25 85])
     %Reverse x-orientation so it looks like right is right in the image!
     set(gca,'xdir','reverse'); shg
 

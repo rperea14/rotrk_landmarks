@@ -17,7 +17,7 @@ TRKS_OUT.filename=['trimmed from ~~> ' TRKS_IN.filename];
 TRKS_OUT.filename=strrep(TRKS_IN.filename,'trimmed from ~~>  trimmed from ~~> ','trimmedx2 from ~~> ');
 %~~~
   
-if strcmp(whatflag,'above_dot') || ( strcmp(whatflag,'below') || strcmp(whatflag,'above_dotfimbria'))
+if strcmp(whatflag,'above_dot') || ( strcmp(whatflag,'below') || strcmp(whatflag,'above_dotfimbria')) 
     xyz_flag=rotrk_ROImean(theROI.filename);
 else
     ROIxyz=rotrk_ROIxyz(theROI);

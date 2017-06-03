@@ -130,3 +130,13 @@ all_vox=TRKS_OUT.sstr(1).vox_coord;        %initializing vox_coord
 %and Z columns so no good to do this! 
 TRKS_OUT.unique_voxels=unique(all_vox,'rows');
 TRKS_OUT.num_uvox=size(TRKS_OUT.unique_voxels,1);
+
+
+%adding the matrix_length
+len=0;
+for jj=1:size(TRKS_OUT.sstr.matrix,1)
+    if jj~=size(TRKS_OUT.sstr.matrix,1)
+        len=len+pdist2(TRKS_OUT.sstr.matrix(jj,:),TRKS_OUT.sstr.matrix(jj+1,:));
+    end
+end
+TRKS_OUT.len_matrix=len;

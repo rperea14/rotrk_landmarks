@@ -1,6 +1,6 @@
 function TRKS_OUT = rotrk_rm_bylen(TRKS_IN, defparam_TRKS_OUT,flag_rmpercentile)
 %function TRKS_OUT = rotrk_rm_bylen(TRKS_IN, defparam_TRKS_OUT)
-%   This function will take a TRKS_IN and 
+%   This function will take a TRKS_IN and
 %
 %       1) Remove streamlines the shorter streamlines until it reaches a
 %       normal distribution and,
@@ -8,8 +8,8 @@ function TRKS_OUT = rotrk_rm_bylen(TRKS_IN, defparam_TRKS_OUT,flag_rmpercentile)
 %       2) After 1), it will also remove streamlines that are < 5th or >
 %       95th percentile (unless flag_rmpercentile == 1!
 %
-%       Optional: defparam_TRKS_OUT is an optional parameter used to pass 
-%       TRKS_OUT.header and TRKS_OUT.filename information if needed. 
+%       Optional: defparam_TRKS_OUT is an optional parameter used to pass
+%       TRKS_OUT.header and TRKS_OUT.filename information if needed.
 %
 %       *If less than 5 streamlines are found. A simple copy will do with a
 %       warning message!
@@ -19,7 +19,7 @@ TRKS_OUT.header=TRKS_IN.header;
 
 %
 if nargin < 3
-    flag_rmpercentile=0; %apply percentile cut! 
+    flag_rmpercentile=0; %apply percentile cut!
 end
 
 %Copying defparams
@@ -35,12 +35,12 @@ end
 
 
 if numel(TRKS_IN.sstr) < 5
-   TRKS_OUT.id=TRKS_IN.id;
-   TRKS_OUT.sstr=TRKS_IN.sstr;
-   TRKS_OUT.header=TRKS_IN.header;
-   disp('In rotrk_rm_bylen');
-   disp([ TRKS_IN.header.id ' and fiber  ' TRKS_IN.header.specific_name ...
-       ' have ' num2str(numel(TRKS_IN.sstr)) '. Copying TRKS_IN to TRKS_OUT']);
+    TRKS_OUT.id=TRKS_IN.id;
+    TRKS_OUT.sstr=TRKS_IN.sstr;
+    TRKS_OUT.header=TRKS_IN.header;
+    disp('In rotrk_rm_bylen');
+    disp([ TRKS_IN.header.id ' and fiber  ' TRKS_IN.header.specific_name ...
+        ' have ' num2str(numel(TRKS_IN.sstr)) '. Copying TRKS_IN to TRKS_OUT']);
 else
     
     for ii=1:numel(TRKS_IN.sstr)
@@ -95,7 +95,7 @@ else
             new_sort(newidx)=sort_len(ii);
             new_sortidx(newidx)=sort_lenidx(ii);
             newidx=newidx+1;
-        else            
+        else
             if sort_len(ii) > percntiles(1) && sort_len(ii) < percntiles(2)
                 %Allocating the corresponding values:
                 TRKS_OUT.sstr(newidx).matrix=TRKS_IN.sstr(sort_lenidx(ii)).matrix;
@@ -108,8 +108,23 @@ else
         end
     end
     TRKS_OUT.header.n_count=numel(TRKS_OUT.sstr);
+    
 end
 
+ %Get the volume of non-overlapping XYZ vox_coord values
+    all_vox=TRKS_OUT.sstr(1).vox_coord ;        %initializing vox_coord
+    for ii=2:size(TRKS_OUT.sstr,2)
+        all_vox=vertcat(all_vox,TRKS_OUT.sstr(ii).vox_coord);
+    end
+    %s_all_vox=sort(all_vox); %sort if bad! I believe it doesn't freeze the Y
+    %and Z columns so no good to do this!
+    TRKS_OUT.unique_voxels=unique(all_vox,'rows');
+    TRKS_OUT.num_uvox=size(TRKS_OUT.unique_voxels,1);
+    if isfield(TRKS_IN,'trk_name')
+        TRKS_OUT.trk_name=[ 'cleanByLen_' TRKS_IN.trk_name ] ;
+    else
+        TRKS_OUT.trk_name=[ 'cleanByLen_Notrkname' ] ;
+    end
 
 
 

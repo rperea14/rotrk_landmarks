@@ -16,9 +16,7 @@ function TRKS_OUT = rotrk_rm_byHDorff(CLINE_IN, TRKS_IN, defparam_TRKS_OUT)
 if nargin >2
     TRKS_OUT.header=defparam_TRKS_OUT.header;
     TRKS_OUT.id=defparam_TRKS_OUT.id;
-
 end
-
 
 if numel(TRKS_IN.sstr) < 5 %Less than 5 streamlines, so we just copy the TRK_IN to TRKS_OUT
     TRKS_OUT.header=TRKS_IN.header;
@@ -96,6 +94,7 @@ else
         end
     end
     TRKS_OUT.header.n_count=numel(TRKS_OUT.sstr);
+end
     %Get the volume of non-overlapping XYZ vox_coord values
     all_vox=TRKS_OUT.sstr(1).vox_coord ;        %initializing vox_coord
     for ii=2:size(TRKS_OUT.sstr,2)
@@ -105,8 +104,11 @@ else
     %and Z columns so no good to do this!
     TRKS_OUT.unique_voxels=unique(all_vox,'rows');
     TRKS_OUT.num_uvox=size(TRKS_OUT.unique_voxels,1);
-    TRKS_OUT.trk_name=[ 'cleanHDorff_' TRKS_IN.trk_name ] ;
-end
+    if isfield(TRKS_IN,'trk_name')
+        TRKS_OUT.trk_name=[ 'cleanHDorff_' TRKS_IN.trk_name ] ;
+    else
+        TRKS_OUT.trk_name=[ 'cleanHDorff_Notrkname' ] ;
+    end
 
 
 
