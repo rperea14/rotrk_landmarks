@@ -61,7 +61,7 @@ for jj=1:numel(ROIS_IN)
         min(roi_in{jj}.vox_coord(:,2)) max(roi_in{jj}.vox_coord(:,2)) ...
         min(roi_in{jj}.vox_coord(:,3)) max(roi_in{jj}.vox_coord(:,3)) ] ;
     
-    roi_midpoint{jj} = [ (roi_vlim{jj}(2)-roi_vlim{jj}(1)/2) (roi_vlim{jj}(4)-roi_vlim{jj}(3)/2) (roi_vlim{jj}(6)-roi_vlim{jj}(5)/2)] ;
+    roi_vmidpoint{jj} = [ (roi_vlim{jj}(2)-roi_vlim{jj}(1)/2) (roi_vlim{jj}(4)-roi_vlim{jj}(3)/2) (roi_vlim{jj}(6)-roi_vlim{jj}(5)/2)] ;
     
 end
 
@@ -101,7 +101,7 @@ switch WHAT_TOI
                 wasdone=0;
                 for ixyz=1:size(flipped_trks_in.sstr(itrk).vox_coord,1)
                     %Trimming based on posterior cingulate (make sure this is the 1st ROI_IN):
-                    if flipped_trks_in.sstr(itrk).vox_coord(ixyz,2) < roi_midpoint{1}(2) && wasdone~=1
+                    if flipped_trks_in.sstr(itrk).vox_coord(ixyz,2) < roi_vlim{1}(4) && wasdone~=1
                         %assignt he trks_out values:
                         trks_out.sstr(itrk).vox_coord(1:ixyz,:)=[];
                         trks_out.sstr(itrk).matrix(1:ixyz,:)=[];
@@ -113,7 +113,7 @@ switch WHAT_TOI
                 wasdone2=0;
                 for ixyz=1:size(trks_out.sstr(itrk).vox_coord,1)
                     %Trimming based on  hippocampus (2nd ROI_IN):
-                    if wasdone2 ~=1  && trks_out.sstr(itrk).vox_coord(ixyz,3) <  roi_vlim{2}(6)
+                    if wasdone2 ~=1  && trks_out.sstr(itrk).vox_coord(ixyz,3) <  roi_vmidpoint{2}(3)
                         %assignt he trks_out values:
                         trks_out.sstr(itrk).vox_coord(ixyz:end,:)=[];
                         trks_out.sstr(itrk).matrix(ixyz:end,:)=[];
@@ -146,7 +146,7 @@ switch WHAT_TOI
                 wasdone=0;
                 for ixyz=1:size(flipped_trks_in.sstr(itrk).vox_coord,1)
                     %Trimming based on posterior cingulate (make sure this is the 1st ROI_IN):
-                    if flipped_trks_in.sstr(itrk).vox_coord(ixyz,3) > roi_midpoint{1}(3) && wasdone~=1
+                    if flipped_trks_in.sstr(itrk).vox_coord(ixyz,3) > roi_vmidpoint{1}(3) && wasdone~=1
                         %assignt he trks_out values:
                         trks_out.sstr(itrk).vox_coord(1:ixyz,:)=[];
                         trks_out.sstr(itrk).matrix(1:ixyz,:)=[];
