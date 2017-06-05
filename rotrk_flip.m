@@ -1,5 +1,5 @@
-function [TRKS_OUT, pt_start] = trk_flip(TRKS_IN,pt_start)
-%function [tracts_out pt_start] = trk_flip(TRKS_IN,pt_start)
+function [TRKS_OUT, pt_start] = rotrk_flip(TRKS_IN,pt_start)
+%function [TRKS_OUT, pt_start] = rotrk_flip(TRKS_IN,pt_start)
 %TRK_FLIP - Flip the ordering of tracks
 %When TrackVis stores .trk files, the ordering of the points are not always
 %optimal (e.g. the corpus callosum will have some tracks starting on the left
@@ -17,7 +17,7 @@ function [TRKS_OUT, pt_start] = trk_flip(TRKS_IN,pt_start)
 %                 now be reversed.
 %    pt_start   - Useful to collect the interactively found pt_starts.
 %
-
+%    *Added support for vox_coord! 
 
 %%%%%%%%SPLITTING THTE TRKS FORM INTO TRACTS AND HEADER
 tracts_in=TRKS_IN.sstr;
@@ -63,7 +63,7 @@ if isnumeric(tracts_in)
     % Flip the tracks whose first points are not closest to 'pt_start'
     ind                 = point_end < point_1;
     tracts_out(:,:,ind) = tracts_in(fliplr(1:end),:,ind);
-
+    warning('THERE IS NO rotrk_flip support for *.sstr.vox_coord! only sstr.matrx')
 % Otherwise, loop through one by one
 else
     if any(isnan(cat(1,tracts_in.matrix)))
@@ -82,6 +82,10 @@ else
             tracts_out(iTrk).matrix   = flipud(tracts_in(iTrk).matrix);
             if isfield(tracts_out, 'tiePoint')
                 tracts_out(iTrk).tiePoint = tracts_out(iTrk).nPoints - (tracts_out(iTrk).tiePoint-1);
+            end
+            %Added support for vox_coord struct type!
+            if isfield(tracts_out,'vox_coord')
+                tracts_out(iTrk).vox_coord   = flipud(tracts_in(iTrk).vox_coord);
             end
         end
     end

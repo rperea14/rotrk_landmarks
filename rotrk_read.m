@@ -23,7 +23,9 @@ function [tract_out] = rotrk_read(filePath, identifier, vol_data_untyped,specifi
 %           tract.sstr - tract data structure array [1 x ntracts]
 %           tract.sstr.nPoints - # of points in each streamline
 %           tract.sstr.matrix  - XYZ coordinates (in mm) and associated scalars [nPoints x 3+nScalars]
-
+%
+%
+%   Example:  temp_hippocing_lh = rotrk_read('my_TOI.trk', 'HAB_669', 'My_FA.nii', 'trkk'_Hippocampus');
 
 
 

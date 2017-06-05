@@ -68,6 +68,6 @@ roi_xyz.vox_coord(:,4) = V_vol(ind); %adding actual values to vox_coord
 %for plotting purposes the 'minus one (-1)' indexing shoulnd be
 %applied?(edited 04-25-2017 rdp20)
 %tmp2_xyz = [x y z ones(numel(x),1) ] ;
-tmp2_xyz = [ tmp_xyz-1 ones(numel(x),1) ] ;
+tmp2_xyz = [ tmp_xyz+1 ones(numel(x),1) ] ;
 additional_step = abs(tmp2_xyz*mat2);
 roi_xyz.trk_coord = additional_step(:,1:3);
