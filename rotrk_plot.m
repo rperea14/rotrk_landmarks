@@ -243,7 +243,10 @@ for numtrks = 1:size(single_TRKS_IN.sstr,2)
             plot3(matrix(:,1), matrix(:,2), matrix(:,3),'c')
         case 'g'
             plot3(matrix(:,1), matrix(:,2), matrix(:,3),'g')
-        %    plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'b.')
+            %    plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'b.')
+        case 'g.'
+            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'g-')
+            plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'k.','markersize',20)
         case 'gg'
             plot3(matrix(:,1), matrix(:,2), matrix(:,3),'g')
         case 'k'

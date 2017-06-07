@@ -61,7 +61,7 @@ for jj=1:numel(ROIS_IN)
         min(roi_in{jj}.vox_coord(:,2)) max(roi_in{jj}.vox_coord(:,2)) ...
         min(roi_in{jj}.vox_coord(:,3)) max(roi_in{jj}.vox_coord(:,3)) ] ;
     
-    roi_midpoint{jj} = [ (roi_vlim{jj}(2)-roi_vlim{jj}(1)/2) (roi_vlim{jj}(4)-roi_vlim{jj}(3)/2) (roi_vlim{jj}(6)-roi_vlim{jj}(5)/2)] ;
+    roi_vmidpoint{jj} = [ (roi_vlim{jj}(2)+roi_vlim{jj}(1))/2 (roi_vlim{jj}(4)+roi_vlim{jj}(3))/2 (roi_vlim{jj}(6)+roi_vlim{jj}(5))/2] ;
     
 end
 
@@ -73,18 +73,17 @@ switch WHAT_TOI
     case 'postcing',
         for tohide=1:1
             display('Trimming trks based on the posterior cingulate modification');
-            %Flip trks to start at the anterior regions:
+            %Flip trks to start at the most anterior regions:
             tmp_val=[];
             tmpmaxidx = [];
+            max_zstrline=0;
             for itrk=1:numel(trks_in.sstr)
-                [ tmp_val, tmp_idx ] = max(trks_in.sstr(itrk).matrix(:,2));
-                if tmp_val > roi_lim{1}(3)
-                    tmpmax_itrk_idx=itrk;   %save the strline index
-                    tmpmax_xyz_idx=tmp_idx; %save the strline xyz index
-                    continue %this should exit the for loop. Not sure if it works :/
+                [ tmp_val, tmp_idx ] = max(trks_in.sstr(itrk).matrix(:,3));
+                if tmp_val > max_zstrline
+                   max_zstrline=trks_in.sstr(itrk).matrix(tmp_idx,1:3);
                 end
             end
-            flipped_trks_in = rotrk_flip(trks_in,trks_in.sstr(tmpmax_itrk_idx).matrix(tmpmax_xyz_idx,:));
+            flipped_trks_in = rotrk_flip(trks_in,max_zstrline);
             %INIT *;sstr fields:
             trks_out.header=flipped_trks_in.header;
             trks_out.header.specific_name=[ 'trimmed_' flipped_trks_in.header.specific_name ] ;
@@ -101,7 +100,7 @@ switch WHAT_TOI
                 wasdone=0;
                 for ixyz=1:size(flipped_trks_in.sstr(itrk).vox_coord,1)
                     %Trimming based on posterior cingulate (make sure this is the 1st ROI_IN):
-                    if flipped_trks_in.sstr(itrk).vox_coord(ixyz,2) < roi_midpoint{1}(2) && wasdone~=1
+                    if flipped_trks_in.sstr(itrk).vox_coord(ixyz,2) <  roi_vmidpoint{1}(2) && wasdone~=1
                         %assignt he trks_out values:
                         trks_out.sstr(itrk).vox_coord(1:ixyz,:)=[];
                         trks_out.sstr(itrk).matrix(1:ixyz,:)=[];
@@ -113,7 +112,7 @@ switch WHAT_TOI
                 wasdone2=0;
                 for ixyz=1:size(trks_out.sstr(itrk).vox_coord,1)
                     %Trimming based on  hippocampus (2nd ROI_IN):
-                    if wasdone2 ~=1  && trks_out.sstr(itrk).vox_coord(ixyz,3) <  roi_vlim{2}(6)
+                    if wasdone2 ~=1  && trks_out.sstr(itrk).vox_coord(ixyz,3) <  roi_vmidpoint{2}(3)
                         %assignt he trks_out values:
                         trks_out.sstr(itrk).vox_coord(ixyz:end,:)=[];
                         trks_out.sstr(itrk).matrix(ixyz:end,:)=[];
@@ -123,14 +122,19 @@ switch WHAT_TOI
                 end
             end
         end
- case 'fx',
+ case {'fx_lh','fx_rh'}
         for tohide=1:1
             display('Trimming trks based on the hippocampus (for the fornix bundle)');
             %Flip trks to start at the anterior regions:
             tmp_val=[];
             tmpmaxidx = [];
-            
-            flipped_trks_in = rotrk_flip(trks_in,roi_mean{1});
+            if strcmp(WHAT_TOI,'fx_lh')
+                point_flag = [ roi_vlim{1}(1) roi_vlim{1}(4) roi_vlim{1}(5)];
+            else
+                point_flag = [ roi_vlim{1}(2) roi_vlim{1}(4) roi_vlim{1}(5)];
+            end
+            flipped_trks_in = rotrk_flip(trks_in,point_flag,true);  %3rd argument denotes the usage of vox_coord instead of trks.
+            % rotrk_flip(trks_in,roi_mean{1});
             %INIT *;sstr fields:
             trks_out.header=flipped_trks_in.header;
             trks_out.header.specific_name=[ 'trimmed_' flipped_trks_in.header.specific_name ] ;
@@ -146,7 +150,7 @@ switch WHAT_TOI
                 wasdone=0;
                 for ixyz=1:size(flipped_trks_in.sstr(itrk).vox_coord,1)
                     %Trimming based on posterior cingulate (make sure this is the 1st ROI_IN):
-                    if flipped_trks_in.sstr(itrk).vox_coord(ixyz,3) > roi_midpoint{1}(3) && wasdone~=1
+                    if flipped_trks_in.sstr(itrk).vox_coord(ixyz,3) > roi_vmidpoint{1}(3) && wasdone~=1
                         %assignt he trks_out values:
                         trks_out.sstr(itrk).vox_coord(1:ixyz,:)=[];
                         trks_out.sstr(itrk).matrix(1:ixyz,:)=[];
@@ -155,6 +159,9 @@ switch WHAT_TOI
                 end
             end
         end
+    otherwise
+        error(['WHAT_TOI argument: ' WHAT_TOI ' in ' mfilename ' is not implemented. Either check input or implement!' ]);
+
 end
 
 %OTHER IMPLEMENTATION EQUAL FOR EVERYN TOI:
