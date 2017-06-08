@@ -80,7 +80,7 @@ if strcmp(method,'hausdorff')
         for ii=1:numel(TRKS_IN.sstr);
            hasdist1{kk}{ii}=rotrk_get_distance_HDorff(TRKS_IN.sstr(kk).matrix,TRKS_IN.sstr(ii).matrix);
         end
-        
+        %%TO_DEBUG: display(num2str(kk));
         AA(kk)=rotrk_get_distance_HDorff(TRKS_IN.sstr(kk).matrix,TRKS_IN.sstr(1).matrix);
         nstr1(kk)=TRKS_IN.sstr(kk).nPoints;
         %[max1 idx_max1 ] = m ax(hasdist1);

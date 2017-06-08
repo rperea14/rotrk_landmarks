@@ -80,10 +80,10 @@ for ii = 1:numel(tracts)
         
         %DUE TO INDEXING ISSUES STARTING AT 1 or 0...
         %Same replacing but for extreme values (based of header.dim(x/y/z)
-        extreme_x=find(pos(:,1)>header.dim(1)) ; for gg=1:numel(extreme_x); pos(extreme_x(gg))=header.dim(1) ; end
-        extreme_y=find(pos(:,2)>header.dim(2)) ; for gg=1:numel(extreme_y); pos(extreme_y(gg))=header.dim(2) ; end
-        extreme_z=find(pos(:,3)>header.dim(3)) ; for gg=1:numel(extreme_z); pos(extreme_z(gg))=header.dim(3) ; end
-        
+        extreme_x=find(pos(:,1)>header.dim(1)) ; for gg=1:numel(extreme_x); pos(extreme_x(gg),1)=header.dim(1) ; end
+        extreme_y=find(pos(:,2)>header.dim(2)) ; for gg=1:numel(extreme_y); pos(extreme_y(gg),2)=header.dim(2) ; end
+        extreme_z=find(pos(:,3)>header.dim(3)) ; for gg=1:numel(extreme_z); pos(extreme_z(gg),3)=header.dim(3) ; end
+  
         %disp([ 'in ii: ' num2str(ii)]);
         ind = sub2ind(header.dim, pos(:,1), pos(:,2), pos(:,3));
         

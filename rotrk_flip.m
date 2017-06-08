@@ -1,5 +1,5 @@
-function [TRKS_OUT, pt_start] = rotrk_flip(TRKS_IN,pt_start,opt)
-%function [TRKS_OUT, pt_start] = rotrk_flip(TRKS_IN,pt_start,opt)
+function [TRKS_OUT, pt_start] = rotrk_flip(TRKS_IN,pt_start,vox_coord,opt)
+%function [TRKS_OUT, pt_start] = rotrk_flip(TRKS_IN,pt_start,vox_coord,opt)
 %TRK_FLIP - Flip the ordering of tracks
 %When TrackVis stores .trk files, the ordering of the points are not always
 %optimal (e.g. the corpus callosum will have some tracks starting on the left
@@ -35,6 +35,11 @@ if nargin < 3
 else
     voxcoord=true;
 end
+
+if nargin < 4
+    opt='';
+end
+    
 
 
 tracts_out = tracts_in;
@@ -81,14 +86,21 @@ else
             
         end
         % Flip the tracks whose first points are not closest to 'pt_start'
-        if point_end < point_1;
-            tracts_out(iTrk).matrix   = flipud(tracts_in(iTrk).matrix);
-            if isfield(tracts_out, 'tiePoint')
-                tracts_out(iTrk).tiePoint = tracts_out(iTrk).nPoints - (tracts_out(iTrk).tiePoint-1);
+        if strcmp(opt,'away')  %Moving initial points away from the point of interest
+            if point_end > point_1;
+                tracts_out(iTrk).matrix   = flipud(tracts_in(iTrk).matrix);
+                %Added support for vox_coord struct type!
+                if isfield(tracts_out,'vox_coord')
+                    tracts_out(iTrk).vox_coord   = flipud(tracts_in(iTrk).vox_coord);
+                end
             end
-            %Added support for vox_coord struct type!
-            if isfield(tracts_out,'vox_coord')
-                tracts_out(iTrk).vox_coord   = flipud(tracts_in(iTrk).vox_coord);
+        else
+            if point_end < point_1;
+                tracts_out(iTrk).matrix   = flipud(tracts_in(iTrk).matrix);
+                %Added support for vox_coord struct type!
+                if isfield(tracts_out,'vox_coord')
+                    tracts_out(iTrk).vox_coord   = flipud(tracts_in(iTrk).vox_coord);
+                end
             end
         end
     end

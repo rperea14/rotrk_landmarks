@@ -96,7 +96,7 @@ if strcmp(ronii_ext,'.gz') ;  system([ 'gzip ' ro_filename  ] ); end
 %check if the orientation is the same:
 %Having issues with floating points (so 1.8000 not equal to 1.80000001) so
 %I'll add a tolerance comparator
-tolerance=0.01; 
+tolerance=0.1; 
 flag_x=0;flag_y=0; flag_z=0;
 warn=0;
 if ~(abs(tmp_vol.mat(1,1) - header.vox_to_ras(1,1))) < tolerance
@@ -111,7 +111,6 @@ if ~(abs(tmp_vol.mat(2,2) - header.vox_to_ras(2,2))) < tolerance
     warning('Volume matrix in the y coordinate is not equal to the trk matrix. Flipping to fit same orientation')
     %warning('Double check orientation after using this!')
     flag_y=-1;
-    warn=1;
 end
 
 if ~(abs(tmp_vol.mat(3,3) - header.vox_to_ras(3,3)) < tolerance)
@@ -271,9 +270,9 @@ for ii=1:size(tracts,2)
     neg_pos=find(pos<1) ; for gg=1:numel(neg_pos); pos(neg_pos(gg))=1 ; end
     
     %Same replacing but for extreme values (based of header.dim(x/y/z)
-    extreme_x=find(pos(:,1)>=header.dim(1)) ; for gg=1:numel(extreme_x); pos(extreme_x(gg))=header.dim(1) ; end
-    extreme_y=find(pos(:,2)>=header.dim(2)) ; for gg=1:numel(extreme_y); pos(extreme_y(gg))=header.dim(2) ; end
-    extreme_z=find(pos(:,3)>=header.dim(3)) ; for gg=1:numel(extreme_z); pos(extreme_z(gg))=header.dim(3) ; end
+    extreme_x=find(pos(:,1)>=header.dim(1)) ; for gg=1:numel(extreme_x); pos(extreme_x(gg),1)=header.dim(1) ; end
+    extreme_y=find(pos(:,2)>=header.dim(2)) ; for gg=1:numel(extreme_y); pos(extreme_y(gg),2)=header.dim(2) ; end
+    extreme_z=find(pos(:,3)>=header.dim(3)) ; for gg=1:numel(extreme_z); pos(extreme_z(gg),3)=header.dim(3) ; end
     
     %WITHOUT REMOVING DUPLICATES:
     tract_out.sstr(ii).matrix(:,1:3)=tracts(ii).matrix(:,1:3);
