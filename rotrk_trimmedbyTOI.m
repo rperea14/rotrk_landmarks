@@ -116,14 +116,18 @@ switch WHAT_TOI
             %Flip trks to start at the most anterior regions:
             tmp_val=[];
             tmpmaxidx = [];
-            max_zstrline=0;
-            for itrk=1:numel(trks_in.sstr)
-                [ tmp_val, tmp_idx ] = max(trks_in.sstr(itrk).matrix(:,3));
-                if tmp_val > max_zstrline
-                    max_zstrline=trks_in.sstr(itrk).matrix(tmp_idx,1:3);
-                end
-            end
-            flipped_trks_in = rotrk_flip(trks_in,max_zstrline,true,'away');
+            %             CODE FOR max_Zline commented because it gives us bad results
+            %             max_zstrline=0;
+            %             for itrk=1:numel(trks_in.sstr)
+            %                 [ tmp_val, tmp_idx ] = max(trks_in.sstr(itrk).matrix(:,3));
+            %                 if tmp_val > max_zstrline
+            %                     max_zstrline=trks_in.sstr(itrk).matrix(tmp_idx,1:3);
+            %                 end
+            %             end
+            %          flipped_trks_in = rotrk_flip(trks_in,max_zstrline,true);
+           
+            %Now for the lowest part of hippo
+            flipped_trks_in = rotrk_flip(trks_in,[roi_vlim{1}(2) roi_vlim{1}(4) roi_vlim{1}(5)  ],true);
             
             %HEMISPHERE CROSSING CHECK UP!
             %First, remove those streamline that cross the hemisphere (due
@@ -148,7 +152,6 @@ switch WHAT_TOI
                 end
             end
             if flag_hemi==1; %then reassign a overlapping value from a non-empyt slot
-                
                 for itrk=1:numel(flipped_trks_in.sstr)
                     if isempty(flipped_trks_in.sstr(itrk).vox_coord)
                         if itrk ~=1
@@ -161,16 +164,12 @@ switch WHAT_TOI
                     end
                 end
             end
-            
-            
-            
             %INIT *;sstr fields:
             trks_out.header=flipped_trks_in.header;
             trks_out.header.specific_name=[ 'trimmed_' flipped_trks_in.header.specific_name ] ;
             trks_out.id=flipped_trks_in.id;
             trks_out.sstr=flipped_trks_in.sstr;
             trks_out.trk_name=[ 'trimmed_' flipped_trks_in.trk_name ];
-            
             %At this stage, initial XYZ coords should be close to
             %hippocampus. We will remove all those that go below the
             %midpoint of the hippocampus and reach midpoing of posterior
@@ -188,8 +187,7 @@ switch WHAT_TOI
                         hippotrim_done=1;
                     end
                 end
-                %Now trim by posterior cingulate (midpoint or if trks dont
-                %follow an anterior posterior direction
+                %Now trim by posterior cingulate (midpoint or if trks dont follow an anterior posterior direction:
                 for ixyz=1:size(trks_out.sstr(itrk).vox_coord,1)
                     %Trimming based on  hippocampus (2nd ROI_IN):
                     if  hippotrim_done==1 && trks_out.sstr(itrk).vox_coord(ixyz,3) > roi_vlim{2}(5)  && trks_out.sstr(itrk).vox_coord(ixyz,2) > roi_vmidpoint{1}(2)   %...
