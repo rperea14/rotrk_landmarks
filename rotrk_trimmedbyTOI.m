@@ -70,9 +70,49 @@ end
 
 %Dealing with specific TOIs
 switch WHAT_TOI
+    case {'fx_lh','fx_rh'}
+        for tohide=1:1
+            display('Trimming trks based on the hippocampus (for the fornix bundle)');
+            %Flip trks to start at the anterior regions:
+            tmp_val=[];
+            tmpmaxidx = [];
+            if strcmp(WHAT_TOI,'fx_lh')
+                point_flag = [ roi_vlim{1}(1) roi_vlim{1}(4) roi_vlim{1}(5)];
+            else
+                point_flag = [ roi_vlim{1}(2) roi_vlim{1}(4) roi_vlim{1}(5)];
+            end
+            flipped_trks_in = rotrk_flip(trks_in,point_flag,true,'away');  %3rd argument denotes the usage of vox_coord instead of trks.
+            % rotrk_flip(trks_in,roi_mean{1});
+            %INIT *;sstr fields:
+            trks_out.header=flipped_trks_in.header;
+            trks_out.header.specific_name=[ 'trimmed_' flipped_trks_in.header.specific_name ] ;
+            trks_out.id=flipped_trks_in.id;
+            trks_out.sstr=flipped_trks_in.sstr;
+            trks_out.trk_name=[ 'trimmed_' flipped_trks_in.trk_name ];
+            
+            
+            %Implementation here:
+            for itrk=1:numel(flipped_trks_in.sstr)
+                %Now trim by the middle anterior-posterior (y-axis) region
+                %of the posterior cingulate
+                wasdone=0;
+                for ixyz=5:size(flipped_trks_in.sstr(itrk).vox_coord,1)
+                    %TODEBUG-->        disp(num2str(itrk))
+                    %Trimming based on posterior cingulate (make sure this is the 1st ROI_IN):
+                    if flipped_trks_in.sstr(itrk).vox_coord(ixyz,3) < roi_vmidpoint{1}(3)+2
+                        %assignt he trks_out values:
+                        trks_out.sstr(itrk).vox_coord(ixyz:end,:)=[];
+                        trks_out.sstr(itrk).matrix(ixyz:end,:)=[];
+                        %TODEBUG: display(['itrk is: ' num2str(itrk) ' and ixyz is: ' num2str(ixyz)]);
+                        wasdone=1; %this flag will avoid being inside this if statement twice (ideally, continue will take care of it but not sure if it works appropiately)
+                        break
+                    end
+                end
+            end
+        end
     case {'postcing_lh', 'postcing_rh'}
         for tohide=1:1
-            display('Trimming trks based on the posterior cingulate modification');
+            display('Trimming trks based on the hippocampal cingulum modification');
             %Flip trks to start at the most anterior regions:
             tmp_val=[];
             tmpmaxidx = [];
@@ -138,7 +178,7 @@ switch WHAT_TOI
             %anterior-posterior drectionality!
             for itrk=1:numel(flipped_trks_in.sstr)
                 hippotrim_done=0;
-                 %Hippo midpoint now (Hippo ROI is compulsory --> roi{1})...)
+                %Hippo midpoint now (Hippo ROI is compulsory --> roi{1})...)
                 for ixyz=1:size(flipped_trks_in.sstr(itrk).vox_coord,1)
                     %Trimming based on posterior cingulate (make sure this is the 1st ROI_IN):
                     if hippotrim_done~=1 && flipped_trks_in.sstr(itrk).vox_coord(ixyz,3) >  roi_vmidpoint{1}(3)
@@ -161,44 +201,51 @@ switch WHAT_TOI
                     
                 end
             end
-        end 
- case {'fx_lh','fx_rh'}
+        end
+    case {'cingulum_lh', 'cingulum_rh'}
         for tohide=1:1
-            display('Trimming trks based on the hippocampus (for the fornix bundle)');
-            %Flip trks to start at the anterior regions:
+            display('Trimming trks based on the anterior cingulum modification');
+            %Flip trks to start at the most anterior regions:
             tmp_val=[];
             tmpmaxidx = [];
-            if strcmp(WHAT_TOI,'fx_lh')
-                point_flag = [ roi_vlim{1}(1) roi_vlim{1}(4) roi_vlim{1}(5)];
-            else
-                point_flag = [ roi_vlim{1}(2) roi_vlim{1}(4) roi_vlim{1}(5)];
+            min_ystrline=0;
+            for itrk=1:numel(trks_in.sstr)
+                [ tmp_val, tmp_idx ] = min(trks_in.sstr(itrk).matrix(:,2));
+                if tmp_val < min_ystrline
+                    min_ystrline=trks_in.sstr(itrk).matrix(tmp_idx,1:3);
+                end
             end
-            flipped_trks_in = rotrk_flip(trks_in,point_flag,true,'away');  %3rd argument denotes the usage of vox_coord instead of trks.
-            % rotrk_flip(trks_in,roi_mean{1});
+            flipped_trks_in = rotrk_flip(trks_in,min_ystrline,true);
             %INIT *;sstr fields:
             trks_out.header=flipped_trks_in.header;
             trks_out.header.specific_name=[ 'trimmed_' flipped_trks_in.header.specific_name ] ;
             trks_out.id=flipped_trks_in.id;
             trks_out.sstr=flipped_trks_in.sstr;
             trks_out.trk_name=[ 'trimmed_' flipped_trks_in.trk_name ];
-
-           
-            %Implementation here:
+            
             for itrk=1:numel(flipped_trks_in.sstr)
-                %Now trim by the middle anterior-posterior (y-axis) region
-                %of the posterior cingulate
-                wasdone=0;
-                for ixyz=5:size(flipped_trks_in.sstr(itrk).vox_coord,1)
-            %TODEBUG-->        disp(num2str(itrk))
+                postcingtrim_done=0;
+                %Posterior Cingulate  midpoint now (PostCing ROI is compulsory --> roi{1})...)
+                for ixyz=1:size(flipped_trks_in.sstr(itrk).vox_coord,1)
                     %Trimming based on posterior cingulate (make sure this is the 1st ROI_IN):
-                    if flipped_trks_in.sstr(itrk).vox_coord(ixyz,3) < roi_vmidpoint{1}(3)+2 
+                    if postcingtrim_done~=1 && flipped_trks_in.sstr(itrk).vox_coord(ixyz,2) >  roi_vmidpoint{1}(2) && flipped_trks_in.sstr(itrk).vox_coord(ixyz,3) >  roi_vlim{1}(5)
+                        %assignt he trks_out values:
+                        trks_out.sstr(itrk).vox_coord(1:ixyz,:)=[];
+                        trks_out.sstr(itrk).matrix(1:ixyz,:)=[];
+                        postcingtrim_done=1;
+                    end
+                end
+                %Now trim by anterior cingulate (most anterior or if trks dont
+                %follow an anterior posterior direction
+                for ixyz=1:size(trks_out.sstr(itrk).vox_coord,1)
+                    %Trimming based on  hippocampus (2nd ROI_IN):
+                    if  postcingtrim_done==1 && trks_out.sstr(itrk).vox_coord(ixyz,2) > roi_vmidpoint{2}(2)   %...
                         %assignt he trks_out values:
                         trks_out.sstr(itrk).vox_coord(ixyz:end,:)=[];
                         trks_out.sstr(itrk).matrix(ixyz:end,:)=[];
-                        display(['itrk is: ' num2str(itrk) ' and ixyz is: ' num2str(ixyz)]);
-                        wasdone=1; %this flag will avoid being inside this if statement twice (ideally, continue will take care of it but not sure if it works appropiately)
                         break
                     end
+                    
                 end
             end
         end
