@@ -58,7 +58,7 @@ end
 
 if isfield(TRKS_IN.header,'scalar_IDs')
     scalar_count=size(TRKS_IN.header.scalar_IDs,2);
-    warning('Adding scalars to already existing data!');
+%    warning('Adding scalars to already existing data!');
 else
     scalar_count=1;
 end

@@ -77,11 +77,12 @@ switch WHAT_TOI
             tmp_val=[];
             tmpmaxidx = [];
             if strcmp(WHAT_TOI,'fx_lh')
-                point_flag = [ roi_vlim{1}(1) roi_vlim{1}(4) roi_vlim{1}(5)];
+                point_flag = [ roi_vlim{2}(2) roi_vlim{2}(4) roi_vlim{2}(6)];
             else
-                point_flag = [ roi_vlim{1}(2) roi_vlim{1}(4) roi_vlim{1}(5)];
+                point_flag = [ roi_vlim{2}(1) roi_vlim{2}(4) roi_vlim{2}(6)];
             end
-            flipped_trks_in = rotrk_flip(trks_in,point_flag,true,'away');  %3rd argument denotes the usage of vox_coord instead of trks.
+
+            flipped_trks_in = rotrk_flip(trks_in,point_flag,true);  %3rd argument denotes the usage of vox_coord instead of trks.
             % rotrk_flip(trks_in,roi_mean{1});
             %INIT *;sstr fields:
             trks_out.header=flipped_trks_in.header;
@@ -93,13 +94,20 @@ switch WHAT_TOI
             
             %Implementation here:
             for itrk=1:numel(flipped_trks_in.sstr)
-                %Now trim by the middle anterior-posterior (y-axis) region
-                %of the posterior cingulate
                 wasdone=0;
-                for ixyz=5:size(flipped_trks_in.sstr(itrk).vox_coord,1)
-                    %TODEBUG-->        disp(num2str(itrk))
-                    %Trimming based on posterior cingulate (make sure this is the 1st ROI_IN):
-                    if flipped_trks_in.sstr(itrk).vox_coord(ixyz,3) < roi_vmidpoint{1}(3)+2
+                for ixyz=1:size(flipped_trks_in.sstr(itrk).vox_coord,1)
+                    %Trimming based on Thalamus (make sure this is the 1st ROI_IN):
+                    if flipped_trks_in.sstr(itrk).vox_coord(ixyz,2) < roi_vlim{1}(4) &&  flipped_trks_in.sstr(itrk).vox_coord(ixyz,3) > roi_vmidpoint{1}(3)+2
+                        %assignt he trks_out values:
+                        trks_out.sstr(itrk).vox_coord(1:ixyz,:)=[];
+                        trks_out.sstr(itrk).matrix(1:ixyz,:)=[];
+                        %TODEBUG: display(['itrk is: ' num2str(itrk) ' and ixyz is: ' num2str(ixyz)]);
+                        break
+                    end
+                end
+                for ixyz=1:size(trks_out.sstr(itrk).vox_coord,1)
+                    %Trimming based on hippo midpoint:
+                    if trks_out.sstr(itrk).vox_coord(ixyz,3) < roi_vmidpoint{2}(3)
                         %assignt he trks_out values:
                         trks_out.sstr(itrk).vox_coord(ixyz:end,:)=[];
                         trks_out.sstr(itrk).matrix(ixyz:end,:)=[];
@@ -253,6 +261,20 @@ switch WHAT_TOI
 end
 
 %OTHER IMPLEMENTATION EQUAL FOR EVERYN TOI:
+%Removing empty fields if exist
+for itrk=1:numel(trks_out.sstr)
+    if isempty(trks_out.sstr(itrk).vox_coord)
+        if itrk ~=1
+            trks_out.sstr(itrk).vox_coord=trks_out.sstr(itrk-1).vox_coord;
+            trks_out.sstr(itrk).matrix=trks_out.sstr(itrk-1).matrix;
+        else
+            trks_out.sstr(itrk).vox_coord=trks_out.sstr(end).vox_coord;
+            trks_out.sstr(itrk).matrix=trks_out.sstr(end).matrix;
+        end
+    end
+end
+
+
 %Input the nPoints information:
 for itrk=1:numel(trks_out.sstr)
     trks_out.sstr(itrk).nPoints=size(trks_out.sstr(itrk).matrix,1);

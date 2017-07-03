@@ -93,36 +93,36 @@ if strcmp(ronii_ext,'.gz') ;  system([ 'gzip ' ro_filename  ] ); end
 
 
 
-%check if the orientation is the same:
-%Having issues with floating points (so 1.8000 not equal to 1.80000001) so
-%I'll add a tolerance comparator
-tolerance=0.1; 
+%check if the orientation is the same (by looking at the multiplication of signs)
+%if positive, then signs ('+' or both '-') are the same 
+%else, change...
 flag_x=0;flag_y=0; flag_z=0;
 warn=0;
-if ~(abs(tmp_vol.mat(1,1) - header.vox_to_ras(1,1))) < tolerance
+if (tmp_vol.mat(1,1)*header.vox_to_ras(1,1)) < 0
+    %PREVIOUS DEPRECATED CODE: ~(abs(tmp_vol.mat(1,1) - header.vox_to_ras(1,1))) < tolerance
     warn=1;
-    warning('Volume matrix in the x coordinate is not equal to the trk matrix. Flipping to fit same orientation')
+    display('Volume matrix in the x coordinate is not equal to the trk matrix. Flipping to fit same orientation')
     %warning('Double check orientation after using this!')
     flag_x=-1;
     
 end
 
-if ~(abs(tmp_vol.mat(2,2) - header.vox_to_ras(2,2))) < tolerance
-    warning('Volume matrix in the y coordinate is not equal to the trk matrix. Flipping to fit same orientation')
+if (tmp_vol.mat(2,2)*header.vox_to_ras(2,2)) < 0
+    display('Volume matrix in the y coordinate is not equal to the trk matrix. Flipping to fit same orientation')
     %warning('Double check orientation after using this!')
     flag_y=-1;
 end
 
-if ~(abs(tmp_vol.mat(3,3) - header.vox_to_ras(3,3)) < tolerance)
+if (tmp_vol.mat(3,3)*header.vox_to_ras(3,3)) < 0
     warn=1;
-    warning('Volume matrix in the z coordinate is not equal to the trk matrix. Flipping to fit same orientation')
+    display('Volume matrix in the z coordinate is not equal to the trk matrix. Flipping to fit same orientation')
     %warning('Double check orientation after using this!')
     flag_z=-1;
 end
 
 if warn==1
     % warning('Volume matrix in the xyz coordinate is not equal to the trk matrix. Flipping to fit same orientation')
-     warning('Double check orientation after using this!')
+    display('Double check orientation after using this!')
 end
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~/
 
