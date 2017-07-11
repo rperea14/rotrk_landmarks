@@ -80,9 +80,10 @@ for iTrk = 1:header.n_count
     
     fwrite(fid, tracks(iTrk).nPoints, 'int');
     fwrite(fid, tracks(iTrk).matrix', 'float');
-    if header.n_properties
-        fwrite(fid, tracks(iTrk).props, 'float');
-    end
+    %REmove as the tracks.props field will never exist!
+    %    if header.n_properties
+    %       fwrite(fid, tracks(iTrk).props, 'float');
+    %  end
 end
 
 fclose(fid);
