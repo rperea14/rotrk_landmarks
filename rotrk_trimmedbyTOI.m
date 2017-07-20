@@ -83,7 +83,7 @@ switch WHAT_TOI
             
             %CRITERIA FOR TRIMMING THE VALUES (STARTING NEAR THE HIPPOCAMPUS):
             %   0) Remove strlines that start above the z-axis of
-            %   hippocampus maximun z-value
+            %   hippocampus maximun z-value 
             %   1) Once at y-axis midpoint of hippocampus (posterior) is reached, 
             %   then we remove everything below the z-axis midpoint of
             %   hippocampus once it reaches it
@@ -106,10 +106,9 @@ switch WHAT_TOI
             
             %Criteria 0) 
             for itrk=1:numel(temp_trks_out.sstr)
-                if temp_trks_out.sstr(itrk).vox_coord(1,3) > roi_vlim{1}(6)
+                if temp_trks_out.sstr(itrk).vox_coord(1,3) > roi_vlim{1}(6)-1
                     temp_trks_out.sstr(itrk).matrix= [] ;
                     temp_trks_out.sstr(itrk).vox_coord = [] ;
-                    
                 end
             end
             for itrk=1:numel(temp_trks_out.sstr)
@@ -340,15 +339,23 @@ switch WHAT_TOI
             %Flip trks to start at the most anterior regions (or minimun y-axis):
             tmp_val=[];
             tmpmaxidx = [];
-            min_ystrline=0;
+            flip_ystrline=0;
             for itrk=1:numel(trks_in.sstr)
-                [ tmp_val, tmp_idx ] = min(trks_in.sstr(itrk).matrix(:,2));
-                if tmp_val < min_ystrline
-                    min_ystrline=trks_in.sstr(itrk).matrix(tmp_idx,1:3);
+                if trks_in.header.invert_y == 1
+                    [ tmp_val, tmp_idx ] = min(trks_in.sstr(itrk).matrix(:,2));
+                    if tmp_val < flip_ystrline
+                        flip_ystrline=trks_in.sstr(itrk).matrix(tmp_idx,1:3);
+                    end
+                else
+                    [ tmp_val, tmp_idx ] = max(trks_in.sstr(itrk).matrix(:,2));
+                    if tmp_val > flip_ystrline
+                        flip_ystrline=trks_in.sstr(itrk).matrix(tmp_idx,1:3);
+                    end
                 end
             end
-            flipped_trks_in = rotrk_flip(trks_in,min_ystrline,true);
-           
+            flipped_trks_in = rotrk_flip(trks_in,flip_ystrline,true);
+            AA=1;
+            
             
             %CRITERIA FOR TRIMMING THE VALUES:
             %   STARTING AT MOST POSTERIOR PART
@@ -394,6 +401,13 @@ switch WHAT_TOI
                 for ixyz=1:size(temp_trks_out.sstr(itrk).matrix,1)
                     if trks_in.header.invert_y == 1 % Verifies orientation of y-axis for comparison
                         if temp_trks_out.sstr(itrk).vox_coord(ixyz,2) > roi_vmidpoint{2}(2) % Commented as no all fiber will reach the midpoint of z-axis --> && temp_trks_out.sstr(itrk).vox_coord(ixyz,3) < roi_vmidpoint{2}(3) % no tolerance of z-axis
+                            temp_trks_out.sstr(itrk).matrix(ixyz:end,:) = [] ;
+                            temp_trks_out.sstr(itrk).vox_coord(ixyz:end,:) = [] ;
+                            trim_second = true;
+                            break
+                        end
+                    else
+                        if temp_trks_out.sstr(itrk).vox_coord(ixyz,2) < roi_vmidpoint{2}(2) % Commented as no all fiber will reach the midpoint of z-axis --> && temp_trks_out.sstr(itrk).vox_coord(ixyz,3) < roi_vmidpoint{2}(3) % no tolerance of z-axis
                             temp_trks_out.sstr(itrk).matrix(ixyz:end,:) = [] ;
                             temp_trks_out.sstr(itrk).vox_coord(ixyz:end,:) = [] ;
                             trim_second = true;
