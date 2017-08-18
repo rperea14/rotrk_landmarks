@@ -1,10 +1,10 @@
 function rotrk_plot(TRKS_IN, plot_color, sortedby, dx,  varargin )
-%function rotrk_plot(header,tracts, volume, sortedby,limit_to, header2, tracts2, header3, tracts3 )
+%function rotrk_plot(TRKS_IN, plot_color, sortedby, dx,  varargin )
 % Inputs:
 %   TRKS_IN:
 %       TRKS_IN.header          -> struct/cell file header (*make sure this is larger
 %       TRKDS_IN.tracts         -> struct/cell file strlines
-
+%
 %   plot_color      --> color of the plot (e.g. 'rainbow' 'r' 'rr' 'r.' 'b' 'bb' 'c' 'cc' 'g' 'k' 'kk' 'kline'  )
 %                       *will replace TRKS_IN.plot_params.color!!
 %    sortedby       --> sorted by this variable (e.g. header.data.age, so put 'age')

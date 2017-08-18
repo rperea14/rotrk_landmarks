@@ -13,10 +13,10 @@ function [ roi_mean_xyz ] = rotrk_ROImean(roi_input,whatplane)
 %If roi_input is in structure form (e.g. roi_input.id and
 %roi_input.filename)
 if isstruct(roi_input)
-    roi_filename=cell2char(roi_input.filename);
+    roi_filename=roi_input.filename;
     roi_mean_xyz.id=roi_input.id;
 elseif iscell(roi_input)
-    roi_filenamecell2char(roi_input);
+    roi_filename=cell2char(roi_input);
     roi_mean_xyz.id='No ID';
 else
     roi_filename= roi_input;

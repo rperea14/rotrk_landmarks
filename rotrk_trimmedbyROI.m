@@ -19,6 +19,8 @@ TRKS_OUT.filename=strrep(TRKS_IN.filename,'trimmed from ~~>  trimmed from ~~> ',
   
 if strcmp(whatflag,'above_dot') || ( strcmp(whatflag,'below') || strcmp(whatflag,'above_dotfimbria')) 
     xyz_flag=rotrk_ROImean(theROI.filename);
+elseif strcmp(whatflag,'above')
+      xyz_flag=rotrk_ROImean(theROI.filename);
 else
     ROIxyz=rotrk_ROIxyz(theROI);
     xyz_flag=round(median(ROIxyz.trk_coord)); %/header.voxel_size(2));
@@ -52,7 +54,30 @@ for ii=1:numel(tracts)
     end
     %If flag is 'dot' then move all the values coordinates above the
     %eucledian distance..
-    if strcmp(whatflag,'above_dot')
+    
+    %%%ABOVE what flag should only be used for previous AD23vsNC23
+    %%%values...
+    if strcmp(whatflag,'above')
+        for ij=1:size(tracts(ii).matrix,1)
+            %Computing the eucledian distance
+            tmp_distance(ij)=sqrt( (xyz_flag(1)-tracts(ii).matrix(ij,1))^2 + (xyz_flag(2)-tracts(ii).matrix(ij,2))^2  + (xyz_flag(3)-tracts(ii).matrix(ij,3))^2);
+        end
+        %What coordinate of the streamline is closer to the ROI (min_distance)?
+        [minvalue minidx ] = min(tmp_distance);
+        counter=1;
+        for ik=minidx:size(tracts(ii).matrix,1) %<--the key for filetering out streamlines
+            if minidx ~= size(tracts(ii).matrix,1)
+                new_tracts(newii).matrix(counter,:)=tracts(ii).matrix(ik,:);
+                new_tracts(newii).vox_coord(counter,:)=tracts(ii).vox_coord(ik,:);
+                counter=counter+1;
+                success=1;
+            end
+        end
+        if minidx~=size(tracts(ii).matrix,1) 
+            new_tracts(newii).nPoints=counter-1;
+        end
+          
+    elseif strcmp(whatflag,'above_dot')
         %Dealing with shorter streamline coming from the opposite
         %direction (default to body of fx always below the midpoint coordinate so...:
         clear tmp flag_tmp
@@ -66,7 +91,7 @@ for ii=1:numel(tracts)
                 new_tracts(newii).nPoints=size(new_tracts(newii).matrix,1);
                 
             catch
-                sucess=0
+                sucess=0;
             end
         end
         
@@ -80,7 +105,7 @@ for ii=1:numel(tracts)
                 new_tracts(newii).nPoints=size(new_tracts(newii).matrix,1);
                 
             catch
-                sucess=0
+                sucess=0;
             end
     
         %If flag is 'fimbria' (and since values start next to dot fornix
@@ -95,7 +120,7 @@ for ii=1:numel(tracts)
                 new_tracts(newii).nPoints=size(new_tracts(newii).matrix,1);
                 
             catch
-                sucess=0
+                sucess=0;
             end
         end
         

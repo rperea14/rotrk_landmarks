@@ -68,7 +68,8 @@ end
 %WORKING WITH GZIP NII:
 %IS IT GZIPPED??
 %VOL_INPUT NII:
-[ ronii_dirpath, ronii_filename, ronii_ext ] = fileparts(vol_input_diffmetric.filename{end});
+
+[ ronii_dirpath, ronii_filename, ronii_ext ] = fileparts(vol_input_diffmetric{end}.filename{end});
 if strcmp(ronii_ext,'.gz')
     disp(['Gunzipping...' vol_input_diffmetric.filename{end} ]);
     system([ 'gunzip -f ' vol_input_diffmetric.filename{end} ] );
