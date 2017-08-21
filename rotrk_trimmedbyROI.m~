@@ -16,8 +16,6 @@ TRKS_OUT.id=TRKS_IN.id;
 TRKS_OUT.filename=['trimmed from ~~> ' TRKS_IN.filename];
 TRKS_OUT.filename=strrep(TRKS_IN.filename,'trimmed from ~~>  trimmed from ~~> ','trimmedx2 from ~~> ');
 
-TRKS_OUT.trk_name=['trimmed_' TRKS_IN.trk_name];
-TRKS_OUT.trk_name=strrep(TRKS_OUT.trk_name,'trimmed_trimmed_','trimmedx2_');
 
 %~~~
   

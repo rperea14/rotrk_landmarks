@@ -68,12 +68,13 @@ end
 %WORKING WITH GZIP NII:
 %IS IT GZIPPED??
 %VOL_INPUT NII:
-
-[ ronii_dirpath, ronii_filename, ronii_ext ] = fileparts(vol_input_diffmetric{end}.filename{end});
-if strcmp(ronii_ext,'.gz')
-    disp(['Gunzipping...' vol_input_diffmetric.filename{end} ]);
-    system([ 'gunzip -f ' vol_input_diffmetric.filename{end} ] );
-    vol_input_diffmetric.filename{end} = [ ronii_dirpath filesep ronii_filename ];
+for ii=1:size(vol_input_diffmetric,1)
+    [ ronii_dirpath{ii}, ronii_filename{ii}, ronii_ext{ii} ] = fileparts(vol_input_diffmetric{ii}.filename{end});
+    if strcmp(ronii_ext,'.gz')
+        disp(['Gunzipping...' vol_input_diffmetric{ii}.filename{end} ]);
+        system([ 'gunzip -f ' vol_input_diffmetric{ii}.filename{end} ] );
+        vol_input_diffmetric{ii}.filename = {[ ronii_dirpath filesep ronii_filename ]};
+    end
 end
 
 
@@ -174,7 +175,11 @@ for pp=1:size(vol_input_diffmetric,1)
     end
 end
 
-if strcmp(ronii_ext,'.gz')
-    system([ 'gzip -f ' vol_input_diffmetric.filename{end} ] );
-end
 
+
+%Gzip again if needeD:
+for ii=1:size(vol_input_diffmetric,1)
+    if strcmp(ronii_ext{ii},'.gz')
+        system([ 'gzip -f ' vol_input_diffmetric{ii}.filename{end} ] );
+    end
+end

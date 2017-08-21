@@ -14,35 +14,57 @@ function [ roi_mean_xyz ] = rotrk_ROImean(roi_input,whatplane)
 %roi_input.filename)
 if isstruct(roi_input)
     roi_filename=roi_input.filename;
-    roi_mean_xyz.id=roi_input.id;
 elseif iscell(roi_input)
-    roi_filename=cell2char(roi_input);
-    roi_mean_xyz.id='No ID';
+    roi_filename=roi_input;
 else
-    roi_filename= roi_input;
-    roi_mean_xyz.id='No ID';
+    roi_filename= {roi_input};
 end
+
+
+
+
 %Is it gzip?
-[ roi_dir , roi_name , roi_ext ] = fileparts(roi_filename);
+[ roi_dir , roi_name , roi_ext ] = fileparts(roi_filename{end});
+
+%check if roi_dir is ~ ...
+if strcmp(roi_dir,'~')
+    roi_dir=getenv('HOME');
+end
 if strcmp(roi_ext,'.gz')
-    system(['gunzip ' roi_filename])
+    system(['gunzip -f ' roi_filename{end}]);
     if isempty(roi_dir)
-        roi_filename = [ '.' filesep filesep roi_name ]; 
+        roi_filename = {[ '.' filesep filesep roi_name ]}; 
     else
-        roi_filename = [ roi_dir filesep roi_name ];
+        roi_filename = {[ roi_dir filesep roi_name ]};
     end
 end
+
+
+
+
+
+
 %Read the volume:
-H_vol = spm_vol(roi_filename);
+H_vol = spm_vol(roi_filename{end});
 mat2=H_vol.mat;
 
 %Check if the matfile is 
 AA=1;
 
 V_vol=spm_read_vols(H_vol);
+
+
+
 %was it gzipped?
- if strcmp(roi_ext,'.gz');  system(['gzip -f ' roi_filename ]) ; end
- 
+if strcmp(roi_ext,'.gz');
+    system(['gzip -f ' roi_filename{end} ]);
+    if isempty(roi_dir)
+        roi_filename = {[ '.' filesep filesep roi_name roi_ext ]};
+    else
+        roi_filename = {[ roi_dir filesep roi_name roi_ext ]};
+    end
+end
+
 try
     ind=find(V_vol>0);
     [ x y z ]  = ind2sub(size(V_vol),ind);

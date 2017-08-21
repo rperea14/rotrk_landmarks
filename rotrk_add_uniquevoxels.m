@@ -6,8 +6,8 @@ for ii=1:numel(TRKS_IN)
     TRKS_OUT{ii}.header=TRKS_IN{ii}.header;
     TRKS_OUT{ii}.id=TRKS_IN{ii}.id;
     TRKS_OUT{ii}.sstr=TRKS_IN{ii}.sstr;
-    TRKS_OUT{ii}.trk_name = strcat('vvol_all_' , TRKS_IN{ii}.trk_name);
-    TRKS_OUT{ii}.header.specific_name='trk_vvol_all';
+    TRKS_OUT{ii}.trk_name = strcat('trk_combinedall' );
+    TRKS_OUT{ii}.header.specific_name='trk_combinedall';
     %
     clear all_vox
     all_vox=TRKS_IN{ii}.unique_voxels;
