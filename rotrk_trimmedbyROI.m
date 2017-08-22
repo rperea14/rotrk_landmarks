@@ -240,4 +240,22 @@ for ii=2:size(TRKS_OUT.sstr,2)
 end
 
 TRKS_OUT.unique_voxels=unique(all_vox,'rows');
-TRKS_OUT.num_uvox=size(TRKS_OUT.unique_voxels,1); 
+TRKS_OUT.num_uvox=size(TRKS_OUT.unique_voxels,1);
+
+
+%ADDING ALL_SSTRLEN and MAXLEN:
+len=0;
+
+for ii=1:size(TRKS_OUT.sstr,2)
+    cur_len=0;
+    for jj=1:(size(TRKS_OUT.sstr(ii).matrix,1)-1)
+        cur_len=cur_len+pdist2(TRKS_OUT.sstr(ii).matrix(jj,:),TRKS_OUT.sstr(ii).matrix(jj+1,:));
+    end
+    sstr_len(ii)=cur_len;
+    if len < cur_len
+        len=cur_len;
+    end
+end
+TRKS_OUT.maxsstrlen=len;
+TRKS_OUT.all_sstrlen=sstr_len';
+

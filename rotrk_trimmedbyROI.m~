@@ -16,6 +16,8 @@ TRKS_OUT.id=TRKS_IN.id;
 TRKS_OUT.filename=['trimmed from ~~> ' TRKS_IN.filename];
 TRKS_OUT.filename=strrep(TRKS_IN.filename,'trimmed from ~~>  trimmed from ~~> ','trimmedx2 from ~~> ');
 
+TRKS_OUT.trk_name=['trimmed_' TRKS_IN.trk_name];
+TRKS_OUT.trk_name=strrep(TRKS_OUT.trk_name,'trimmed_trimmed_','trimmedx2_');
 
 %~~~
   
@@ -238,4 +240,18 @@ for ii=2:size(TRKS_OUT.sstr,2)
 end
 
 TRKS_OUT.unique_voxels=unique(all_vox,'rows');
-TRKS_OUT.num_uvox=size(TRKS_OUT.unique_voxels,1); 
+TRKS_OUT.num_uvox=size(TRKS_OUT.unique_voxels,1);
+
+
+%ADDING MAXLEN:
+AA=1;
+len=0;
+for ii=1:size(TRKS_OUT.sstr)
+    cur_len=0;
+    for jj=1:size(size(TRKS_OUT.sstr(ii).matrix,1))
+        cur_len=len+pdist2(TRKS_OUT.sstr.matrix(jj,:),TRKS_OUT.sstr.matrix(jj+1,:));
+    end
+    if len < cur_len
+        len=cur_len
+    end
+end

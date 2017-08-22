@@ -24,12 +24,12 @@ for ii=1:numel(fields_vals)
     %Check whether an ROI or TRK is being input...
     if strcmp(SPLIT{1},'ROIS')
         clear tmp_ROIs tmp_fn tmp_varname var_name ok_idx tmp_ROIS_ids
+        %Assigning current ROI of interest cell array
         tmp_ROIs=all_VALS.(fields_vals{ii});
         %Creating the name for the volume_<ROI>:
-        [~, tmp_fn, ~ ] =fileparts(tmp_ROIs{1}.filename{end}); 
+        [~, tmp_fn, ~ ] =fileparts(tmp_ROIs{1}.filename{end});
         display(tmp_fn);
-        tmp_varname=strrep(tmp_fn,[ tmp_ROIs{1}.id{end} ],'');
-        tmp_varname=strrep(tmp_fn,'__,'');
+        tmp_varname=strrep(tmp_fn,[ '_' tmp_ROIs{1}.id{end} ],'');
         var_name=strcat('vol_',tmp_varname);
         %Get IDs for each value:
         for kk=1:numel(tmp_ROIs)
@@ -41,10 +41,41 @@ for ii=1:numel(fields_vals)
             %if the id exist on the specific ROI, then do something
             if ok_idx ~= 0
                 var_fields.(var_name){kk} =tmp_ROIs{ok_idx}.num_uvox;
+            else
+                var_fields.(var_name){kk} = NaN;
             end
         end
-        
+        var_fields.(var_name)=var_fields.(var_name)';
+        var_fields.(var_name)=cell2mat(var_fields.(var_name))
     elseif strcmp(SPLIT{1},'TRKS')
+        clear tmp_ROIs tmp_fn tmp_varname var_name ok_idx tmp_ROIS_ids
+        %Assigning current trk of interest cell array 
+        tmp_TRKs=all_VALS.(fields_vals{ii});
+        %Creating the name for the volume_<ROI>:
+        trk_prefix=tmp_TRKs{1}.trk_name;
+        vol_trkname=strcat('vol',trk_prefix);
+        maxlen_trkname=strcat('maxlen',trk_prefix);
+        numsstr_trkname=strcat('numsstr',trk_prefix);
+        %Get IDs for each value:
+        for kk=1:numel(tmp_TRKs)
+            tmp_TRKS_ids{kk}=tmp_TRKs{kk}.id{end};
+        end
+        %Looping though all values and assigning them to each id
+        for kk=1:numel(var_fields.id)
+            ok_idx=getnameidx(tmp_TRKS_ids,var_fields.id{kk});
+            %if the id exist on the specific ROI, then do something
+            if ok_idx ~= 0
+                var_fields.(vol_trkname){kk} =tmp_TRKs{ok_idx}.num_uvox;
+                var_fields.(maxlen_trkname){kk} =tmp_TRKs{ok_idx}.num_uvox;
+                var_fields.(numsstr_trkname){kk} =tmp_TRKs{ok_idx}.num_uvox;
+            else
+                var_fields.(vol_trkname){kk} =NaN;
+                var_fields.(maxlen_trkname){kk} =NaN;
+                var_fields.(numsstr_trkname){kk} =NaN;
+            end
+        end
+        var_fields.(var_name)=var_fields.(var_name)';
+        var_fields.(var_name)=cell2mat(var_fields.(var_name))
     else
     end
 end
@@ -53,8 +84,7 @@ end
 
 
 %Joining both tables together....
-myTable=join(outTable,varTable);
-cellTable_out=table2cell(myTable);
+myTable=join(outTable,struct2table(var_fields));
 
 %%~~~~~~~~~~~~~~~~~~~~~~~~END OF IMPLEMENTATION~~~~~~~~~~~~~~~~~~~~~~~~~~%%
 

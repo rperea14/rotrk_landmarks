@@ -635,3 +635,18 @@ TRKS_OUT=trks_out;
 
 
 
+%ADDING MAXLEN:
+len=0;
+for ii=1:size(TRKS_OUT.sstr,2)
+    cur_len=0;
+    for jj=1:(size(TRKS_OUT.sstr(ii).matrix,1)-1)
+        cur_len=cur_len+pdist2(TRKS_OUT.sstr(ii).matrix(jj,:),TRKS_OUT.sstr(ii).matrix(jj+1,:));
+    end
+    if len < cur_len
+        len=cur_len;
+    end
+end
+TRKS_OUT.maxsstrlen=len;
+
+
+

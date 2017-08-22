@@ -25,6 +25,12 @@ TRKS_OUT.header=TRKS_IN.header;
 TRKS_OUT.id=TRKS_IN.id;
 TRKS_OUT.filename=TRKS_IN.filename;
 TRKS_OUT.sstr=TRKS_IN.sstr;
+if isfield(TRKS_IN,'sstrmaxlen')
+    TRKS_OUT.maxsstrlen = TRKS_IN.sstrmaxlen;
+end
+if isfield(TRKS_IN,'all_sstrlen')
+    TRKS_OUT.all_sstrlen = TRKS_IN.all_sstrlen;
+end
 
 %Check if other fields exist...
 if isfield(TRKS_IN,'trk_name')

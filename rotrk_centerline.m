@@ -135,9 +135,7 @@ TRKS_OUT.num_uvox=size(TRKS_OUT.unique_voxels,1);
 
 %adding the matrix_length
 len=0;
-for jj=1:size(TRKS_OUT.sstr.matrix,1)
-    if jj~=size(TRKS_OUT.sstr.matrix,1)
+for jj=1:size(TRKS_OUT.sstr.matrix,1)-1 % minus 1 will avoid jj+1 at the end!
         len=len+pdist2(TRKS_OUT.sstr.matrix(jj,:),TRKS_OUT.sstr.matrix(jj+1,:));
-    end
 end
-TRKS_OUT.len_matrix=len;
+TRKS_OUT.maxsstrlen=len;

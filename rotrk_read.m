@@ -1,4 +1,4 @@
-function [tract_out] = rotrk_read(filePath, identifier, vol_data_untyped,specific_name)
+function [TRKS_OUT] = rotrk_read(filePath, identifier, vol_data_untyped,specific_name)
 %function [header,tracts] = rotrk_read(filePath, identifier, vol_data, specific_name)
 %~~%Modified from along_tracts to input 2 arguments ( additional identifier)
 %   -Changes made by rdp20 to account for vol_data orientation (not
@@ -253,12 +253,12 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Here we deal with xyz coordinates in MNI voxel system (creating
 %tract.sstr.vox_coord ) and removing repeats
-tract_out.header=header;
+TRKS_OUT.header=header;
 %%These should be of a 'char' type:
-tract_out.filename=fullfile(filePath);
-tract_out.id=identifier;
+TRKS_OUT.filename=fullfile(filePath);
+TRKS_OUT.id=identifier;
 if ~strcmp(specific_name,'none')
-    tract_out.trk_name=specific_name;
+    TRKS_OUT.trk_name=specific_name;
 end
 for ii=1:size(tracts,2)
     pos=round(tracts(ii).matrix(:,1:3) ./ repmat(header.voxel_size, tracts(ii).nPoints,1));
@@ -275,28 +275,46 @@ for ii=1:size(tracts,2)
     extreme_z=find(pos(:,3)>=header.dim(3)) ; for gg=1:numel(extreme_z); pos(extreme_z(gg),3)=header.dim(3) ; end
     
     %WITHOUT REMOVING DUPLICATES:
-    tract_out.sstr(ii).matrix(:,1:3)=tracts(ii).matrix(:,1:3);
-    tract_out.sstr(ii).vox_coord(:,1:3)=pos(:,1:3);
+    TRKS_OUT.sstr(ii).matrix(:,1:3)=tracts(ii).matrix(:,1:3);
+    TRKS_OUT.sstr(ii).vox_coord(:,1:3)=pos(:,1:3);
     
     %REMOVING DUPLICATES CODE WAS REMOVED AND REPLACED WITH:
-    %~~~~> tract_out.unique_voxels and tract_out.num_uvox
+    %~~~~> TRKS_OUT.unique_voxels and TRKS_OUT.num_uvox
     
     
     posnew_idx=1+posnew_idx;
-    tract_out.sstr(ii).nPoints=size(tract_out.sstr(ii).matrix,1);
+    TRKS_OUT.sstr(ii).nPoints=size(TRKS_OUT.sstr(ii).matrix,1);
 end
 
 
 %Get the volume of non-overlapping XYZ vox_coord values
 AA=1;
-all_vox=tract_out.sstr(1).vox_coord ;        %initializing vox_coord
-for ii=2:size(tract_out.sstr,2)
-    all_vox=vertcat(all_vox,tract_out.sstr(ii).vox_coord);
+all_vox=TRKS_OUT.sstr(1).vox_coord ;        %initializing vox_coord
+for ii=2:size(TRKS_OUT.sstr,2)
+    all_vox=vertcat(all_vox,TRKS_OUT.sstr(ii).vox_coord);
 end
 %s_all_vox=sort(all_vox); %sort if bad! I believe it doesn't freeze the Y
 %and Z columns so no good to do this! 
-tract_out.unique_voxels=unique(all_vox,'rows');
-tract_out.num_uvox=size(tract_out.unique_voxels,1);
+TRKS_OUT.unique_voxels=unique(all_vox,'rows');
+TRKS_OUT.num_uvox=size(TRKS_OUT.unique_voxels,1);
+
+
+%ADDING ALL_SSTRLEN and MAXLEN:
+len=0;
+
+for ii=1:size(TRKS_OUT.sstr,2)
+    cur_len=0;
+    for jj=1:(size(TRKS_OUT.sstr(ii).matrix,1)-1)
+        cur_len=cur_len+pdist2(TRKS_OUT.sstr(ii).matrix(jj,:),TRKS_OUT.sstr(ii).matrix(jj+1,:));
+    end
+    sstr_len(ii)=cur_len;
+    if len < cur_len
+        len=cur_len;
+    end
+end
+TRKS_OUT.maxsstrlen=len;
+TRKS_OUT.all_sstrlen=sstr_len';
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
