@@ -221,7 +221,7 @@ for tt=1:size(ALL_TRKS{1}.header.scalar_IDs,2)
         diff_cc=3+tt; % 3 adds the xyz  coordinates!
     end
 end
-
+%disp(['DIFFMETRIC IS: diffmetric'])
 %CREATING A TABLE PER nPoint:
 for ii=1:num_points 
     cur_diffmetric=[ diffmetric '_n' num2str(ii) ];
@@ -241,20 +241,20 @@ for ii=1:size(TABLE_IN.id,1)
     ttt.id{ii}=TABLE_IN.id{ii};
 end
 ttt.id=ttt.id';
-ttt.Lvvol=TABLE_IN.vvol_fx_dotfimbriaR;
-ttt.Rvvol=TABLE_IN.vvol_fx_dotfimbriaR;
+ttt.Lvvol=TABLE_IN.voltrk_fx_dotfimbriaR;
+ttt.Rvvol=TABLE_IN.voltrk_fx_dotfimbriaR;
 
 %COMBINING BOTH TABLES
 for jj=1:size(cur_table.id,1)
     clear cur_idx
     cur_idx=getnameidx(ttt.id,cur_table.id{jj});
     
-    cur_table.vvol_fx_dotfimbriaL(jj)=ttt.Lvvol(cur_idx);
-    cur_table.vvol_fx_dotfimbriaR(jj)=ttt.Rvvol(cur_idx);
+    cur_table.voltrk_fx_dotfimbriaL(jj)=ttt.Lvvol(cur_idx);
+    cur_table.voltrk_fx_dotfimbriaR(jj)=ttt.Rvvol(cur_idx);
 end
 
-cur_table.vvol_fx_dotfimbriaL=cur_table.vvol_fx_dotfimbriaL';
-cur_table.vvol_fx_dotfimbriaR=cur_table.vvol_fx_dotfimbriaR';
+cur_table.voltrk_fx_dotfimbriaL=cur_table.voltrk_fx_dotfimbriaL';
+cur_table.voltrk_fx_dotfimbriaR=cur_table.voltrk_fx_dotfimbriaR';
 
 
 table_out=struct2table(cur_table);
@@ -265,10 +265,10 @@ function [ p_val, t_val ] = local_get_stats(table_IN, num_points, diffmetric,sid
 for ii=1:num_points
     n_diffmetric=[ diffmetric '_n' num2str(ii) ];
     if strcmp(side,'L')
-        %mdl_tmp=fitlm(table_IN, [ (n_diffmetric) '~1 + dx + diffmotion + vvol_fx_dotfimbriaL + fimbria_volL']);
+        %mdl_tmp=fitlm(table_IN, [ (n_diffmetric) '~1 + dx + diffmotion + voltrk_fx_dotfimbriaL + fimbria_volL']);
         mdl_tmp=fitlm(table_IN, [ (n_diffmetric) ' ~ ' strrep(formulita,'L/R','L')] );
     elseif strcmp(side,'R')
-        %mdl_tmp=fitlm(table_IN, [ (n_diffmetric) '~1 + dx + diffmotion + vvol_fx_dotfimbriaR + fimbria_volR']);
+        %mdl_tmp=fitlm(table_IN, [ (n_diffmetric) '~1 + dx + diffmotion + voltrk_fx_dotfimbriaR + fimbria_volR']);
         mdl_tmp=fitlm(table_IN, [ (n_diffmetric) ' ~' strrep(formulita,'L/R','R') ] );
     end
     p_val(ii)=mdl_tmp.Coefficients.pValue(2);

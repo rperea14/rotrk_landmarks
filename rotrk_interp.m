@@ -162,6 +162,6 @@ for ii=1:size(TRKS_OUT.sstr,2)
         len=cur_len;
     end
 end
-TRKS_OUT.sstrmaxlen=len;
+TRKS_OUT.maxsstrlen=len;
 TRKS_OUT.all_sstrlen=sstr_len';
 

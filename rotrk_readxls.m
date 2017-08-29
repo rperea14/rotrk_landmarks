@@ -38,6 +38,12 @@ for ii=1:size(HEADER,2)
             new_DATA.sex=RAW(2:end,ii);
         elseif strcmp(HEADER(ii),'diffMotion')
             new_DATA.diffmotion=RAW(2:end,ii);
+        elseif strcmp(HEADER(ii),'volROI_fimbriaL')
+            new_DATA.fimbria_volDIL_L=RAW(2:end,ii);
+        elseif strcmp(HEADER(ii),'volROI_fimbriaR')
+            new_DATA.fimbria_volDIL_R=RAW(2:end,ii);
+        %This two elseifs are keep (for compatibility with previous version
+        %(before Aug 2017):
         elseif strcmp(HEADER(ii),'dwi_DIL_fimbria_vol_L(mm)')
             new_DATA.fimbria_volDIL_L=RAW(2:end,ii);
         elseif strcmp(HEADER(ii),'dwi_DIL_fimbria_vol_R(mm)')

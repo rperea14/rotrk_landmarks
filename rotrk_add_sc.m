@@ -25,8 +25,8 @@ TRKS_OUT.header=TRKS_IN.header;
 TRKS_OUT.id=TRKS_IN.id;
 TRKS_OUT.filename=TRKS_IN.filename;
 TRKS_OUT.sstr=TRKS_IN.sstr;
-if isfield(TRKS_IN,'sstrmaxlen')
-    TRKS_OUT.maxsstrlen = TRKS_IN.sstrmaxlen;
+if isfield(TRKS_IN,'maxsstrlen')
+    TRKS_OUT.maxsstrlen = TRKS_IN.maxsstrlen;
 end
 if isfield(TRKS_IN,'all_sstrlen')
     TRKS_OUT.all_sstrlen = TRKS_IN.all_sstrlen;
@@ -46,11 +46,11 @@ if isfield(TRKS_IN,'num_uvox')
 end
 
 if ischar(vol_input_diffmetric_untyped)
-    vol_input_diffmetric.filename={vol_input_diffmetric_untyped};
+    vol_input_diffmetric{1}.filename={vol_input_diffmetric_untyped};
     if nargin > 2
-        vol_input_diffmetric.identifier=opt;
+        vol_input_diffmetric{1}.identifier=opt;
     else
-        vol_input_diffmetric.identifier='null';
+        vol_input_diffmetric{1}.identifier='null';
     end
 else
     vol_input_diffmetric=vol_input_diffmetric_untyped;
@@ -74,12 +74,14 @@ end
 %WORKING WITH GZIP NII:
 %IS IT GZIPPED??
 %VOL_INPUT NII:
+
+
 for ii=1:size(vol_input_diffmetric,1)
     [ ronii_dirpath{ii}, ronii_filename{ii}, ronii_ext{ii} ] = fileparts(vol_input_diffmetric{ii}.filename{end});
     if strcmp(ronii_ext,'.gz')
         disp(['Gunzipping...' vol_input_diffmetric{ii}.filename{end} ]);
         system([ 'gunzip -f ' vol_input_diffmetric{ii}.filename{end} ] );
-        vol_input_diffmetric{ii}.filename = {[ ronii_dirpath filesep ronii_filename ]};
+        vol_input_diffmetric{ii}.filename = {[ ronii_dirpath{ii} filesep ronii_filename{ii} ]};
     end
 end
 
@@ -89,7 +91,7 @@ end
 
 for pp=1:size(vol_input_diffmetric,1)
     if size(vol_input_diffmetric,1) ==1 
-        H_vol= spm_vol(cell2char(vol_input_diffmetric.filename));
+        H_vol= spm_vol(cell2char(vol_input_diffmetric{pp}.filename));
     else
         H_vol= spm_vol(cell2char(vol_input_diffmetric{pp}.filename));
     end
@@ -101,14 +103,14 @@ for pp=1:size(vol_input_diffmetric,1)
     scalar_count=scalar_count+1;
     if size(vol_input_diffmetric,1) == 1
         if isfield(TRKS_IN.header,'scalar_IDs') == 0
-            TRKS_OUT.header.scalar_IDs={vol_input_diffmetric.identifier};
+            TRKS_OUT.header.scalar_IDs={vol_input_diffmetric{pp}.identifier};
         else
-            TRKS_OUT.header.scalar_IDs=[ TRKS_IN.header.scalar_IDs {vol_input_diffmetric.identifier} ] ;
+            TRKS_OUT.header.scalar_IDs=[ TRKS_IN.header.scalar_IDs {vol_input_diffmetric{pp}.identifier} ] ;
         end
     else
         if pp==1
             if isfield(TRKS_IN.header,'scalar_IDs') == 0
-                TRKS_OUT.header.scalar_IDs={vol_input_diffmetric{1}.identifier};
+                TRKS_OUT.header.scalar_IDs={vol_input_diffmetric{pp}.identifier};
             else
                 TRKS_OUT.header.scalar_IDs=[ TRKS_IN.header.scalar_IDs {vol_input_diffmetric{pp}.identifier} ] ;
             end

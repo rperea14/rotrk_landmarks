@@ -90,7 +90,22 @@ for ii = 1:numel(tracts)
         if isempty(opt)
             new_ROI(ind)=1;
         else
-            new_ROI(ind)=tracts.vox_coord(:,opt);
+            idx_diffM=NaN;
+            for tt=1:numel(header.scalar_IDs)
+                if strcmp(header.scalar_IDs{tt},opt)
+                    idx_diffM = tt ; 
+                    break
+                end
+            end
+            try
+                if strcmp('FA',opt)
+                    new_ROI(ind)=1000*tracts.vox_coord(:,3+idx_diffM);
+                else %sassuming AxD, MD or RD
+                    new_ROI(ind)=1000000*tracts.vox_coord(:,3+idx_diffM);
+                end
+            catch
+                error(['No metric: ' opt ' found. Cannot put values on it']);
+            end
         end
         
         %Writing into a file (all of the streamlines, that's why this if statements

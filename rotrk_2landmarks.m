@@ -68,7 +68,6 @@ for args_mgmt1=1:1
         if strcmp('noID',diffmetric{1}.id)
             diffmetric{1}.id=TRKS_IN{1}.header.id;
         end
-        
     end
 end
 
