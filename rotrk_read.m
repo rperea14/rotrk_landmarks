@@ -53,7 +53,7 @@ if iscell(identifier) ; identifier=cell2char(identifier); end
 %TRKS.trk.gz
 [ ro_dirpath, ro_filename, ro_ext ] = fileparts(filePath);
 if strcmp(ro_ext,'.gz')
-    disp(['Gunzipping...' filePath ]);
+    %disp(['Gunzipping...' filePath ]);
     system([ 'gunzip -f ' filePath] );
     filePath=[ro_dirpath filesep ro_filename ];
 end
@@ -242,8 +242,8 @@ header.voxel_order=header.voxel_order;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %GZIPPING BACK IF NEEDED:
 if strcmp(ro_ext,'.gz')
-    disp(['gzipping now...' filePath ])
-    system(['gzip ' filePath] )
+    %disp(['gzipping now...' filePath ])
+    system(['gzip ' filePath] );
     filePath=[ filePath '.gz' ];
 end
 
@@ -288,7 +288,6 @@ end
 
 
 %Get the volume of non-overlapping XYZ vox_coord values
-AA=1;
 all_vox=TRKS_OUT.sstr(1).vox_coord ;        %initializing vox_coord
 for ii=2:size(TRKS_OUT.sstr,2)
     all_vox=vertcat(all_vox,TRKS_OUT.sstr(ii).vox_coord);
