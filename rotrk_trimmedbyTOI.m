@@ -37,8 +37,12 @@ for tohide=1:1
     if isstruct(TRKS_IN)
         trks_in = TRKS_IN;
     else
-        display('Not impoemented yet (easy fix!)...')
-        error([ 'In: ' mfilename ' TRKS_IN has only been implemented to use struct types. Please implement otherwise']);
+        if ischar(TRKS_IN)
+            trks_in=rotrk_read(TRKS_IN,'',ROIS_IN{end},WHAT_TOI);
+        else
+            display('Not implemented yet (easy fix!)...')
+            error([ 'In: ' mfilename ' TRKS_IN has only been implemented to use struct types. Please implement otherwise']);
+        end
     end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -592,6 +596,135 @@ switch WHAT_TOI
                 end
             end
         end
+        
+    case {'isthmus'}
+        for tohide=1:1
+            display('Trimming trks based on the isthmus modification');
+            %Flip trks to start at the lower most regions (or minimun z-axis):
+            tmp_val=[];
+            tmpmaxidx = [];
+            flip_zstrline=600;
+            for itrk=1:numel(trks_in.sstr)
+                if trks_in.header.invert_y == 1
+                    [ tmp_val, tmp_idx ] = min(trks_in.sstr(itrk).matrix(:,3));
+                    if tmp_val < flip_zstrline
+                        flip_zstrline=trks_in.sstr(itrk).matrix(tmp_idx,1:3);
+                    end
+                    
+                end
+            end
+            flipped_trks_in = rotrk_flip(trks_in,flip_zstrline,true);
+            AA=1;
+            
+            
+            %CRITERIA FOR TRIMMING THE VALUES:
+            %   STARTING AT MOST ANTERIOR PART (CLOSE TO HIPPOCAMPUS)
+            %   1) Remove everything below the midpoint+3 (voxels) z-axis of the
+            %   hippocampus (ROI1)
+            
+            %   2) Remove everything above the midpoint z-axis of the
+            %   isthmus (ROI2)
+            
+            %   All other values:
+            for tohide_INIT_trkout=1:1
+                temp_trks_out.sstr=flipped_trks_in.sstr;
+                
+                trks_out.header=flipped_trks_in.header;
+                trks_out.header.specific_name=[ 'trimmed_' flipped_trks_in.header.specific_name ] ;
+                trks_out.id=flipped_trks_in.id;
+                trks_out.sstr = [];
+                trks_out.trk_name=[ 'trimmed_' flipped_trks_in.trk_name ];
+            end
+            for itrk=1:numel(temp_trks_out.sstr)
+                trim_first = false ;
+                trim_second = false;
+                %Criteria 1)
+                for ixyz=1:size(temp_trks_out.sstr(itrk).matrix,1)
+                    if temp_trks_out.sstr(itrk).vox_coord(ixyz,3) > roi_vmidpoint{1}(3)+3 %% && temp_trks_out.sstr(itrk).vox_coord(ixyz,3) > roi_vlim{1}(5)
+                        temp_trks_out.sstr(itrk).matrix(1:ixyz,:) = [] ;
+                        temp_trks_out.sstr(itrk).vox_coord(1:ixyz,:) = [] ;
+                        trim_first = true;
+                        crit1_xyz=ixyz;
+                        %TODEBUG disp(num2str(ixyz));
+                        break
+                    end
+                end
+                
+                %Criteria 2)
+                if trim_first ~= false
+                    for ixyz=crit1_xyz:size(temp_trks_out.sstr(itrk).matrix,1)
+                        if temp_trks_out.sstr(itrk).vox_coord(ixyz,3) > roi_vmidpoint{2}(3) % Commented as no all fiber will reach the midpoint of z-axis --> && temp_trks_out.sstr(itrk).vox_coord(ixyz,3) < roi_vmidpoint{2}(3) % no tolerance of z-axis
+                            temp_trks_out.sstr(itrk).matrix(ixyz:end,:) = [] ;
+                            temp_trks_out.sstr(itrk).vox_coord(ixyz:end,:) = [] ;
+                            trim_second = true;
+                            break
+                        end
+                        
+                    end
+                end
+                %trim_second
+                %If first or second trim don't happened, then remove
+                %streamline
+                if trim_second == false || trim_first == false
+                    temp_trks_out.sstr(itrk).matrix = [];
+                    temp_trks_out.sstr(itrk).vox_coord = [];
+                end
+                
+                for tohide_criteria3=1:1
+                    %             %Criteria 3) - Under development if needed.
+                    %             for itrk=1:numel(temp_trks_out.sstr)
+                    %                 if ~isempty(temp_trks_out.sstr(itrk).vox_coord)
+                    %                     %X-axis criteria:
+                    %                     if strcmp(WHAT_TOI,'cingulum_lh') %Check if its way beyond
+                    %                         [Xval Xidx ] = min(temp_trks_out.sstr(itrk).vox_coord(:,1));
+                    %                         if temp_trks_out.sstr(itrk).vox_coord(Xidx,1) < roi_vmidpoint{1}(1) - 5 %tolerance of 5
+                    %                             temp_trks_out.sstr(itrk).matrix = [];
+                    %                             temp_trks_out.sstr(itrk).vox_coord = [];
+                    %                             continue
+                    %                         end
+                    %                     else
+                    %                         [Xval Xidx ] = max(temp_trks_out.sstr(itrk).vox_coord(:,1));
+                    %                         if temp_trks_out.sstr(itrk).vox_coord(Xidx,1) > roi_vmidpoint{1}(1) + 5 %tolerance of 5
+                    %                             temp_trks_out.sstr(itrk).matrix = [];
+                    %                             temp_trks_out.sstr(itrk).vox_coord = [];
+                    %                             continue
+                    %                         end
+                    %                     end
+                    %
+                    %                     %Y-axis criteria:
+                    %                     [minYval minYidx ] = min(temp_trks_out.sstr(itrk).vox_coord(:,2));
+                    %                     if temp_trks_out.sstr(itrk).vox_coord(minYidx,2) > roi_vlim{1}(3)
+                    %                         temp_trks_out.sstr(itrk).matrix = [];
+                    %                         temp_trks_out.sstr(itrk).vox_coord = [];
+                    %                     end
+                    %                 end
+                    %             end
+                    %
+                end
+                %REMOVE EMPTY *.matrix and *.sstr columns (where trimming did
+                %not occur:
+                trk_count=1;
+            end
+            %trks_out.sstr.vox_coord = [];
+            if  isfield(temp_trks_out,'sstr') == 0
+                [~, bb, cc ] = fileparts(TRKS_IN);
+                warning([ bb cc ' cannnot be trimmed']);
+                TRKS_OUT=false;
+                return
+                
+            else
+                for itrk=1:numel(temp_trks_out.sstr)
+                    if ~isempty(temp_trks_out.sstr(itrk).matrix)
+                        trks_out.sstr(trk_count).matrix=temp_trks_out.sstr(itrk).matrix;
+                        trks_out.sstr(trk_count).vox_coord=temp_trks_out.sstr(itrk).vox_coord;
+                        trk_count=trk_count+1;
+                    end
+                end
+            end
+            
+        end
+        
+        
     otherwise
         error(['WHAT_TOI argument: ' WHAT_TOI ' in ' mfilename ' is not implemented. Either check input or implement!' ]);
 end
@@ -619,34 +752,39 @@ end
 %Header n_count <update> information
 trks_out.header.n_count = numel(trks_out.sstr);
 
-
-%Get Unique voxels information
-all_vox=trks_out.sstr(1).vox_coord ;        %initializing vox_coord
-for ii=2:size(trks_out.sstr,2)
-    all_vox=vertcat(all_vox,trks_out.sstr(ii).vox_coord);
-end
-%s_all_vox=sort(all_vox); %sort if bad! I believe it doesn't freeze the Y
-%and Z columns so no good to do this!
-trks_out.unique_voxels=unique(all_vox,'rows');
-trks_out.num_uvox=size(trks_out.unique_voxels,1);
-
-%Moving TRKS_OUT to exit...
-TRKS_OUT=trks_out;
-
-
-
-%ADDING MAXLEN:
-len=0;
-for ii=1:size(TRKS_OUT.sstr,2)
-    cur_len=0;
-    for jj=1:(size(TRKS_OUT.sstr(ii).matrix,1)-1)
-        cur_len=cur_len+pdist2(TRKS_OUT.sstr(ii).matrix(jj,:),TRKS_OUT.sstr(ii).matrix(jj+1,:));
+if isempty(trks_out.sstr)
+      
+    %Moving TRKS_OUT to exit...
+    TRKS_OUT=trks_out;
+    warning(['Cannot do ' WHAT_TOI 'trimming!']);
+else
+    %Get Unique voxels information
+    all_vox=trks_out.sstr(1).vox_coord ;        %initializing vox_coord
+    for ii=2:size(trks_out.sstr,2)
+        all_vox=vertcat(all_vox,trks_out.sstr(ii).vox_coord);
     end
-    if len < cur_len
-        len=cur_len;
+    %s_all_vox=sort(all_vox); %sort if bad! I believe it doesn't freeze the Y
+    %and Z columns so no good to do this!
+    trks_out.unique_voxels=unique(all_vox,'rows');
+    trks_out.num_uvox=size(trks_out.unique_voxels,1);
+    
+    %Moving TRKS_OUT to exit...
+    TRKS_OUT=trks_out;
+    
+    
+    
+    %ADDING MAXLEN:
+    len=0;
+    for ii=1:size(TRKS_OUT.sstr,2)
+        cur_len=0;
+        for jj=1:(size(TRKS_OUT.sstr(ii).matrix,1)-1)
+            cur_len=cur_len+pdist2(TRKS_OUT.sstr(ii).matrix(jj,:),TRKS_OUT.sstr(ii).matrix(jj+1,:));
+        end
+        if len < cur_len
+            len=cur_len;
+        end
     end
+    TRKS_OUT.maxsstrlen=len;
+    
 end
-TRKS_OUT.maxsstrlen=len;
-
-
 
