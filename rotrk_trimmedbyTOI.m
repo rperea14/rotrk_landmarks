@@ -1,5 +1,5 @@
-function [ TRKS_OUT ] = rotrk_trimmedbyROI(TRKS_IN, ROIS_IN, WHAT_TOI)
-%   function [ TRKS_OUT ] = rotrk_trimmedbyROI(TRKS_IN, ROI_IN, WHAT_TOI)
+function [ TRKS_OUT ] = rotrk_trimmedbyROI(TRKS_IN, ROIS_IN, WHAT_TOI, ID)
+%   function [ TRKS_OUT ] = rotrk_trimmedbyROI(TRKS_IN, ROI_IN, WHAT_TOI, ID)
 %   This script will trimmed any *.trk streamline being passed.
 %   IN ->
 %           TRKS_IN             : tracts in TRKS format
@@ -21,6 +21,10 @@ for tohide=1:1
         error('no enough arguments. Plese re-run! ')
     end
     
+    if nargin < 4
+        ID='';
+    end
+    
     %Dealing with ROI_IN:
     for jj=1:numel(ROIS_IN)
         if ischar(ROIS_IN{jj})
@@ -38,7 +42,7 @@ for tohide=1:1
         trks_in = TRKS_IN;
     else
         if ischar(TRKS_IN)
-            trks_in=rotrk_read(TRKS_IN,'',ROIS_IN{end},WHAT_TOI);
+            trks_in=rotrk_read(TRKS_IN,ID,ROIS_IN{end},WHAT_TOI);
         else
             display('Not implemented yet (easy fix!)...')
             error([ 'In: ' mfilename ' TRKS_IN has only been implemented to use struct types. Please implement otherwise']);
@@ -619,7 +623,7 @@ switch WHAT_TOI
             
             %CRITERIA FOR TRIMMING THE VALUES:
             %   STARTING AT MOST ANTERIOR PART (CLOSE TO HIPPOCAMPUS)
-            %   1) Remove everything below the midpoint+3 (voxels) z-axis of the
+            %   1) Remove everything below the highest z-axis of the
             %   hippocampus (ROI1)
             
             %   2) Remove everything above the midpoint z-axis of the
@@ -640,7 +644,7 @@ switch WHAT_TOI
                 trim_second = false;
                 %Criteria 1)
                 for ixyz=1:size(temp_trks_out.sstr(itrk).matrix,1)
-                    if temp_trks_out.sstr(itrk).vox_coord(ixyz,3) > roi_vmidpoint{1}(3)+3 %% && temp_trks_out.sstr(itrk).vox_coord(ixyz,3) > roi_vlim{1}(5)
+                    if temp_trks_out.sstr(itrk).vox_coord(ixyz,3) > roi_vmidpoint{1}(3)  %+3 %% && temp_trks_out.sstr(itrk).vox_coord(ixyz,3) > roi_vlim{1}(5)
                         temp_trks_out.sstr(itrk).matrix(1:ixyz,:) = [] ;
                         temp_trks_out.sstr(itrk).vox_coord(1:ixyz,:) = [] ;
                         trim_first = true;

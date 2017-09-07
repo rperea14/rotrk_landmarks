@@ -1,8 +1,5 @@
-function trk_write(header,tracks,savePath)
-%TRK_WRITE - Write TrackVis .trk files
-%~~Modified from along_tracts
-% Syntax: trk_write(header,tracks,savePath)
-%
+function rotrk_write(header,tracks,savePath)
+%function rotrk_write(header,tracks,savePath)
 % Inputs:
 %    header   - Header information for .trk file [struc]
 %    tracks   - Track data struc array [1 x nTracks]
@@ -10,15 +7,23 @@ function trk_write(header,tracks,savePath)
 %
 % Output files:
 %    Saves .trk file to disk at location given by 'savePath'.
-%
-% Other m-files required: none
-% Subfunctions: none
-% MAT-files required: none
-%
-% See also: TRK_READ
+
+%First check that tracks.sstr is not empty. If so, just send a warning:
+if numel(tracks) <= 1 
+    if numel(tracks) == 0 
+        warning('In trk_write(): Refusing to write a trk_file since header.sstr is empty')
+        return
+    end
+    %Since it could be a centerline, we need to check if its empty, se we
+    %added another if statement...
+    if isempty(tracks.matrix)
+        warning('In trk_write(): Refusing to write a trk_file since header.sstr is empty')
+        return
+    end
+end
+
 
 [ cur_folder, cur_name, cur_ext ] = fileparts(savePath);
-
 if strcmp(cur_ext,'.gz')
     if isempty(cur_folder)
         savePath = [ '.' filesep cur_name ] ;
@@ -59,6 +64,7 @@ ix=1;
 iy=2;
 iz=3;
 
+
 % Write body
 for iTrk = 1:header.n_count
     % Modify orientation back to LPS for display in TrackVis
@@ -91,3 +97,5 @@ fclose(fid);
 if strcmp(cur_ext,'.gz')
     system(['gzip -f ' savePath ]);
 end
+
+
