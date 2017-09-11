@@ -1,10 +1,5 @@
 function  rotrk_trk2roi(header, tracts, vol_input,roi_name,opt)
-%function  rotrk_trk2roi(header, tracts, vol_input,roi_name,split,tolerance, ROI_for_mid )
-% Reads in a tract (in *.trk NOT *.trk.gz!) and exports an ROI in NIFTII
-% format
-%
-%   Dependencies:
-%                   trk_read
+%function  rotrk_trk2roi(header, tracts, vol_input,roi_name,opt)
 %  If 3 arguments are passed:
 %   IN ->
 %     header:       (header) in struct format

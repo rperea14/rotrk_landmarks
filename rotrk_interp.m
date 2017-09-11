@@ -19,8 +19,14 @@ function [ TRKS_OUT ] = rotrk_interp(TRKS_IN, number_coordinates)
 
 %%%%%%%%SPLITTING THTE TRACTS_STRUCT FORM INTO TRACTS AND HEADER
 TRKS_OUT.id=TRKS_IN.id;
-TRKS_OUT.filename=TRKS_IN.filename;
-TRKS_OUT.trk_name=['interp_' TRKS_IN.trk_name];
+if isfield(TRKS_IN,'filename')
+    TRKS_OUT.filename=TRKS_IN.filename;
+end
+if ~isfield(TRKS_IN,'trk_name')
+     TRKS_OUT.trk_name='interp_noname';
+else
+    TRKS_OUT.trk_name=['interp_' TRKS_IN.trk_name];
+end
 %~~~
 
 

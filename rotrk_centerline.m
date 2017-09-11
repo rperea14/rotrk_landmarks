@@ -43,7 +43,9 @@ else
         TRKS_OUT.header=TRKS_IN.header;
         TRKS_OUT.header.n_count=1;
         TRKS_OUT.id=TRKS_IN.id;
-        TRKS_OUT.trk_name=['cline_' TRKS_IN.trk_name];
+        if isfield(TRKS_IN,'trk_name')
+            TRKS_OUT.trk_name=['cline_' TRKS_IN.trk_name];
+        end
         if isfield(TRKS_OUT,'filename')
             TRKS_OUT.filename=strrep(TRKS_IN.filename,'.trk','_cline.trk');
         end

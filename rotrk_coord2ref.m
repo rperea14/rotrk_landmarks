@@ -31,3 +31,4 @@ TRK_OUT.header = CUR_TRK.header;
 TRK_OUT.sstr.matrix(:,1:3) = REF_TRK.sstr.matrix(:,1:3);
 TRK_OUT.sstr.vox_coord = CUR_TRK.sstr.vox_coord;
 TRK_OUT.sstr.vox_coord(:,1:3) = REF_TRK.sstr.vox_coord(:,1:3);
+TRK_OUT.sstr.nPoints=REF_TRK.sstr.nPoints;

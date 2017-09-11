@@ -23,7 +23,11 @@ function [ TRKS_OUT ] = rotrk_add_sc(TRKS_IN, vol_input_diffmetric_untyped,opt )
 %%%%%%%%SPLITTING THTE TRACTS_STRUCT FORM INTO TRACTS AND HEADER
 TRKS_OUT.header=TRKS_IN.header;
 TRKS_OUT.id=TRKS_IN.id;
-TRKS_OUT.filename=TRKS_IN.filename;
+if isfield(TRKS_IN,'filename')
+    TRKS_OUT.filename=TRKS_IN.filename;
+else
+    TRKS_OUT.filename='';
+end
 TRKS_OUT.sstr=TRKS_IN.sstr;
 if isfield(TRKS_IN,'maxsstrlen')
     TRKS_OUT.maxsstrlen = TRKS_IN.maxsstrlen;
