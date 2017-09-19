@@ -127,6 +127,7 @@ end
 %%
 %now assigning in a struct form
 tmp_header_interp=TRKS_IN.header;
+tmp_header_interp.scalar_IDs=''; %Null as values will be regiven after interpolation (or must do). 
 tmp_header_interp.n_count=size(tracts_interp,3);
 for jj=1:size(tracts_interp,3)
     tmp_tracts_interp(jj).matrix=tracts_interp(:,:,jj);
@@ -143,7 +144,6 @@ TRKS_OUT.header=tmp_header_interp;
 
 
 
-%ADDING UNIQUE VOXELS!
 
 %ADDING UNIQUE VOXELS!
 all_vox=TRKS_OUT.sstr(1).vox_coord ;        %initializing vox_coord

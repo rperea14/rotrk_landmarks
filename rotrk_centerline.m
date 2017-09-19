@@ -27,7 +27,7 @@ function [ TRKS_OUT OPT_distance] = rotrk_centerline(TRKS_IN, method, selected_m
 %Check if empty:
 if isempty(TRKS_IN.sstr)
     TRKS_OUT=TRKS_IN;
-    warning('In rotrk_centerline(): TRKS_IN.sstr is empty. Copying as is..');
+    warning('In rotrk_centerline(): TRKS_IN.sstr is empt y (cannot centerline). Copying as is...');
     
 else
      
