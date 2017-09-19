@@ -220,9 +220,13 @@ for pp=1:size(vol_input_diffmetric,1)
                             end
                             
                             if isempty(nscals)
-                                nscals = [ V_vol(sub2ind(TRKS_IN.header.dim, xnval, ynval, znval))];
+                                nscals = [ V_vol(sub2ind(TRKS_IN.header.dim, ...
+                                    cur_xyz(1)+pos_vals(idx_posvals,1), cur_xyz(2)+pos_vals(idx_posvals,2), ...
+                                    cur_xyz(3)+pos_vals(idx_posvals,3))) ];
                             else
-                                nscals = [ nscals V_vol(sub2ind(TRKS_IN.header.dim, xnval, ynval, znval))];
+                                nscals = [ nscals V_vol(sub2ind(TRKS_IN.header.dim, ...
+                                    cur_xyz(1)+pos_vals(idx_posvals,1), cur_xyz(2)+pos_vals(idx_posvals,2), ...
+                                    cur_xyz(3)+pos_vals(idx_posvals,3))) ];
                             end
                         end
                     end

@@ -63,6 +63,9 @@ end
 if strcmp(ronii_ext,'.gz')
     %disp(['Gunzipping...' vol_data.filename ]);
     system([ 'gunzip -f ' cell2char(vol_data.filename) ] );
+    if strcmp(ronii_dirpath,'')
+        ronii_dirpath='./';
+    end
     vol_data.filename=[ronii_dirpath filesep ronii_filename ];
     ro_filename=vol_data.filename;
 end
