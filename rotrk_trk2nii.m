@@ -122,7 +122,7 @@ for ii = 1:numel(tracts)
             end
         end
         try
-            if strcmp('FA',metric)
+            if strcmp('FA',metric) || strcmp('NQA0',metric)
                 new_ROI(ind)=1000*tracts.vox_coord(:,3+idx_diffM);
             else %sassuming AxD, MD or RD
                 new_ROI(ind)=1000000*tracts.vox_coord(:,3+idx_diffM);
@@ -131,7 +131,7 @@ for ii = 1:numel(tracts)
             error(['No metric: ' metric ' found. Cannot put values on it']);
         end
     end
-    
+end
     %Writing into a file (all of the streamlines, that's why this if statements
     %are outside the for loop...
     H_vol.fname = nii_name;
@@ -143,5 +143,4 @@ for ii = 1:numel(tracts)
     spm_write_vol(H_vol,new_ROI);
     display(['The nii: ' H_vol.fname ' was successfully generated ' ]);
     %%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-end
 

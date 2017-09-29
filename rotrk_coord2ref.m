@@ -21,6 +21,17 @@ if size(REF_TRK.sstr.vox_coord,1) ~= size(CUR_TRK.sstr.vox_coord,1)
     error('Cannot proceed as the size of *.sstr.vox_coord in REF_TRK ~= CUR_TRK. Did you interpolate?')
 end
 
+
+%Checking if values are in the same orientation!
+
+if strcmp(CUR_TRK.header.voxel_order,REF_TRK.header.voxel_order) == 0
+    warning('Cannot proceed two images that have incorrect voxel orientation')
+    warning(['Orientation for CUR_TRK.header is: ' CUR_TRK.header.voxel_order ...
+        ' and REF_ori. is: ' REF_TRK.header.voxel_order ])
+    error('Quitting now. Please check error below (in warning messages)')
+end
+
+
 %Keeping similar struct variables
 TRK_OUT.id = CUR_TRK.id;
 TRK_OUT.trk_name = strcat('voxchanged_' , CUR_TRK.trk_name);
