@@ -122,13 +122,21 @@ for ii = 1:numel(tracts)
             end
         end
         try
-            if strcmp('FA',metric) || strcmp('NQA0',metric)
+            %Values will change depending on the minimun number of decimals
+            min_dec = numel(num2str(min(tracts.vox_coord(:,3+idx_diffM))));
+            %For FA, min_dec is 6. For AxD, min_dec is 10 so...
+            if min_dec < 8 %7 or fewer... 
                 new_ROI(ind)=1000*tracts.vox_coord(:,3+idx_diffM);
-            else %sassuming AxD, MD or RD
+            else % 10 or more (e.g. sassuming AxD, MD or RD)
                 new_ROI(ind)=1000000*tracts.vox_coord(:,3+idx_diffM);
             end
+%             if (strcmp('FA',metric) || strcmp('NQA0',metric) ) || (strcmp('proj1_FA',metric) || strcmp('proj1_NQA0',metric) )
+%                 new_ROI(ind)=1000*tracts.vox_coord(:,3+idx_diffM);
+%             else %sassuming AxD, MD or RD
+%                 new_ROI(ind)=1000000*tracts.vox_coord(:,3+idx_diffM);
+%             end
         catch
-            error(['No metric: ' metric ' found. Cannot put values on it']);
+            error(['No metric ' metric ' found. Cannot put values on it']);
         end
     end
 end

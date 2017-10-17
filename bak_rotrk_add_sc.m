@@ -118,9 +118,7 @@ else
         
         %Add a different naming convention for projected tracts sif exist....
         if ~isempty(nproj)
-            %Based on diffmetric given:
-            vol_input_diffmetric{pp}.identifier = [diffmetric ];
-            %vol_input_diffmetric{pp}.identifier = ['proj' num2str(nproj) '_' vol_input_diffmetric{pp}.identifier ];
+            vol_input_diffmetric{pp}.identifier = ['proj' num2str(nproj) '_' vol_input_diffmetric{pp}.identifier ];
             %TRKS_OUT.header.scalar_IDs =[ TRKS_OUT.header.scalar_IDs(end-1) [ 'proj' num2str(nproj) '_' TRKS_OUT.header.scalar_IDs{end} ]];
         end
         

@@ -32,8 +32,80 @@ if strcmp(cur_ext,'.gz')
     end
 end
 
-fid = fopen(savePath, 'w');
 
+
+
+
+%CHECKI DIRECTIONALITY FOR ORIENTATION
+%Now, we will always write withouth inversion happening so...
+%INVERT_X
+xflag=0;
+if header.invert_x == 1
+    header.invert_x = 0;
+    xflag=1; %This will allow us to change the orientation in the .tracts or .sstr values
+    if strcmp(header.pad2(1),'L')
+        header.pad2(1)='R';
+    elseif strcmp(header.pad2(1),'R')
+        header.pad2(1)='L';
+    else
+        header.pad2(1)='?';
+    end
+    if strcmp(header.voxel_order(1),'L')
+        header.voxel_order(1)='R';
+    elseif strcmp(header.voxel_order(1),'R')
+        header.voxel_order(1)='L';
+    else
+        header.voxel_order(1)='?';
+    end    
+end
+
+%INVERT_Y
+yflag=0;
+if header.invert_y == 1
+    header.invert_y = 0;
+    yflag=1; %This will allow us to change the orientation in the .tracts or .sstr values
+    if strcmp(header.pad2(2),'P')
+        header.pad2(1)='A';
+    elseif strcmp(header.pad2(2),'A')
+        header.pad2(2)='P';
+    else
+        header.pad2(2)='?';
+    end
+    if strcmp(header.voxel_order(2),'P')
+        header.voxel_order(2)='A';
+    elseif strcmp(header.voxel_order(2),'A')
+        header.voxel_order(2)='P';
+    else
+        header.voxel_order(2)='?';
+    end    
+end
+
+
+%INVERT_z
+zflag=0;
+if header.invert_z == 1
+    header.invert_z = 0;
+    zflag=1; %This will allow us to change the orientation in the .tracts or .sstr values
+    if strcmp(header.pad2(3),'S')
+        header.pad2(3)='I';
+    elseif strcmp(header.pad2(3),'I')
+        header.pad2(3)='S';
+    else
+        header.pad2(3)='?';
+    end
+    if strcmp(header.voxel_order(3),'S')
+        header.voxel_order(3)='I';
+    elseif strcmp(header.voxel_order(3),'I')
+        header.voxel_order(3)='S';
+    else
+        header.voxel_order(3)='?';
+    end    
+end
+
+
+
+%WRITING HEADER INFORMATION:
+fid = fopen(savePath, 'w');
 % Write header
 fwrite(fid, header.id_string, '*char');
 fwrite(fid, header.dim, 'short');
@@ -59,6 +131,8 @@ fwrite(fid, header.n_count, 'int');
 fwrite(fid, header.version, 'int');
 fwrite(fid, header.hdr_size, 'int');
 
+
+
 %Check orientation values...
 ix=1;
 iy=2;
@@ -72,13 +146,13 @@ for iTrk = 1:header.n_count
     header.voxel_size = header.voxel_size([ix iy iz]);
     coords = tracks(iTrk).matrix(:,1:3);
     coords = coords(:,[ix iy iz]);
-    if header.invert_x == 1
+    if xflag == 1
         coords(:,ix) = header.dim(ix)*header.voxel_size(ix) - coords(:,ix);
     end
-    if header.invert_y == 1
+    if yflag == 1
         coords(:,iy) = header.dim(iy)*header.voxel_size(iy) - coords(:,iy);
     end
-    if header.invert_z == 1
+    if zflag == 1
         coords(:,iz) = header.dim(iz)*header.voxel_size(iz) - coords(:,iz);
     end
     
@@ -92,10 +166,10 @@ for iTrk = 1:header.n_count
     %  end
 end
 
+
+
 fclose(fid);
 
 if strcmp(cur_ext,'.gz')
     system(['gzip -f ' savePath ]);
 end
-
-
