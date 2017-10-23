@@ -72,7 +72,7 @@ else
     for chck_args=1:1
         %Adding scalar name to the streamlines (for reference)
         if nargin < 2
-            error('Make sure you add a scalar volime as your 2nd argument!')
+            error('Make sure you add a scalar volume as your 2nd argument!')
         end
         
         if nargin < 4
@@ -119,7 +119,7 @@ else
         %Add a different naming convention for projected tracts sif exist....
         if ~isempty(nproj)
             %Based on diffmetric given:
-            vol_input_diffmetric{pp}.identifier = [diffmetric ];
+            vol_input_diffmetric{pp}.identifier = [ diffmetric ];
             %vol_input_diffmetric{pp}.identifier = ['proj' num2str(nproj) '_' vol_input_diffmetric{pp}.identifier ];
             %TRKS_OUT.header.scalar_IDs =[ TRKS_OUT.header.scalar_IDs(end-1) [ 'proj' num2str(nproj) '_' TRKS_OUT.header.scalar_IDs{end} ]];
         end
