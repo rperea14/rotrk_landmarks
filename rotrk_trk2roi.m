@@ -102,7 +102,7 @@ for ii = 1:numel(tracts)
                 error(['No metric: ' opt ' found. Cannot put values on it']);
             end
         end
-        
+end
         %Writing into a file (all of the streamlines, that's why this if statements
         %are outside the for loop...
         H_vol.fname = roi_name;
@@ -114,11 +114,10 @@ for ii = 1:numel(tracts)
         spm_write_vol(H_vol,new_ROI);
         display(['The nii: ' H_vol.fname ' was successfully generated ' ]);
         %%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-end
     
     %GZIP ISSUES:
     if strcmp(roii_ext,'.gz') %for output ROI_NAME
-        system(['gzip -f ' roi_name ] )
+        system(['gzip -f ' roi_name ] );
     end
     if strcmp(ronii_ext,'.gz') %for input VOL_INPUT
         system([ 'gzip -f ' vol_input ] );
