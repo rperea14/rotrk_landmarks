@@ -21,8 +21,6 @@ if numel(tracks) <= 1
         return
     end
 end
-
-
 [ cur_folder, cur_name, cur_ext ] = fileparts(savePath);
 if strcmp(cur_ext,'.gz')
     if isempty(cur_folder)
@@ -31,13 +29,13 @@ if strcmp(cur_ext,'.gz')
         savePath = [ cur_folder filesep cur_name ] ;
     end
 end
-
-
-
-
-
 %CHECKI DIRECTIONALITY FOR ORIENTATION
 %Now, we will always write withouth inversion happening so...
+
+%THE FOLLOWING LINES HAVE BEEN COMMENTED AS EVERYTHING SHOULD BE TAKEN CARE
+%WHEN READING THE TRKS (AND NOT WRITING). THE WRITING TRK AND TRK2NII
+%SHOULD BE CARRIED AWAT BY THE ROTRK_READ.m FUNCTION AND THE ORIENTATION OF THE *.nii MATRIX!!
+%
 %INVERT_X
 xflag=0;
 if header.invert_x == 1

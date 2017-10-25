@@ -101,13 +101,14 @@ if (tmp_vol.mat(1,1)*header.vox_to_ras(1,1)) < 0
     display('Volume matrix in the x coordinate is not equal to the trk matrix. Flipping to fit same orientation')
     %warning('Double check orientation after using this!')
     flag_x=-1;
-    
+    header.vox_to_ras(1,1) = -1*header.vox_to_ras(1,1);
 end
 
 if (tmp_vol.mat(2,2)*header.vox_to_ras(2,2)) < 0
     display('Volume matrix in the y coordinate is not equal to the trk matrix. Flipping to fit same orientation')
     %warning('Double check orientation after using this!')
     flag_y=-1;
+    header.vox_to_ras(2,2) = -1*header.vox_to_ras(2,2);
 end
 
 if (tmp_vol.mat(3,3)*header.vox_to_ras(3,3)) < 0
@@ -115,6 +116,7 @@ if (tmp_vol.mat(3,3)*header.vox_to_ras(3,3)) < 0
     display('Volume matrix in the z coordinate is not equal to the trk matrix. Flipping to fit same orientation')
     %warning('Double check orientation after using this!')
     flag_z=-1;
+    header.vox_to_ras(3,3) = -1*header.vox_to_ras(3,3);
 end
 
 if warn==1
@@ -270,7 +272,28 @@ for ii=1:size(tracts,2)
     
     %WITHOUT REMOVING DUPLICATES:
     TRKS_OUT.sstr(ii).matrix(:,1:3)=tracts(ii).matrix(:,1:3);
-    TRKS_OUT.sstr(ii).vox_coord(:,1:3)=pos(:,1:3);
+    
+    %THE LINE BELOW IS REPLACED WITH THREE CONDITIONS BASED ON THE FLIPPING
+    %OF THE VALUES (AND INDEXING??) Edited 10_24_2017 by rdp20 (easy fix,
+    %maybe a better solution should be implemented at a later stage)
+    %TRKS_OUT.sstr(ii).vox_coord(:,1:3)=pos(:,1:3);
+    if flag_x < 0 %Change by reversing all if vol_data differs from tract!
+        %coords(:,ix) = header.dim(ix)*header.voxel_size(ix) - coords(:,ix);
+        TRKS_OUT.sstr(ii).vox_coord(:,1)=pos(:,1)-1;
+    else
+        TRKS_OUT.sstr(ii).vox_coord(:,1)=pos(:,1);
+    end
+    if flag_y < 0
+        TRKS_OUT.sstr(ii).vox_coord(:,2)=pos(:,2)-1;
+    else
+        TRKS_OUT.sstr(ii).vox_coord(:,2)=pos(:,2);
+    end
+    if flag_z < 0
+        TRKS_OUT.sstr(ii).vox_coord(:,3)=pos(:,3)-1;
+    else
+        TRKS_OUT.sstr(ii).vox_coord(:,3)=pos(:,3);
+    end
+    
     
     %REMOVING DUPLICATES CODE WAS REMOVED AND REPLACED WITH:
     %~~~~> TRKS_OUT.unique_voxels and TRKS_OUT.num_uvox
