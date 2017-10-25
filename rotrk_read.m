@@ -72,6 +72,52 @@ fid    = fopen(filePath, 'r');
 header = get_header(fid);
 
 header.specific_name = specific_name;
+
+%Raw values of inversion (for orientation purposes)
+raw_invertx = header.invert_x;
+raw_inverty = header.invert_y;
+raw_invertz = header.invert_z;
+%MODIFY HEADER BASED ON RAW INVERSION
+if raw_invertx ==1 %Change by reversing all if vol_data differs from tract!
+    %Now changing parameters...
+    header.invert_x=0;
+    header.vox_to_ras(1,1) = -1*header.vox_to_ras(1,1);
+    if header.voxel_order(1) == 'L'
+        header.voxel_order(1) = 'R';
+        header.pad2(1) = 'R';
+    else
+        header.voxel_order(1) = 'L';
+        header.pad2(1) = 'L';
+    end
+end
+if raw_inverty ==1
+     header.invert_y=0;
+     header.vox_to_ras(2,2) = -1*header.vox_to_ras(2,2);
+    if header.voxel_order(2) == 'P'
+        header.voxel_order(2) = 'A';
+        header.pad2(2) = 'A';
+    else
+        header.voxel_order(2) = 'P';
+        header.pad2(2) = 'P';
+    end
+end
+if raw_invertz ==1
+    header.invert_z=0;
+    header.vox_to_ras(3,3) = -1*header.vox_to_ras(3,3);
+    if header.voxel_order(3) == 'S'
+        header.voxel_order(3) = 'A';
+        header.pad2(3) = 'A';
+    else
+        header.voxel_order(3) = 'S';
+        header.pad2(3) = 'S';
+    end
+end
+
+
+
+
+
+
 %/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %Reading the vol_data orientation to find the same orientation...
 if isstruct(vol_data)

@@ -35,59 +35,56 @@ end
 %THE FOLLOWING LINES HAVE BEEN COMMENTED AS EVERYTHING SHOULD BE TAKEN CARE
 %WHEN READING THE TRKS (AND NOT WRITING). THE WRITING TRK AND TRK2NII
 %SHOULD BE CARRIED AWAT BY THE ROTRK_READ.m FUNCTION AND THE ORIENTATION OF THE *.nii MATRIX!!
-% %
-% %INVERT_X
-% xflag=0;
-% if header.invert_x == 1
-%     header.invert_x = 0;
-%     xflag=1; %This will allow us to change the orientation in the .tracts or .sstr values
-% %THIS SHOULD BE TAKEN CARE IN ROTRK_READ() and SHOULDNT BE REPEATED
-%     %     if strcmp(header.pad2(1),'L')
-% %         header.pad2(1)='R';
-% %     elseif strcmp(header.pad2(1),'R')
-% %         header.pad2(1)='L';
-% %     else
-% %         header.pad2(1)='?';
-% %     end
-% %     if strcmp(header.voxel_order(1),'L')
-% %         header.voxel_order(1)='R';
-% %     elseif strcmp(header.voxel_order(1),'R')
-% %         header.voxel_order(1)='L';
-% %     else
-% %         header.voxel_order(1)='?';
-% %     end    
-% end
-% 
-% %INVERT_Y
-% yflag=0;
-% if header.invert_y == 1
-%     header.invert_y = 0;
-%     yflag=1; %This will allow us to change the orientation in the .tracts or .sstr values
-% %THIS SHOULD BE TAKEN CARE IN ROTRK_READ() and SHOULDNT BE REPEATED
-%     %     if strcmp(header.pad2(2),'P')
-% %         header.pad2(1)='A';
-% %     elseif strcmp(header.pad2(2),'A')
-% %         header.pad2(2)='P';
-% %     else
-% %         header.pad2(2)='?';
-% %     end
-% %     if strcmp(header.voxel_order(2),'P')
-% %         header.voxel_order(2)='A';
-% %     elseif strcmp(header.voxel_order(2),'A')
-% %         header.voxel_order(2)='P';
-% %     else
-% %         header.voxel_order(2)='?';
-% %     end    
-% end
-% 
-% 
-% %INVERT_z
-% zflag=0;
-% if header.invert_z == 1
-%     header.invert_z = 0;
+%
+%INVERT_X
+xflag=0;
+if header.invert_x == 1
+    header.invert_x = 0;
+    xflag=1; %This will allow us to change the orientation in the .tracts or .sstr values
+    if strcmp(header.pad2(1),'L')
+        header.pad2(1)='R';
+    elseif strcmp(header.pad2(1),'R')
+        header.pad2(1)='L';
+    else
+        header.pad2(1)='?';
+    end
+    if strcmp(header.voxel_order(1),'L')
+        header.voxel_order(1)='R';
+    elseif strcmp(header.voxel_order(1),'R')
+        header.voxel_order(1)='L';
+    else
+        header.voxel_order(1)='?';
+    end    
+end
+
+%INVERT_Y
+yflag=0;
+if header.invert_y == 1
+    header.invert_y = 0;
+    yflag=1; %This will allow us to change the orientation in the .tracts or .sstr values
+    if strcmp(header.pad2(2),'P')
+        header.pad2(1)='A';
+    elseif strcmp(header.pad2(2),'A')
+        header.pad2(2)='P';
+    else
+        header.pad2(2)='?';
+    end
+    if strcmp(header.voxel_order(2),'P')
+        header.voxel_order(2)='A';
+    elseif strcmp(header.voxel_order(2),'A')
+        header.voxel_order(2)='P';
+    else
+        header.voxel_order(2)='?';
+    end    
+end
+
+
+%INVERT_z
+zflag=0;
+if header.invert_z == 1
+    header.invert_z = 0;
+    %THIS SHOULD BE TAKEN CARE IN ROTRK_R
 %     zflag=1; %This will allow us to change the orientation in the .tracts or .sstr values
-%     THIS SHOULD BE TAKEN CARE IN ROTRK_READ() and SHOULDNT BE REPEATED
-%     
 %     if strcmp(header.pad2(3),'S')
 %         header.pad2(3)='I';
 %     elseif strcmp(header.pad2(3),'I')
@@ -102,7 +99,7 @@ end
 %     else
 %         header.voxel_order(3)='?';
 %     end    
-% end
+end
 
 
 
@@ -148,15 +145,15 @@ for iTrk = 1:header.n_count
     header.voxel_size = header.voxel_size([ix iy iz]);
     coords = tracks(iTrk).matrix(:,1:3);
     coords = coords(:,[ix iy iz]);
-     if header.invert_x == 1
-         coords(:,ix) = header.dim(ix)*header.voxel_size(ix) - coords(:,ix);
-     end
-     if header.invert_x == 1
-         coords(:,iy) = header.dim(iy)*header.voxel_size(iy) - coords(:,iy);
-     end
-     if header.invert_z == 1
-         coords(:,iz) = header.dim(iz)*header.voxel_size(iz) - coords(:,iz);
-     end
+    if xflag == 1
+        coords(:,ix) = header.dim(ix)*header.voxel_size(ix) - coords(:,ix);
+    end
+    if yflag == 1
+        coords(:,iy) = header.dim(iy)*header.voxel_size(iy) - coords(:,iy);
+    end
+    if zflag == 1
+        coords(:,iz) = header.dim(iz)*header.voxel_size(iz) - coords(:,iz);
+    end
     
     tracks(iTrk).matrix(:,1:3) = coords;
     

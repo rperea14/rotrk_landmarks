@@ -214,17 +214,19 @@ if strcmp(color,''); color='k'; end
 for numtrks = 1:size(single_TRKS_IN.sstr,2)
     %READING THE MATRIX:
     matrix = single_TRKS_IN.sstr(numtrks).matrix;
-    header=single_TRKS_IN.header;
+    
     %/~~~~~~~~~~~~~~~~~~~~
     %Code modified to make sure the order is correct!
-    if header.invert_x ~= 0 %Change by reversing all if vol_data differs from tract!
-        matrix(:,1) = header.dim(1)*header.voxel_size(3) - matrix(:,1);
+    matrix = tracts(iTrk).matrix(:,1:3);
+    
+    if flag_x ~= 0 %Change by reversing all if vol_data differs from tract!
+        matrix(:,ix) = header.dim(ix)*header.voxel_size(ix) - matrix(:,ix);
     end
-    if header.invert_y ~= 0
-        matrix(:,2) = header.dim(2)*header.voxel_size(3) - matrix(:,2);
+    if flag_y ~= 0
+        matrix(:,iy) = header.dim(iy)*header.voxel_size(iy) - matrix(:,iy);
     end
-    if header.invert_z ~= 0
-        matrix(:,3) = header.dim(3)*header.voxel_size(3) - matrix(:,3);
+    if flag_z ~= 0
+        matrix(:,iz) = header.dim(iz)*header.voxel_size(iz) - coords(:,iz);
     end
     %~~~~~~~~~~~~~~~~~~~~/
     
