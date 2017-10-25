@@ -1,15 +1,16 @@
-function  rotrk_trk2roi(TRKS_IN, vol_input,nii_name,metric)
-%function  rotrk_trk2roi(TRKS_IN, vol_input,nii_name,metric)
+function  rotrk_trk2nii(TRKS_IN, vol_input,nii_name,metric)
+%function  rotrk_trk2nii(TRKS_IN, vol_input,nii_name,metric)
+%  Created by Rodrigo Perea
 %  If 3 arguments are passed:
 %   IN ->
-%     TRKS_IN:     TRKS_IN trks in TRKS.sstr TRKS.header format   
+%     TRKS_IN:     TRKS_IN trks in TRKS.sstr TRKS.header format
 %     vol_input:   (volume)  in *.nii format
 %     nii_name:     Filename to save (optional. default name: new_ROI.nii)
-%     metric:       (Optional) Metric value to get values from (e.g. 'FA') 
+%     metric:       (Optional) Metric value to get values from (e.g. 'FA')
 %                   If not used, masking will be applied.
-%       
 %   OUT ->
 %     new_ROIROI:  in *.nii format
+%
 
 
 %TRKS_IN into .headre and .tracts
@@ -21,15 +22,11 @@ for check_varinit=1:1
     if nargin < 3 || isempty(nii_name)
         nii_name='new_ROI.nii' ;
         warning('No name passed as an input. Using new_ROI.nii as the name output...')
-        split='no_split';
     end
     if nargin < 4
         metric = '';
     end
-    
-    if nargin < 5
-        nprojection = 0;
-    end
+ 
 end
 %~~~~~~~~~~end of checking variables initialization~~~~~~~~
 
@@ -125,30 +122,32 @@ for ii = 1:numel(tracts)
             %Values will change depending on the minimun number of decimals
             min_dec = numel(num2str(max(tracts.vox_coord(:,3+idx_diffM))));
             %For FA, min_dec is 6. For AxD, min_dec is 10 so...
-            if min_dec < 8 %7 or fewer... 
+            if min_dec < 8 %7 or fewer...
                 new_ROI(ind)=1000*tracts.vox_coord(:,3+idx_diffM);
             else % 10 or more (e.g. sassuming AxD, MD or RD)
                 new_ROI(ind)=1000000*tracts.vox_coord(:,3+idx_diffM);
             end
-%             if (strcmp('FA',metric) || strcmp('NQA0',metric) ) || (strcmp('proj1_FA',metric) || strcmp('proj1_NQA0',metric) )
-%                 new_ROI(ind)=1000*tracts.vox_coord(:,3+idx_diffM);
-%             else %sassuming AxD, MD or RD
-%                 new_ROI(ind)=1000000*tracts.vox_coord(:,3+idx_diffM);
-%             end
+            %             if (strcmp('FA',metric) || strcmp('NQA0',metric) ) || (strcmp('proj1_FA',metric) || strcmp('proj1_NQA0',metric) )
+            %                 new_ROI(ind)=1000*tracts.vox_coord(:,3+idx_diffM);
+            %             else %sassuming AxD, MD or RD
+            %                 new_ROI(ind)=1000000*tracts.vox_coord(:,3+idx_diffM);
+            %             end
         catch
             error(['No metric ' metric ' found. Cannot put values on it']);
         end
     end
 end
-    %Writing into a file (all of the streamlines, that's why this if statements
-    %are outside the for loop...
-    H_vol.fname = nii_name;
-    dir_exist=fileparts(H_vol.fname);
-    if ~isempty(dir_exist)
-        system([ 'mkdir -p ' fileparts(H_vol.fname) ] );
-    end
-    clear dir_exist
-    spm_write_vol(H_vol,new_ROI);
-    display(['The nii: ' H_vol.fname ' was successfully generated ' ]);
-    %%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+%Writing into a file (all of the streamlines, that's why this if statements
+%are outside the for loop...
+H_vol.fname = nii_name;
+dir_exist=fileparts(H_vol.fname);
+if ~isempty(dir_exist)
+    system([ 'mkdir -p ' fileparts(H_vol.fname) ] );
+end
+clear dir_exist
+spm_write_vol(H_vol,new_ROI);
+display(['The nii: ' H_vol.fname ' was successfully generated ' ]);
+%%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+if strcmp(roii_ext,'.gz')
+   system(['gzip ' H_vol.fname ]);
+end

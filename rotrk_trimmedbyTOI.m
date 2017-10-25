@@ -1,15 +1,5 @@
 function [ TRKS_OUT ] = rotrk_trimmedbyROI(TRKS_IN, ROIS_IN, WHAT_TOI, ID)
-%   function [ TRKS_OUT ] = rotrk_trimmedbyROI(TRKS_IN, ROI_IN, WHAT_TOI, ID)
-%   This script will trimmed any *.trk streamline being passed.
-%   IN ->
-%           TRKS_IN             : tracts in TRKS format
-%           ROI_IN              : the ROI used for trimming references (usually from
-%                                  FreeSurfer Segmentations.
-%           WHAT_TOI            : 'postcing' or 'fx' or 'to-implement-others;
-%           ROI_ORIENTATION     : (mandatory so it works correctly!) 'RAS'
-%                                 or 'LPS'
-%   OUTPUT:
-%           TRKS_OUT    : Trimmed TRK  output
+%function [ TRKS_OUT ] = rotrk_trimmedbyROI(TRKS_IN, ROIS_IN, WHAT_TOI, ID)
 
 %Created by Rodrigo Perea
 
@@ -109,7 +99,7 @@ switch WHAT_TOI
                 trks_out.header.specific_name=[ 'trimmed_' flipped_trks_in.header.specific_name ] ;
                 trks_out.id=flipped_trks_in.id;
                 trks_out.sstr = [];
-                trks_out.trk_name=[ 'trimmed_' flipped_trks_in.trk_name ];
+                if isfield(trks_out,'trk_name' ) ; trks_out.trk_name=[ 'trimmed_' flipped_trks_in.trk_name ]; end
             end
             
             %Criteria 0) 

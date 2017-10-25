@@ -1,18 +1,17 @@
 function [ TRKS_OUT ] = rotrk_add_sc(TRKS_IN, vol_input_diffmetric_untyped,diffmetric, nproj )
-%function [ TRKS_OUT ] = rotrk_add_sc(TRKS_IN, vol_input_diffmetric_untyped,diffmetric, nproj )
-% By Rodrigo Perea --> github.com/Drigomaniac
-%Attaches a scalar value to each vertex in a .trk track group
+% Created By Rodrigo Perea --> github.com/Drigomaniac
+%Attaches a scalar value to each coord in a .trk track group
 %For example, this function can look in an FA volume, and attach the
 %corresponding voxel FA value to each streamline vertex.
 %
+%function [ TRKS_OUT ] = rotrk_add_sc(TRKS_IN, vol_input_diffmetric_untyped,diffmetric, nproj )
 % Inputs:
 %    TRKS_IN.header - Header information from .trk file [struc]
 %    TRKS_IN.tracts - Tract data struc array [1 x ntracts]
 %    vol_input_diffmetric_untyprf - Scalar MRI volume to be added into the tract data struct
 %    diffmetric - designates the diffmetric of the vol_input (e.g. FA)
 %    nproj - (optional) do you want to project perpendicualr values instead
-%                       of the value intself? If so, 1 for 1 voxel away, 
-%                       2 for 2 voxels away, etc...
+%                       of the value intself? If so, 1-or-n for 1-or-n voxel/s away
 % Outputs:
 %    TRKS.OUT.header - Updated header
 %    TRKS.OUT.sstr - Updated tracts structure
@@ -67,7 +66,6 @@ else
             vol_input_diffmetric=vol_input_diffmetric_untyped;
         end
     end
-    
     %CHECKING NUMBER OF ARGUMENTS:
     for chck_args=1:1
         %Adding scalar name to the streamlines (for reference)
@@ -100,8 +98,7 @@ else
             vol_input_diffmetric{ii}.filename = {[ ronii_dirpath{ii} filesep ronii_filename{ii} ]};
         end
     end
-    
-    
+    %######################################################################
     %IMPLEMENTATION CODE STARTS HERE:
     for pp=1:size(vol_input_diffmetric,1)
         if size(vol_input_diffmetric,1) ==1
@@ -115,6 +112,39 @@ else
         %TRKS_OUT.header.n_scalars = scalar_count; ~~> Note: updates as scalars
         %wont be in sstr.matrix but instead in sstr.vox_coord!!
         scalar_count=scalar_count+1;
+        
+        
+        
+        %CHECKING AND INITALIZING ORIENTATION ISSUES:
+        %check if the orientation is the same (by looking at the multiplication of signs)
+        %if positive, then signs ('+' or both '-') are the same
+        %else, change...
+        flag_x=0;flag_y=0; flag_z=0;
+        warn=0;
+        if (H_vol.mat(1,1)*TRKS_IN.header.vox_to_ras(1,1)) < 0
+            %PREVIOUS DEPRECATED CODE: ~(abs(tmp_vol.mat(1,1) - header.vox_to_ras(1,1))) < tolerance
+            warn=1;
+            warning('Volume matrix in the x coordinate ~= trk matrix.')
+            %warning('Double check orientation after using this!')
+            flag_x=-1;
+            
+        end
+        
+        if (H_vol.mat(2,2)*TRKS_IN.header.vox_to_ras(2,2)) < 0
+            warning('Volume matrix in the y coordinate ~= to the trk matrix.')
+            %warning('Double check orientation after using this!')
+            flag_y=-1;
+        end
+        
+        if (H_vol.mat(3,3)*TRKS_IN.header.vox_to_ras(3,3)) < 0
+            warn=1;
+            warning('Volume matrix in the z coordinate ~= to the trk matrix.')
+            %warning('Double check orientation after using this!')
+            flag_z=-1;
+        end
+        %END CHECKING MATRIX ORIENTATIONS....
+        
+        
         
         %Add a different naming convention for projected tracts sif exist....
         if ~isempty(nproj)
@@ -145,6 +175,22 @@ else
         
         % Loop over # of tracts (slow...any faster way?)
         for ii=1:length(TRKS_IN.sstr)
+            
+            %IMPLEMENTATION FOR THE SAME ORIENTATION HERE:
+            %/~~~~~~~~~~~~~~~~~~~~
+            %Code modified to make sure the order is correct!
+%             if flag_x < 0 %Change by reversing all if vol_data differs from tract!
+%                 TRKS_IN.sstr(ii).vox_coord(:,1:3) = TRKS_IN.header.dim(ix)*header.voxel_size(ix) - coords(:,ix);
+%             end
+%             if flag_y < 0
+%                 coords(:,iy) = header.dim(iy)*header.voxel_size(iy) - coords(:,iy);
+%             end
+%             if flag_z < 0
+%                 coords(:,iz) = header.dim(iz)*header.voxel_size(iz) - coords(:,iz);
+%             end
+            %~~~~~~~~~~~~~~~~~~~~/
+
+
             % Translate continuous vertex coordinates into discrete voxel coordinates
             
             %**

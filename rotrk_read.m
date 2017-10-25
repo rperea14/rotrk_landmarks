@@ -1,18 +1,12 @@
 function [TRKS_OUT] = rotrk_read(filePath, identifier, vol_data_untyped,specific_name)
-%function [header,tracts] = rotrk_read(filePath, identifier, vol_data, specific_name)
+%function [TRKS_OUT] = rotrk_read(filePath, identifier, vol_data_untyped,specific_name)
 %~~%Modified from along_tracts to input 2 arguments ( additional identifier)
-%   -Changes made by rdp20 to account for vol_data orientation (not
-%   necessarily LPS! )
-%   -Changes are denoted by %/~~~ and %~~~~/
 %~~
 %TRK_READ - Load .trk files
-% Syntax: [header,tracks] = trk_read(filePath)
-%
 % Inputs:
-%    filePath - Full path to .trk file or in struc form (filePath.id
-%               filePath.filename)
-%    identifier - This will get us the filename ID if found
-%    vol_data - vol_data with accurate orientation!
+%    filePath - Full path to *.trk or *.trk.gz file
+%    identifier - This will get us the TRKS_OUT.filename ID if found
+%    vol_data_untyped - vol_data with accurate orientation!
 %    specific_name - will give you a unique identifier for what
 %                     this tract is (e.g. dot_fornix). Default: 'none'
 %
@@ -163,9 +157,6 @@ header.id=identifier;
 
 
 %Assing orientation orde
-
-
-
 iTrk = 1;
 while iTrk <= max_n_trks
     pts = fread(fid, 1, 'int');
