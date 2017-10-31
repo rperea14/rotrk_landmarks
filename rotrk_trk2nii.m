@@ -119,14 +119,23 @@ for ii = 1:numel(tracts)
             end
         end
         try
-            %Values will change depending on the minimun number of decimals
-            min_dec = numel(num2str(max(tracts.vox_coord(:,3+idx_diffM))));
-            %For FA, min_dec is 6. For AxD, min_dec is 10 so...
-            if min_dec < 8 %7 or fewer...
-                new_ROI(ind)=1000*tracts.vox_coord(:,3+idx_diffM);
-            else % 10 or more (e.g. sassuming AxD, MD or RD)
-                new_ROI(ind)=1000000*tracts.vox_coord(:,3+idx_diffM);
-            end
+          %~~~~~~THESE LINES AREN'T NEEDED AS NO PROBLEM WITH INTEGER
+            %                               VALUES ARE FOUND:   ~~~~~~~~~~~
+            %             %Values will change depending on the minimun number of decimals
+            %             if flag_decimals == 0
+            %                 min_dec = numel(num2str(max(tracts.vox_coord(:,3+idx_diffM))));
+            %                 flag_decimals = 1 ;
+            %             end
+            %             %For FA, min_dec is 6. For AxD, min_dec is 10 so...
+            %             if min_dec < 8 %7 or fewer...
+            %                 new_ROI(ind)=1000*tracts.vox_coord(:,3+idx_diffM);
+            %             else % 10 or more (e.g. sassuming AxD, MD or RD)
+            %                 new_ROI(ind)=1000000*tracts.vox_coord(:,3+idx_diffM);
+            %             end
+            %~~~~~~~~~~END OF COMMENT
+             new_ROI(ind)=tracts.vox_coord(:,3+idx_diffM);
+            
+            
             %             if (strcmp('FA',metric) || strcmp('NQA0',metric) ) || (strcmp('proj1_FA',metric) || strcmp('proj1_NQA0',metric) )
             %                 new_ROI(ind)=1000*tracts.vox_coord(:,3+idx_diffM);
             %             else %sassuming AxD, MD or RD
