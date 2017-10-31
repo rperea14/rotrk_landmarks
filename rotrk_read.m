@@ -5,7 +5,9 @@ function [TRKS_OUT] = rotrk_read(filePath, identifier, vol_data_untyped,specific
 %TRK_READ - Load .trk files
 % Inputs:
 %    filePath - Full path to *.trk or *.trk.gz file
-%    identifier - This will get us the TRKS_OUT.filename ID if found
+%    identifier - This will get us the TRKS_OUT.filename ID if found. (also
+%                 used to avoid warning or orientations (if inputted:
+%                 'no_warning' )
 %    vol_data_untyped - vol_data with accurate orientation!
 %    specific_name - will give you a unique identifier for what
 %                     this tract is (e.g. dot_fornix). Default: 'none'
@@ -143,23 +145,29 @@ flag_x=0;flag_y=0; flag_z=0;
 warn=0;
 if (tmp_vol.mat(1,1)*header.vox_to_ras(1,1)) < 0
     %PREVIOUS DEPRECATED CODE: ~(abs(tmp_vol.mat(1,1) - header.vox_to_ras(1,1))) < tolerance
-    warn=1;
-    display('Volume matrix in the x coordinate is not equal to the trk matrix. Flipping to fit same orientation')
-    %warning('Double check orientation after using this!')
+    if ~strcmp(identifier,'no_warning')
+        warn=1;
+        display('Volume matrix in the x coordinate is not equal to the trk matrix. Flipping to fit same orientation')
+        %warning('Double check orientation after using this!')
+    end
     flag_x=-1;
     header.vox_to_ras(1,1) = -1*header.vox_to_ras(1,1);
 end
 
 if (tmp_vol.mat(2,2)*header.vox_to_ras(2,2)) < 0
-    display('Volume matrix in the y coordinate is not equal to the trk matrix. Flipping to fit same orientation')
-    %warning('Double check orientation after using this!')
+    if ~strcmp(identifier,'no_warning')
+        warn=1;
+        display('Volume matrix in the y coordinate is not equal to the trk matrix. Flipping to fit same orientation')
+    end
     flag_y=-1;
     header.vox_to_ras(2,2) = -1*header.vox_to_ras(2,2);
 end
 
 if (tmp_vol.mat(3,3)*header.vox_to_ras(3,3)) < 0
-    warn=1;
-    display('Volume matrix in the z coordinate is not equal to the trk matrix. Flipping to fit same orientation')
+    if ~strcmp(identifier,'no_warning')
+        warn=1;
+        display('Volume matrix in the z coordinate is not equal to the trk matrix. Flipping to fit same orientation')
+    end
     %warning('Double check orientation after using this!')
     flag_z=-1;
     header.vox_to_ras(3,3) = -1*header.vox_to_ras(3,3);

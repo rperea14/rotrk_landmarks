@@ -1,6 +1,9 @@
 # rotrk_landmarks
 A set of tools to read, write and modify *.trk *.trk.gz or *.nii  *.nii.gz files from diffusion imaging tractography. 
 
+#FOR GITHUBusERS: (NOTED 10_27_2018. COMMITS WILL BE OCCASIONALLY DONE. I WILL BE USING RPEREA14 B!TBUCKET ACCOUNT FOR WORK ENVIRONMENT SIMPLIFIACTION "
+
+
 
 The *trk file format is explained in detailed here: 
 http://trackvis.org/docs/?subsect=fileformat
@@ -21,3 +24,7 @@ trk_\<METHOD>\_\<PROJECTID>\_\<SUBJID>\_\<TRK_NAME>.trk
 
 Example: 
     trk_rmlen_193231_SJIT03437_Fmi.trk
+
+
+
+
