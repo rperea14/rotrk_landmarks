@@ -1,7 +1,6 @@
 # rotrk_landmarks
 A set of tools to read, write and modify *.trk *.trk.gz or *.nii  *.nii.gz files from diffusion imaging tractography. 
 
-#FOR GITHUBusERS: (NOTED 10_31_2017. COMMITS WILL BE OCCASIONALLY DONE. I WILL BE USING RPEREA14 B!TBUCKET ACCOUNT FOR WORK ENVIRONMENT SIMPLIFIACTION "
 
 
 
