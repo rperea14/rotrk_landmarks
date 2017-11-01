@@ -16,13 +16,13 @@ The dependencies:
 <s> *There is a bug in spm_vol() and SPM8 making it loop forever when reading a filename when using Matlab 2017a </s>
 
 
-Ideal naming format for the *.trk files:
-
+<s>Ideal naming format for the *.trk files:</s> (still on the works...)
+<s>
 trk_\<METHOD>\_\<PROJECTID>\_\<SUBJID>\_\<TRK_NAME>.trk
 
 Example: 
     trk_rmlen_193231_SJIT03437_Fmi.trk
 
-
+</s>
 
 
