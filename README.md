@@ -10,7 +10,7 @@ http://trackvis.org/docs/?subsect=fileformat
 The dependencies:
 1. Matlab: https://www.mathworks.com/products/matlab.html (tested in v.2015a/b, 2016a) <br/>
    *freeware alternative: Octave https://www.gnu.org/software/octave/ (not tested) <br/>
-2. <s>SPM8 (may give you issues with Matlab v.2017 or higher </s> SPM12 matlab toolbox (http://www.fil.ion.ucl.ac.uk/spm/software/)<br>
+2. <s>SPM8 (may give you issues with Matlab v.2017 or higher </s><br/> SPM12 matlab toolbox (http://www.fil.ion.ucl.ac.uk/spm/software/)<br>
 
 
 <s> *There is a bug in spm_vol() and SPM8 making it loop forever when reading a filename when using Matlab 2017a </s>
