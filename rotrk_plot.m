@@ -44,7 +44,12 @@ if nargin < 3   %ONLY A SINGLE PLOT CONFIGURATION
     plot_counter=1;
     plot_idx=1;
     if numel(TRKS_IN)==1
-        disp(['In: ' TRKS_IN.id '... '])
+        if isfield(TRKS_IN,'id') 
+            disp(['In: ' TRKS_IN.id '... ']) 
+        else
+            TRKS_IN.id='no name specified' ;
+            disp(['In: ' TRKS_IN.id '... ']) 
+        end
         local_rotrk_goplot(TRKS_IN.id,TRKS_IN, plot_color,'1st',varargin)
     else
         for ii=1:n_subplots % 1 through 3
@@ -214,72 +219,74 @@ if strcmp(color,''); color='k'; end
 for numtrks = 1:size(single_TRKS_IN.sstr,2)
     %READING THE MATRIX:
     matrix = single_TRKS_IN.sstr(numtrks).matrix;
-    header=single_TRKS_IN.header;
-    %/~~~~~~~~~~~~~~~~~~~~
-    %Code modified to make sure the order is correct!
-    if header.invert_x ~= 0 %Change by reversing all if vol_data differs from tract!
-        matrix(:,1) = header.dim(1)*header.voxel_size(3) - matrix(:,1);
-    end
-    if header.invert_y ~= 0
-        matrix(:,2) = header.dim(2)*header.voxel_size(3) - matrix(:,2);
-    end
-    if header.invert_z ~= 0
-        matrix(:,3) = header.dim(3)*header.voxel_size(3) - matrix(:,3);
-    end
-    %~~~~~~~~~~~~~~~~~~~~/
-    
-    
-    %Check if single_TRKS_IN.plotparams exists (if not go with defaults...)
-    hold on
-    switch color
-        case 'rainbow'
-            [maxpts, maxidx ]  = max(arrayfun(@(x) size(x.matrix, 1), single_TRKS_IN.sstr));
-            cline(matrix(:,1), matrix(:,2), matrix(:,3), (0:(size(matrix, 1)-1))/(maxpts))
-        case 'myrainbow_4'
-            if size(matrix,2) < 4
-                error([ 'Error: diffusion metric not found.' ...
-                    ' Make sure your data has at least a 4th column. Exiting...']);
-            else
-                cline(matrix(:,1), matrix(:,2), matrix(:,3), matrix(:,4))
-            end
-        case 'r'
-            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'r')
-        case '.'
-            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'.')
-        case 'r.'
-            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'r-')
-            plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'b.','markersize',20)
-        case 'b'
-            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'b')
-          %  plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'r.','markersize',30)
-        case 'b.'        
-            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'b-')
-            plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'r.','markersize',20)
-        case 'c'
-            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'c')
-            plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'c.')
-        case 'cc'
-            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'c')
-        case 'g'
-            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'g')
-            %    plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'b.')
-        case 'g.'
-            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'g-')
-            plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'k.','markersize',20)
-        case 'gg'
-            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'g')
-        case 'k'
-            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'k')
-         %   plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'k.')
-        case 'kk'
-            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'k')
-        case 'kline'
-            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'k.','markersize',30)
-          %  plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'r.')
-        otherwise
-            plot3(matrix(:,1), matrix(:,2), matrix(:,3),'b-')
-            plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'r.','markersize',20)
-            hold on
+    if ~isempty(matrix)
+        header=single_TRKS_IN.header;
+        %/~~~~~~~~~~~~~~~~~~~~
+        %Code modified to make sure the order is correct!
+        if header.invert_x ~= 0 %Change by reversing all if vol_data differs from tract!
+            matrix(:,1) = header.dim(1)*header.voxel_size(3) - matrix(:,1);
+        end
+        if header.invert_y ~= 0
+            matrix(:,2) = header.dim(2)*header.voxel_size(3) - matrix(:,2);
+        end
+        if header.invert_z ~= 0
+            matrix(:,3) = header.dim(3)*header.voxel_size(3) - matrix(:,3);
+        end
+        %~~~~~~~~~~~~~~~~~~~~/
+        
+        
+        %Check if single_TRKS_IN.plotparams exists (if not go with defaults...)
+        hold on
+        switch color
+            case 'rainbow'
+                [maxpts, maxidx ]  = max(arrayfun(@(x) size(x.matrix, 1), single_TRKS_IN.sstr));
+                cline(matrix(:,1), matrix(:,2), matrix(:,3), (0:(size(matrix, 1)-1))/(maxpts))
+            case 'myrainbow_4'
+                if size(matrix,2) < 4
+                    error([ 'Error: diffusion metric not found.' ...
+                        ' Make sure your data has at least a 4th column. Exiting...']);
+                else
+                    cline(matrix(:,1), matrix(:,2), matrix(:,3), matrix(:,4))
+                end
+            case 'r'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'r')
+            case '.'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'.')
+            case 'r.'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'r-')
+                plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'b.','markersize',20)
+            case 'b'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'b')
+                %  plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'r.','markersize',30)
+            case 'b.'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'b-')
+                plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'r.','markersize',20)
+            case 'c'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'c')
+                plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'c.')
+            case 'cc'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'c')
+            case 'g'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'g')
+                %    plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'b.')
+            case 'g.'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'g-')
+                plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'k.','markersize',20)
+            case 'gg'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'g')
+            case 'k'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'k')
+                %   plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'k.')
+            case 'kk'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'k')
+            case 'kline'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'k.','markersize',30)
+                %  plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'r.')
+            otherwise
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'b-')
+                plot3(matrix(1,1), matrix(1,2), matrix(1,3), 'r.','markersize',20)
+                hold on
+        end
     end
 end
 
@@ -367,8 +374,8 @@ if strcmp(what_plot,'1st')
                 %                 for yy=1:numel(varargin{1}{ii+1})
                 %                     if strcmp(varargin{1}{ii+1}{yy}.id,subjid)
                 color_roi=varargin{1}{ii+1}{yy}.plot_params.color;
-                plot3(varargin{1}{ii+1}{yy}.trk_coord(:,1),varargin{1}{ii+1}{yy}.trk_coord(:,2),...
-                    varargin{1}{ii+1}{yy}.trk_coord(:,3),color_roi,'markersize',40)
+                plot3(varargin{1}{ii+1}{yy}.approx_trk_coord(:,1),varargin{1}{ii+1}{yy}.approx_trk_coord(:,2),...
+                    varargin{1}{ii+1}{yy}.approx_trk_coord(:,3),color_roi,'markersize',40)
 %                     end
 %                 end
             catch

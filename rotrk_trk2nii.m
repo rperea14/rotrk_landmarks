@@ -96,8 +96,28 @@ end
 %%STARTING MAIN IMPLEMENTATION HERE:
 for ii = 1:numel(tracts)
     % Translate continuous vertex coordinates into discrete voxel coordinates
-    pos=tracts(ii).vox_coord;
+    pos=tracts(ii).vox_coord(:,1:3);
     pos=pos+1;
+    
+%!!!!!!!!!!!!!!!!!!!!!!!!!BEG OF EXCLAMATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+%THIS CODE IS UNNECESSARY. ALL THESE SHOULD BE TAKEN CARE IN rotrk_read.
+% PLEASE COMMENT IT ALWAYS!
+    %Now if inversion is done, then we need to remove the indexing of 0/1
+    %to the original term
+    %For x:
+%     if TRKS_IN.header.invert_x ==1
+%         pos(:,1)=pos(:,1)-1;
+%     end
+%     %For y:
+%     if TRKS_IN.header.invert_y ==1
+%         pos(:,2)=pos(:,2)-1;
+%     end
+%     %For z:
+%     if TRKS_IN.header.invert_z ==1
+%         pos(:,3)=pos(:,3)-1;
+%     end
+%!!!!!!!!!!!!!!!!!!!!!!!!!END OF EXCLAMATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
     
     %DUE TO INDEXING ISSUES STARTING AT 1 or 0...
     %Same replacing but for extreme values (based of header.dim(x/y/z)
@@ -118,7 +138,7 @@ for ii = 1:numel(tracts)
                 break
             end
         end
-        try
+%         try
           %~~~~~~THESE LINES AREN'T NEEDED AS NO PROBLEM WITH INTEGER
             %                               VALUES ARE FOUND:   ~~~~~~~~~~~
             %             %Values will change depending on the minimun number of decimals
@@ -133,17 +153,18 @@ for ii = 1:numel(tracts)
             %                 new_ROI(ind)=1000000*tracts.vox_coord(:,3+idx_diffM);
             %             end
             %~~~~~~~~~~END OF COMMENT
-             new_ROI(ind)=tracts.vox_coord(:,3+idx_diffM);
             
-            
+            %~~>TODEBUG: display(num2str(ii));
+            new_ROI(ind)=tracts(ii).vox_coord(:,3+idx_diffM);
+
             %             if (strcmp('FA',metric) || strcmp('NQA0',metric) ) || (strcmp('proj1_FA',metric) || strcmp('proj1_NQA0',metric) )
             %                 new_ROI(ind)=1000*tracts.vox_coord(:,3+idx_diffM);
             %             else %sassuming AxD, MD or RD
             %                 new_ROI(ind)=1000000*tracts.vox_coord(:,3+idx_diffM);
             %             end
-        catch
-            error(['No metric ' metric ' found. Cannot put values on it']);
-        end
+%         catch
+%             error(['No metric ' metric ' found. Cannot put values on it']);
+%         end
     end
 end
 %Writing into a file (all of the streamlines, that's why this if statements

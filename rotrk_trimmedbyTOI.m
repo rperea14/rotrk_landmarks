@@ -49,11 +49,11 @@ end
 %Preparing values
 for jj=1:numel(ROIS_IN)
     %Trk_coord limits (not ideal for flagging as they dont exactly fit!)
-    roi_lim{jj} = [ min(roi_in{jj}.trk_coord(:,1)) max(roi_in{jj}.trk_coord(:,1))  ...
-        min(roi_in{jj}.trk_coord(:,2)) max(roi_in{jj}.trk_coord(:,2)) ...
-        min(roi_in{jj}.trk_coord(:,3)) max(roi_in{jj}.trk_coord(:,3)) ] ;
+    roi_lim{jj} = [ min(roi_in{jj}.approx_trk_coord(:,1)) max(roi_in{jj}.approx_trk_coord(:,1))  ...
+        min(roi_in{jj}.approx_trk_coord(:,2)) max(roi_in{jj}.approx_trk_coord(:,2)) ...
+        min(roi_in{jj}.approx_trk_coord(:,3)) max(roi_in{jj}.approx_trk_coord(:,3)) ] ;
     
-    roi_mean{jj} = [  mean(roi_in{jj}.trk_coord(:,1))  mean(roi_in{jj}.trk_coord(:,2)) mean(roi_in{jj}.trk_coord(:,3)) ] ;
+    roi_mean{jj} = [  mean(roi_in{jj}.approx_trk_coord(:,1))  mean(roi_in{jj}.approx_trk_coord(:,2)) mean(roi_in{jj}.approx_trk_coord(:,3)) ] ;
     %Vox_coord limits:
     roi_vlim{jj} = [ min(roi_in{jj}.vox_coord(:,1)) max(roi_in{jj}.vox_coord(:,1))  ...
         min(roi_in{jj}.vox_coord(:,2)) max(roi_in{jj}.vox_coord(:,2)) ...
@@ -95,6 +95,7 @@ switch WHAT_TOI
             %   All other values:
             for tohide_INIT_trkout=1:1
                 temp_trks_out.sstr=flipped_trks_in.sstr;
+                temp_trks_out.header=flipped_trks_in.header;
                 trks_out.header=flipped_trks_in.header;
                 trks_out.header.specific_name=[ 'trimmed_' flipped_trks_in.header.specific_name ] ;
                 trks_out.id=flipped_trks_in.id;
@@ -102,18 +103,21 @@ switch WHAT_TOI
                 if isfield(trks_out,'trk_name' ) ; trks_out.trk_name=[ 'trimmed_' flipped_trks_in.trk_name ]; end
             end
             
-            %Criteria 0) 
+            %Criteria 0) Remove everything starting above the z-midpoint
             for itrk=1:numel(temp_trks_out.sstr)
                 if temp_trks_out.sstr(itrk).vox_coord(1,3) > roi_vlim{1}(6)-1
                     temp_trks_out.sstr(itrk).matrix= [] ;
                     temp_trks_out.sstr(itrk).vox_coord = [] ;
                 end
             end
+            todebug=1;
+            
             for itrk=1:numel(temp_trks_out.sstr)
                 trim_first = false ;
                 trim_second = false;
                 if ~isempty(temp_trks_out.sstr(itrk).vox_coord)
-                    %Criteria 1)
+                    %Criteria 1) Remove coords. above z-midpoint of hippo
+                    %and anterior to y-midpoint
                     for ixyz=1:size(temp_trks_out.sstr(itrk).matrix,1)
                         if trks_in.header.invert_y == 1 % Verifies orientation of y-axis for comparison
                             if temp_trks_out.sstr(itrk).vox_coord(ixyz,3) > roi_vmidpoint{1}(3) && temp_trks_out.sstr(itrk).vox_coord(ixyz,2) < roi_vmidpoint{1}(2) + 2 % two voxels of tolerance
@@ -131,7 +135,9 @@ switch WHAT_TOI
                             end
                         end
                     end
-                    %Criteria 2)
+                    todebug=1;
+                    %Criteria 2) Remove coords. that go beyond anterior
+                    %(y-axis) of thalamus
                     for ixyz=1:size(temp_trks_out.sstr(itrk).matrix,1)
                         if trks_in.header.invert_y == 1 % Verifies orientation of y-axis for comparison
                             if temp_trks_out.sstr(itrk).vox_coord(ixyz,2) > roi_vlim{2}(4) - 2  %tolerance of y-axis
@@ -150,27 +156,31 @@ switch WHAT_TOI
                         end
                     end
                     %If first or second trim don't happened, then remove
-                    %streamline
+                    %streamline. 2 conditions are always necessary! 
                     if trim_second == false || trim_first == false
                         temp_trks_out.sstr(itrk).matrix = [];
                         temp_trks_out.sstr(itrk).vox_coord = [];
                     end
                 end
             end
+            todebug=1;
             
             %Criteria 3) - Remove streamlines below the z-midpoint of the
             %thalamus
+            flag_criteria3=0
             for itrk=1:numel(temp_trks_out.sstr)
                 if ~isempty(temp_trks_out.sstr(itrk).vox_coord)
                     %Y-axis criteria:
                     [maxZval maxZidx ] = max(temp_trks_out.sstr(itrk).vox_coord(:,3));
                     if temp_trks_out.sstr(itrk).vox_coord(maxZidx,3) < roi_vmidpoint{2}(3)
-                        temp_trks_out.sstr(itrk).matrix = [];
-                        temp_trks_out.sstr(itrk).vox_coord = [];
+                        temp_trks_out2.sstr(itrk).matrix = [];
+                        temp_trks_out2.sstr(itrk).vox_coord = [];
+                        flag_criteria3=1+flag_criteria3;
                     end
                 end
             end
             
+          
             %REMOVE EMPTY *.matrix and *.sstr columns (where trimming did
             %not occur:
             trk_count=1;

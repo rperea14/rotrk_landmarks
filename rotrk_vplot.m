@@ -24,6 +24,9 @@ n_subplots=ceil(n_plots/9); %e.g. for 23 values, we need at least 3 subplots (9x
 plot_counter=1;
 plot_idx=1;
 if numel(TRKS_IN)==1
+    if ~isfield(TRKS_IN,'id')
+        TRKS_IN.id = 'noname (no id field --> TRKS.id)'
+    end
     disp(['In: ' TRKS_IN.id '... '])
     local_rotrk_goplot(TRKS_IN.id,TRKS_IN, plot_color)
 else
@@ -83,57 +86,58 @@ if strcmp(color,''); color='k'; end
 for numtrks = 1:size(single_TRKS_IN.sstr,2)
     %READING THE MATRIX:
     vox_coord = single_TRKS_IN.sstr(numtrks).vox_coord;
-    
-    %Check if single_TRKS_IN.plotparams exists (if not go with defaults...)
-    hold on
-    switch color
-        case 'rainbow'
-            [maxpts, maxidx ]  = max(arrayfun(@(x) size(x.vox_coord, 1), single_TRKS_IN.sstr));
-            cline(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3), (0:(size(vox_coord, 1)-1))/(maxpts))
-        case 'myrainbow_4'
-            if size(vox_coord,2) < 4
-                error([ 'Error: diffusion metric not found.' ...
-                    ' Make sure your data has at least a 4th column. Exiting...']);
-            else
-                cline(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3), vox_coord(:,4))
-            end
-        case 'r'
-            plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'r')
-        case '.'
-            plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'.')
-        case 'r.'
-            plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'r-')
-            plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'b.','markersize',20)
-        case 'b'
-            plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'b')
-          %  plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'r.','markersize',30)
-        case 'b.'        
-            plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'b-')
-            plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'r.','markersize',20)
-        case 'c'
-            plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'c')
-            plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'c.')
-        case 'cc'
-            plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'c')
-        case 'g'
-            plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'g')
-            %    plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'b.')
-        case 'g.'
-            plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'g-')
-            plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'k.','markersize',20)
-        case 'gg'
-            plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'g')
-        case 'k'
-            plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'k')
-         %   plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'k.')
-        case 'kk'
-            plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'k')
-        case 'kline'
-            plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'k.','markersize',30)
-          %  plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'r.')
-        otherwise
-            plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'b-')
-            plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'r.','markersize',20)
-            hold on
+    if ~isempty(vox_coord)
+        %Check if single_TRKS_IN.plotparams exists (if not go with defaults...)
+        hold on
+        switch color
+            case 'rainbow'
+                [maxpts, maxidx ]  = max(arrayfun(@(x) size(x.vox_coord, 1), single_TRKS_IN.sstr));
+                cline(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3), (0:(size(vox_coord, 1)-1))/(maxpts))
+            case 'myrainbow_4'
+                if size(vox_coord,2) < 4
+                    error([ 'Error: diffusion metric not found.' ...
+                        ' Make sure your data has at least a 4th column. Exiting...']);
+                else
+                    cline(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3), vox_coord(:,4))
+                end
+            case 'r'
+                plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'r')
+            case '.'
+                plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'.')
+            case 'r.'
+                plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'r-')
+                plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'b.','markersize',20)
+            case 'b'
+                plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'b')
+                %  plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'r.','markersize',30)
+            case 'b.'
+                plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'b-')
+                plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'r.','markersize',20)
+            case 'c'
+                plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'c')
+                plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'c.')
+            case 'cc'
+                plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'c')
+            case 'g'
+                plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'g')
+                %    plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'b.')
+            case 'g.'
+                plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'g-')
+                plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'k.','markersize',20)
+            case 'gg'
+                plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'g')
+            case 'k'
+                plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'k')
+                %   plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'k.')
+            case 'kk'
+                plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'k')
+            case 'kline'
+                plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'k.','markersize',30)
+                %  plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'r.')
+            otherwise
+                plot3(vox_coord(:,1), vox_coord(:,2), vox_coord(:,3),'b-')
+                plot3(vox_coord(1,1), vox_coord(1,2), vox_coord(1,3), 'r.','markersize',20)
+                hold on
+        end
     end
 end

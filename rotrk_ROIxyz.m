@@ -88,6 +88,7 @@ roi_xyz.num_uvox=size(roi_xyz.unique_voxels,1);
 %###BELOW CANT BE DONE CORRECTLY AS FOR TRKING SPLINE INTERPOLATION IS NEEDED
 %   THE APPROXIMATION CAN BE MATHEMATICALLY DONE.
 %IDEAL APPROXIMATION IS BEING WORKED AS A SOLUTION
-tmp2_xyz = [ tmp_xyz-1 ones(numel(x),1) ] ;
+tmp2_xyz = [ tmp_xyz-1 ones(numel(x),1) ] ; %NOT SURE ABOUT THIS STEP. rdp20 11_01_2017 (INDEXING ALWAYS AN ISSUE)
 additional_step = abs(tmp2_xyz*mat2);
-roi_xyz.trk_coord = additional_step(:,1:3);
+roi_xyz.approx_trk_coord = additional_step(:,1:3);
+roi_xyz.header= H_vol ; 
