@@ -22,7 +22,7 @@ function [TRKS_OUT] = rotrk_read(filePath, identifier, vol_data_untyped,specific
 %
 %
 %   Example:  temp_hippocing_lh = rotrk_read('my_TOI.trk', 'HAB_669', 'My_FA.nii', 'trkk'_Hippocampus');
-
+%   Created by Rodrigo Perea Github: https://github.com/Drigomaniac
 
 
 if nargin < 3, error('Please provide at least 3 arguments as the nii_vol is needed for orientation purposes') ; end
