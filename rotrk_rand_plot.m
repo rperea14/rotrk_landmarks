@@ -1,51 +1,210 @@
-function  rotrk_rand_plot(REF_TRK, T_STATS_FNAME, CORRP_STATS_FNAME, STATS_DIRNAME)
-%function  rotrk_rand_plot(REF_TRKS, STATS_DIRNAME)
+function  rotrk_rand_plot(REF_TRKS,PSTATVOLS,CORRP_VOLS, plot_params)
+%function  rotrk_rand_plot(REF_TRKS,PSTATVOLS,CORRP_VOLS, plot_params)
 %Goal: To plot voxel-by-voxel the statistically significant results coming
 %out of randomise using the <REF_TRK> as the reference tract which should
 %be the same used for masking the in randomise in the directory
 %<STATS_DIRNAME>
-%   IN:     REF_TRK             Reference tract/tracts to be plotted
-%           STATS_DIRNAME       Directory name of the voxels of interest
+%   IN:     REF_TRKS            Reference tract/tracts to be plotted
+%           PSTATSVOLS          Tstat niftii file (e.g. tbss_<NAME>_tstat1.nii.gz )
+%           CORRPVOLS           Corrected tstat niftii file (e.g. tbss_<NAME>_tfce_corrp_tstat1.nii.gz )
+%           plot_params         (optional) parameters to plot:
+%                               plot_params.title (default nothing --> '') 
+%                               plot_params.asterisk (default 'r*')
+%                               plot_params.markersize (default 2000)
+%                               plot_params.corr_pvalue (default 0.05)
+%                               plot_params.xyz_ticks (default don't show xyz labels)
 %   OUT:                        THE PLOT ITSELF
-%   *Make sure if more than one  filename is input, that they are orderly
-%   passed. 
 %Created by Rodrigo Perea Nov 2017
 %
-%UNNECESSARY --> METRICS = [ {'FA'}  {'AxD'}   {'MD'}  {'RD'} {'NQA0'} ];
-PCORR_fns=dir_wfp('coord_2_REF/GFA/bil_tbss_results/*_corrp*');
-PSTAT_fns=dir_wfp('coord_2_REF/GFA/bil_tbss_results/*NC_tstat*');
-%Reference trks to extracr x,y,z coordinates:
-REF_TRK = [ {MYTRKS.FA.L_CLINE{16}} {MYTRKS.FA.R_CLINE{18}} ];
 
+if nargin < 4
+    plot_params='';
+end
 
-if numel(PCORR_fns) ~= numel(PSTAT_fns)
-    error('PCORR_fns and PSTAT_fns are not the same size.Please check!')
+if numel(CORRP_VOLS) ~= numel(REF_TRKS)
+    error(['REF_TRKS passed (n=' num2str(numel(REF_TRKS)) ') is not equal to corrp vols passed (n=' num2str(numel(CORRP_VOLS)) ')' ]);
 end
 
 
+if numel(PSTATVOLS) ~= numel(REF_TRKS)
+    error(['REF_TRKS passed (n=' num2str(numel(REF_TRKS)) ') is not equal tstat  vols passed (n=' num2str(numel(PSTATVOLS)) ')' ]);
+end
 
-%If even, then a left and right exist!
-if mod(numel(PCORR_fns),2) == 0
-    for ii=1:numel(PCORR_fns)-1
-        %PCORR VALS:
-        [~, fn_tfce1, ~ ] = fileparts(PCORR_fns{ii});
-        prex_fn_tfce1=strsplit(fn_tfce1,'_');
-        [~, fn_tfce2, ~ ] = fileparts(PCORR_fns{ii+1});
-        prex_fn_tfce2=strsplit(fn_tfce2,'_');
+for ii=1:numel(CORRP_VOLS)
+    %Is it gzipped?
+    %CORRP VOLS:
+    [ ~, ~, ext_corrp ] = fileparts(CORRP_VOLS{ii});
+    if strcmp(ext_corrp,'.gz')
+        system(['gunzip ' CORRP_VOLS{ii}]);
+        VOLScorrp_fn{ii} = strrep(CORRP_VOLS{ii},'.gz','');
+    else
+        VOLScorrp_fn{ii}=CORRP_VOLS{ii};
+    end
+    
+    %PSTATVOLS:
+    [ ~, ~, ext_tstat ] = fileparts(PSTATVOLS{ii});
+    if strcmp(ext_tstat,'.gz')
+        system(['gunzip ' PSTATVOLS{ii}]);
+        VOLSpstat_fn{ii} = strrep(PSTATVOLS{ii},'.gz','');
+    else
+        VOLSpstat_fn{ii}=PSTATVOLS{ii};
+    end
+    
+    
+    %Trying to execute spm_vol():
+    try
+        %Corrp:
+        VOLS_corrp{ii} = spm_vol(VOLScorrp_fn{ii});
+        VVOLS_corrp{ii}= spm_read_vols(VOLS_corrp{ii});
+        %Tstat:
+        VOLS_tstat{ii} = spm_vol(VOLSpstat_fn{ii});
+        VVOLS_tstat{ii}= spm_read_vols(VOLS_tstat{ii});
         
-        %PSTAT VALS:
-        [~, fn_pstat1, ~ ] = fileparts(PSTAT_fns{ii});
-        prex_fn_pstat1=strsplit(fn_pstat1,'_');
-        [~, fn_pstat2, ~ ] = fileparts(PSTAT_fns{ii+1});
-        prex_fn_pstat2=strsplit(fn_pstat2,'_');
-        
-        
-        if strcmp(prex_fn_tfce1(1),prex_fn_tfce2(1))  && strcmp(prex_fn_pstat1(1),prex_fn_pstat2(1)) ...
-                && strcmp(prex_fn_tfce1(1),prex_fn_pstat1(1))
-            fprintf([ PCORR_fns{ii}  ' AND \n' PCORR_fns{ii+1} '\n\n'])
-            rotrk_statsplot(REF_TRK,[ {PSTAT_fns{ii}}  {PSTAT_fns{ii+1}}], [{PCORR_fns{ii}} {PCORR_fns{ii+1}}]);
+    catch
+        if strcmp(ext_corrp,'gz') ; system(['gzip ' VOLScorrp_fn{ii}]) ; end
+        if strcmp(ext_tstat,'gz') ; system(['gzip ' VOLSpstat_fn{ii}]) ; end
+        error(['In iteration: ' num2str(ii)  ' CANT EXECUTE spm_vol(): Maybe--> Invalid filename type. Either implement of check its a char type'])
+    end
+    
+    
+    %gzip the file again if needed
+    if strcmp(ext_corrp,'.gz') ;  system(['gzip ' VOLScorrp_fn{ii}]); end
+    if strcmp(ext_tstat,'.gz') ; system(['gzip ' VOLSpstat_fn{ii}]) ; end
+    
+    
+    
+    %Plotting starts here:
+    
+    %Getting idxs:
+    ind_corrp{ii}=find(VVOLS_corrp{ii}~=0);
+    ind_tstat{ii}=find(VVOLS_tstat{ii}~=0);
+    
+    %Getting xyz_s
+    [ x_corrp{ii} y_corrp{ii} z_corrp{ii} ]  = ind2sub(size(VVOLS_corrp{ii}),ind_corrp{ii});
+    [ x_tstat{ii} y_tstat{ii} z_tstat{ii} ]  = ind2sub(size(VVOLS_tstat{ii}),ind_tstat{ii});
+    
+    %Getting p values = 1-intensity:
+    pvals_corrp{ii}=1-VVOLS_corrp{ii}(ind_corrp{ii});
+    pvals_tstat{ii}=VVOLS_tstat{ii}(ind_tstat{ii});
+    
+    %Removing -1 for indexing issues that happened before...
+    all_corr{ii} = [ x_corrp{ii}-1 y_corrp{ii}-1 z_corrp{ii}-1 pvals_corrp{ii} ] ;
+    all_tstat{ii} = [ x_tstat{ii}-1 y_tstat{ii}-1 z_tstat{ii}-1 pvals_tstat{ii} ] ;
+    
+    
+    
+    
+    %Get corrP into the t-stat values:
+    tstat_and_corrp{ii} = [ all_tstat{ii}  nan(size(all_tstat{ii},1),1) ]; %Init las columns for p_corrs
+    for jj=1:size(all_tstat{ii},1)
+        for kk=1:size(all_corr{ii},1)
+            %check if x equals:
+            if all_tstat{ii}(jj,1) == all_corr{ii}(kk,1)
+                %check if x equals:
+                if all_tstat{ii}(jj,2) == all_corr{ii}(kk,2)
+                    %check if z equals:
+                    if all_tstat{ii}(jj,3) == all_corr{ii}(kk,3)
+                        tstat_and_corrp{ii}(jj,5) = all_corr{ii}(kk,4); % Adding the corr_p
+                        break
+                    end
+                end
+            end
         end
     end
-else
-    warning('PCORR_fns is not even, so no bilateralise and not implemented. Nothing to do...')
+    
+    %Check file format of REF_TRKS{ii}
+    if ischar(class(REF_TRKS{ii}))
+        REF_TRKS_fname{ii}=REF_TRKS{ii};
+        REF_TRKS{ii}=rotrk_read(REF_TRKS_fname{ii},'REF_TRK',PSTATVOLS{ii});
+    end
+    
+    %DOES THE REF_TRK CONTAIN A SINGLE STREAMLINE OR A COMBINATION OF MANY?
+    if size(REF_TRKS{ii}.sstr,2) ~= 1
+        %if many, then vercat the vox_coord and matrix
+        singleREF_TRKS{ii}.sstr.matrix=REF_TRKS{ii}.sstr(1).matrix;
+        singleREF_TRKS{ii}.sstr.vox_coord=REF_TRKS{ii}.sstr(1).vox_coord;       %initializing vox_coord
+        for kk=2:size(REF_TRKS{ii}.sstr,2)
+            singleREF_TRKS{ii}.sstr.matrix=vertcat(singleREF_TRKS{ii}.sstr.matrix,REF_TRKS{ii}.sstr(kk).matrix);
+            singleREF_TRKS{ii}.sstr.vox_coord=vertcat(singleREF_TRKS{ii}.sstr.vox_coord,REF_TRKS{ii}.sstr(kk).vox_coord);
+        end
+    else
+        singleREF_TRKS{ii}.sstr=REF_TRKS{ii}.sstr;
+        singleREF_TRKS{ii}.vox_coord=REF_TRKS{ii}.vox_coord;
+    end
+    
+    
+    %Get corrP into the toplot_vals:
+    toplot_vals{ii} = [   singleREF_TRKS{ii}.sstr.matrix(:,1:3) nan(size(singleREF_TRKS{ii}.sstr.matrix,1),1) nan(size(singleREF_TRKS{ii}.sstr.matrix,1),1) ]; %Init last columns for p_corrs
+    for jj=1:size(singleREF_TRKS{ii}.sstr.vox_coord(:,1:3),1)
+        for kk=1:size(tstat_and_corrp{ii},1)
+            %check if x equals:
+            if singleREF_TRKS{ii}.sstr.vox_coord(jj,1) == tstat_and_corrp{ii}(kk,1)
+                %check if y equals:
+                if singleREF_TRKS{ii}.sstr.vox_coord(jj,2) == tstat_and_corrp{ii}(kk,2)
+                    %check if z equals:
+                    if singleREF_TRKS{ii}.sstr.vox_coord(jj,3) ==tstat_and_corrp{ii}(kk,3)
+                        toplot_vals{ii}(jj,4:5) =tstat_and_corrp{ii}(kk,4:5); % Adding the corr_p
+                        break
+                    end
+                end
+            end
+        end
+    end
+    
+        
+    %PLOT PARAMTERS CHECK:
+    %Change markersize:
+    if isfield(plot_params,'markersize')
+        plot_markersize=plot_params.markersize;
+    else
+        plot_markersize=2000;
+    end
+    
+    %Change asterisk:
+    if isfield(plot_params,'asterisk')
+        plot_asterisk=plot_params.asterisk;
+    else
+        plot_asterisk='r*';
+    end
+    
+    %Change p-value for asterisk:
+    if isfield(plot_params,'corr_pvalue')
+        plot_corr_pvalue=plot_params.corr_pvalue;
+    else
+        plot_corr_pvalue=0.05;
+    end
+    
+   
+    
+    %PLOTTING NOW:
+    figure();
+    scatter3(toplot_vals{ii}(:,1),toplot_vals{ii}(:,2),toplot_vals{ii}(:,3),plot_markersize,toplot_vals{ii}(:,4),'filled');
+    hold on
+    
+    
+    for gg=1:numel(toplot_vals{ii}(:,5))
+        if toplot_vals{ii}(gg,5) < plot_corr_pvalue
+            scatter3(toplot_vals{ii}(gg,1), toplot_vals{ii}(gg,2), toplot_vals{ii}(gg,3),plot_markersize,plot_asterisk);
+        end
+    end
+   
+    
 end
+
+%Properties added:
+caxis([0 3.5])
+colorbar
+view(45,15)
+if isfield(plot_params,'xyz_ticks')
+     do_nothing=1;
+else
+    set(gca,'XTick',[]) ; set(gca,'YTick',[]) ; set(gca,'ZTick',[])
+end
+ %Add title is plot_params are passed:
+ if isfield(plot_params,'title')
+     title(plot_params.title)
+ end
+
+hold off
+
+

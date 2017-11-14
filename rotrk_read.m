@@ -2,7 +2,7 @@ function [TRKS_OUT] = rotrk_read(filePath, identifier, vol_data_untyped,specific
 %function [TRKS_OUT] = rotrk_read(filePath, identifier, vol_data_untyped,specific_name)
 %~~%Modified from along_tracts to input 2 arguments ( additional identifier)
 %~~
-%TRK_READ - Load .trk files
+%ROTRK_READ - Load .trk files
 % Inputs:
 %    filePath - Full path to *.trk or *.trk.gz file
 %    identifier - This will get us the TRKS_OUT.filename ID if found. (also
@@ -356,6 +356,8 @@ for ii=1:size(tracts,2)
     posnew_idx=1+posnew_idx;
     TRKS_OUT.sstr(ii).nPoints=size(TRKS_OUT.sstr(ii).matrix,1);
 end
+
+
 
 
 %Get the volume of non-overlapping XYZ vox_coord values
