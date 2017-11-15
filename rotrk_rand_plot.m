@@ -13,6 +13,7 @@ function  rotrk_rand_plot(REF_TRKS,PSTATVOLS,CORRP_VOLS, plot_params)
 %                               plot_params.markersize (default 2000)
 %                               plot_params.corr_pvalue (default 0.05)
 %                               plot_params.xyz_ticks (default don't show xyz labels)
+%                               plot_params.trkname (name of the trk)
 %   OUT:                        THE PLOT ITSELF
 %Created by Rodrigo Perea Nov 2017
 %
@@ -129,7 +130,6 @@ for ii=1:numel(CORRP_VOLS)
         end
     else
         singleREF_TRKS{ii}.sstr=REF_TRKS{ii}.sstr;
-        singleREF_TRKS{ii}.vox_coord=REF_TRKS{ii}.vox_coord;
     end
     
     
@@ -178,10 +178,23 @@ for ii=1:numel(CORRP_VOLS)
     
     %PLOTTING NOW:
     figure();
-    scatter3(toplot_vals{ii}(:,1),toplot_vals{ii}(:,2),toplot_vals{ii}(:,3),plot_markersize,toplot_vals{ii}(:,4),'filled');
     hold on
+    %Check if there are no tstats coordinates:
+    if any(isnan(toplot_vals{ii}(:,4)))
+        for gg=1:numel(toplot_vals{ii}(:,4))
+            if ~isnan(toplot_vals{ii}(gg,4))
+                scatter3(toplot_vals{ii}(gg,1),toplot_vals{ii}(gg,2),toplot_vals{ii}(gg,3),plot_markersize,toplot_vals{ii}(gg,4),'filled');
+            else
+                scatter3(toplot_vals{ii}(gg,1),toplot_vals{ii}(gg,2),toplot_vals{ii}(gg,3),plot_markersize,toplot_vals{ii}(gg,4),'b');
+            end
+        end
+    else
+        %If all tstats exist, do a simple (faster plot)
+        scatter3(toplot_vals{ii}(:,1),toplot_vals{ii}(:,2),toplot_vals{ii}(:,3),plot_markersize,toplot_vals{ii}(:,4),'filled');
+    end
     
     
+  
     for gg=1:numel(toplot_vals{ii}(:,5))
         if toplot_vals{ii}(gg,5) < plot_corr_pvalue
             scatter3(toplot_vals{ii}(gg,1), toplot_vals{ii}(gg,2), toplot_vals{ii}(gg,3),plot_markersize,plot_asterisk);
@@ -189,12 +202,15 @@ for ii=1:numel(CORRP_VOLS)
     end
    
     
+    
 end
 
 %Properties added:
-caxis([0 3.5])
+caxis([-3 3])
+%caxis([0 3.5])
 colorbar
-view(45,15)
+%view(45,15)
+view(-81,17)
 if isfield(plot_params,'xyz_ticks')
      do_nothing=1;
 else
