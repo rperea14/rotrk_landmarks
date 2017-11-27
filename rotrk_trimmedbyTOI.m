@@ -79,18 +79,20 @@ switch WHAT_TOI
             end
             
             
-            %CRITERIA FOR TRIMMING THE VALUES (STARTING NEAR THE HIPPOCAMPUS):
-            %   0) Remove strlines that start above the z-axis of
-            %   hippocampus maximun z-value 
-            %   1) Once at y-axis midpoint of hippocampus (posterior) is reached, 
-            %   then we remove everything below the z-axis midpoint of
-            %   hippocampus once it reaches it
-            %   2) Remove everything above the y-axis thalamic limit
-            %   (higher values, more anterior)
-            %   ** Then,
-            %   3) Some tracts are AC projections, to avoid this, we will
-            %   remove streamlines that max-z values is below the midpoint
-            %   z-axis of the thalamus
+            %CRITERIA FOR TRIMMING THE VALUES
+            %(STARTING NEAR THE HIPPOCAMPUS):
+            %   0) Remove strlines that start 
+            %      above the HIPPOCAMPUS max. 
+            %      z-value (below 1 voxel)
+            %   1) Trim sstrlines below the 
+            %      midpoint of zy-HIPPOCAMPUS axis
+            %      (tolerance of 2 voxel y-posteriorly)
+            %   hippocampus (posterior - 2 voxels) 
+            %   2) Trim strlines based on the THALAMUS
+            %      anterior-axis (tol. 2 voxels)
+            %   3) Some tracts are AC projections, to avoid
+            %      this, remove strlines that max-z values 
+            %      is below the midpoint z-axis of the THALAMUS
             
             %   All other values:
             for tohide_INIT_trkout=1:1
@@ -112,6 +114,7 @@ switch WHAT_TOI
             end
             todebug=1;
             
+            %Criteria 1 and 2) 
             for itrk=1:numel(temp_trks_out.sstr)
                 trim_first = false ;
                 trim_second = false;
