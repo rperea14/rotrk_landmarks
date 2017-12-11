@@ -64,7 +64,8 @@ for ii=1:numel(CORRP_VOLS)
     catch
         if strcmp(ext_corrp,'gz') ; system(['gzip ' VOLScorrp_fn{ii}]) ; end
         if strcmp(ext_tstat,'gz') ; system(['gzip ' VOLSpstat_fn{ii}]) ; end
-        error(['In iteration: ' num2str(ii)  ' CANT EXECUTE spm_vol(): Maybe--> Invalid filename type. Either implement of check its a char type'])
+        error(['In iteration: ' num2str(ii)  ' CANT EXECUTE spm_vol(): Maybe--> Invalid filename type. Either implement of check its a char type \n' ...
+            'filename is:' ])
     end
     
     
@@ -85,7 +86,7 @@ for ii=1:numel(CORRP_VOLS)
     [ x_tstat{ii} y_tstat{ii} z_tstat{ii} ]  = ind2sub(size(VVOLS_tstat{ii}),ind_tstat{ii});
     
     %Getting p values = 1-intensity:
-    pvals_corrp{ii}=1-VVOLS_corrp{ii}(ind_corrp{ii});
+    pvals_corrp{ii}=VVOLS_corrp{ii}(ind_corrp{ii});
     pvals_tstat{ii}=VVOLS_tstat{ii}(ind_tstat{ii});
     
     %Removing -1 for indexing issues that happened before...
@@ -114,12 +115,13 @@ for ii=1:numel(CORRP_VOLS)
     end
     
     %Check file format of REF_TRKS{ii}
-    if ischar(class(REF_TRKS{ii}))
+    %if ischar(class(REF_TRKS{ii}))
+    if ~isstruct(REF_TRKS{ii})
         REF_TRKS_fname{ii}=REF_TRKS{ii};
         REF_TRKS{ii}=rotrk_read(REF_TRKS_fname{ii},'REF_TRK',PSTATVOLS{ii});
     end
     
-    %DOES THE REF_TRK CONTAIN A SINGLE STREAMLINE OR A COMBINATION OF MANY?
+    %DOES THE REF_TRK CONTAINtr A SINGLE STREAMLINE OR A COMBINATION OF MANY?
     if size(REF_TRKS{ii}.sstr,2) ~= 1
         %if many, then vercat the vox_coord and matrix
         singleREF_TRKS{ii}.sstr.matrix=REF_TRKS{ii}.sstr(1).matrix;
@@ -196,21 +198,28 @@ for ii=1:numel(CORRP_VOLS)
     
   
     for gg=1:numel(toplot_vals{ii}(:,5))
-        if toplot_vals{ii}(gg,5) < plot_corr_pvalue
-            scatter3(toplot_vals{ii}(gg,1), toplot_vals{ii}(gg,2), toplot_vals{ii}(gg,3),plot_markersize,plot_asterisk);
+        if 1-toplot_vals{ii}(gg,5) < plot_corr_pvalue
+            scatter3(toplot_vals{ii}(gg,1), toplot_vals{ii}(gg,2), toplot_vals{ii}(gg,3),plot_markersize,plot_asterisk,'filled');
         end
     end
    
     
-    
-end
 
 %Properties added:
-caxis([-3 3])
+if isfield(plot_params,'caxis')
+    caxis(plot_params.caxis);
+else
+    caxis([-3 3])
+end
+
 %caxis([0 3.5])
 colorbar
-%view(45,15)
-view(-81,17)
+if isfield(plot_params,'view')
+    view(plot_params.view(1),plot_params.view(2))
+else
+    %view(45,15)
+    view(-81,17)
+end
 if isfield(plot_params,'xyz_ticks')
      do_nothing=1;
 else
@@ -221,6 +230,8 @@ end
      title(plot_params.title)
  end
 
+    
+end
 hold off
 
 

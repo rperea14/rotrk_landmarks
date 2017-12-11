@@ -27,11 +27,20 @@ for ii=2:numel(varargin)
     end
 end
 
+%FILL IN HEADER (INHERITED FROM 1st STRLINE PASSED):
+TRKS_OUT.header=varargin{1}.header;
+
 %WORKING ON TRKS_OUT.SSTR:
 for ii=1:numel(varargin)
-  TRKS_OUT.sstr(ii).matrix = varargin{ii}.sstr.matrix;
-  TRKS_OUT.sstr(ii).vox_coord = varargin{ii}.sstr.vox_coord;
-  TRKS_OUT.sstr(ii).nPoints = varargin{ii}.sstr.nPoints;
+    if ii==1
+        TRKS_OUT.header.specific_name=['joined_',varargin{1}.header.specific_name];
+    else
+        TRKS_OUT.header.specific_name=[TRKS_OUT.header.specific_name, ...
+            '__',varargin{ii}.header.specific_name];
+    end
+    TRKS_OUT.sstr(ii).matrix = varargin{ii}.sstr.matrix;
+    TRKS_OUT.sstr(ii).vox_coord = varargin{ii}.sstr.vox_coord;
+    TRKS_OUT.sstr(ii).nPoints = varargin{ii}.sstr.nPoints;
 end
 %Get the volume of non-overlapping XYZ vox_coord values
 all_vox=TRKS_OUT.sstr(1).vox_coord ;        %initializing vox_coord
@@ -47,7 +56,7 @@ TRKS_OUT.num_uvox=size(TRKS_OUT.unique_voxels,1);
 
 %WORKING ON TRKS_OUT.HEADER:
 %Filled up fields other than sstr related
-TRKS_OUT.header=varargin{1}.header;
+
 TRKS_OUT.header.n_count=size(TRKS_OUT.sstr,2);
 
 %WORKING ON TRKS_OUTR.<OTHER FIELDS>:

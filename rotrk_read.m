@@ -147,7 +147,7 @@ if (tmp_vol.mat(1,1)*header.vox_to_ras(1,1)) < 0
     %PREVIOUS DEPRECATED CODE: ~(abs(tmp_vol.mat(1,1) - header.vox_to_ras(1,1))) < tolerance
     if ~strcmp(identifier,'no_warning')
         warn=1;
-        display('Volume matrix in the x coordinate is not equal to the trk matrix. Flipping to fit same orientation')
+     %   display('Volume matrix in the x coordinate is not equal to the trk matrix. Flipping to fit same orientation')
         %warning('Double check orientation after using this!')
     end
     flag_x=-1;
@@ -157,7 +157,7 @@ end
 if (tmp_vol.mat(2,2)*header.vox_to_ras(2,2)) < 0
     if ~strcmp(identifier,'no_warning')
         warn=1;
-        display('Volume matrix in the y coordinate is not equal to the trk matrix. Flipping to fit same orientation')
+    %    display('Volume matrix in the y coordinate is not equal to the trk matrix. Flipping to fit same orientation')
     end
     flag_y=-1;
     header.vox_to_ras(2,2) = -1*header.vox_to_ras(2,2);
@@ -166,7 +166,7 @@ end
 if (tmp_vol.mat(3,3)*header.vox_to_ras(3,3)) < 0
     if ~strcmp(identifier,'no_warning')
         warn=1;
-        display('Volume matrix in the z coordinate is not equal to the trk matrix. Flipping to fit same orientation')
+     %   display('Volume matrix in the z coordinate is not equal to the trk matrix. Flipping to fit same orientation')
     end
     %warning('Double check orientation after using this!')
     flag_z=-1;
@@ -175,7 +175,7 @@ end
 
 if warn==1
     % warning('Volume matrix in the xyz coordinate is not equal to the trk matrix. Flipping to fit same orientation')
-    display('Double check orientation after using this!')
+    fprintf(' - (double check orientation after using this) - ')
 end
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~/
 

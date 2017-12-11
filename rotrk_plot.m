@@ -145,6 +145,7 @@ else %NOW WE DEAL WITH A CELL ARRAY THAT CONTAIN MANY PLOTS
                % title([ '\color{blue}' strrep(TRKS_IN_toplot{plot_idx}.id,'_','\_')], 'Interpreter', 'tex')
                 title([ '\color{blue}' dx '\_' num2str(plot_counter) '     ' 'Age: ' num2str(TRKS_IN_toplot{plot_idx}.header.data.age) ], 'Interpreter', 'tex')
             end
+            display([ dx '_' plot_counter ' is: ' TRKS_IN_toplot{plot_idx}.id]);
             plot_counter=plot_counter+1;
             
             disp(['In: ' TRKS_IN_toplot{plot_idx}.id '... ']);
@@ -374,8 +375,11 @@ if strcmp(what_plot,'1st')
                 %                 for yy=1:numel(varargin{1}{ii+1})
                 %                     if strcmp(varargin{1}{ii+1}{yy}.id,subjid)
                 color_roi=varargin{1}{ii+1}{yy}.plot_params.color;
-                plot3(varargin{1}{ii+1}{yy}.approx_trk_coord(:,1),varargin{1}{ii+1}{yy}.approx_trk_coord(:,2),...
-                    varargin{1}{ii+1}{yy}.approx_trk_coord(:,3),color_roi,'markersize',40)
+                plot3(varargin{1}{ii+1}{yy}.trk_coord(:,1),varargin{1}{ii+1}{yy}.trk_coord(:,2),...
+                    varargin{1}{ii+1}{yy}.trk_coord(:,3),color_roi,'markersize',40)
+%               
+                %plot3(varargin{1}{ii+1}{yy}.approx_trk_coord(:,1),varargin{1}{ii+1}{yy}.approx_trk_coord(:,2),...
+                 %   varargin{1}{ii+1}{yy}.approx_trk_coord(:,3),color_roi,'markersize',40)
 %                     end
 %                 end
             catch

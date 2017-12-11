@@ -170,7 +170,7 @@ switch WHAT_TOI
             
             %Criteria 3) - Remove streamlines below the z-midpoint of the
             %thalamus
-            flag_criteria3=0
+            flag_criteria3=0;
             for itrk=1:numel(temp_trks_out.sstr)
                 if ~isempty(temp_trks_out.sstr(itrk).vox_coord)
                     %Y-axis criteria:
