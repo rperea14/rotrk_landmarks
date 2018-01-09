@@ -67,7 +67,6 @@ else
                         end
                     end
                     %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                    
                 end
             catch
                 error('Make sure that the field TRKS_IN.header.scalar_IDs exists.')
