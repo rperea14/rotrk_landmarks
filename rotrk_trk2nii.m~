@@ -1,18 +1,27 @@
-function  rotrk_trk2roi(TRKS_IN, vol_input,nii_name,metric)
-%function  rotrk_trk2roi(TRKS_IN, vol_input,nii_name,metric)
+function  rotrk_trk2nii(TRKS_IN, vol_input,nii_name,metric)
+%function  rotrk_trk2nii(TRKS_IN, vol_input,nii_name,metric)
+%  Created by Rodrigo Perea
 %  If 3 arguments are passed:
 %   IN ->
-%     TRKS_IN:     TRKS_IN trks in TRKS.sstr TRKS.header format   
+%     TRKS_IN:     TRKS_IN trks in TRKS.sstr TRKS.header format (or
+%                  filename)
 %     vol_input:   (volume)  in *.nii format
 %     nii_name:     Filename to save (optional. default name: new_ROI.nii)
-%     metric:       (Optional) Metric value to get values from (e.g. 'FA') 
+%     metric:       (Optional) Metric value to get values from (e.g. 'FA')
 %                   If not used, masking will be applied.
-%       
 %   OUT ->
 %     new_ROIROI:  in *.nii format
+%
 
 
-%TRKS_IN into .headre and .tracts
+%Check whether TRKS_IN is a filename:
+%If so, use rotrk_read to read it...
+if ischar(TRKS_IN)
+    TRKS_IN_fname=TRKS_IN;
+    TRKS_UINrotrk_read(TRKS_IN_fname,'no_identifier',vol_input)
+end
+
+%TRKS_IN into .header and .tracts
 header=TRKS_IN.header;
 tracts=TRKS_IN.sstr;
 
@@ -21,15 +30,11 @@ for check_varinit=1:1
     if nargin < 3 || isempty(nii_name)
         nii_name='new_ROI.nii' ;
         warning('No name passed as an input. Using new_ROI.nii as the name output...')
-        split='no_split';
     end
     if nargin < 4
         metric = '';
     end
-    
-    if nargin < 5
-        nprojection = 0;
-    end
+ 
 end
 %~~~~~~~~~~end of checking variables initialization~~~~~~~~
 
@@ -99,8 +104,28 @@ end
 %%STARTING MAIN IMPLEMENTATION HERE:
 for ii = 1:numel(tracts)
     % Translate continuous vertex coordinates into discrete voxel coordinates
-    pos=tracts(ii).vox_coord;
+    pos=tracts(ii).vox_coord(:,1:3);
     pos=pos+1;
+    
+%!!!!!!!!!!!!!!!!!!!!!!!!!BEG OF EXCLAMATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+%THIS CODE IS UNNECESSARY. ALL THESE SHOULD BE TAKEN CARE IN rotrk_read.
+% PLEASE COMMENT IT ALWAYS!
+    %Now if inversion is done, then we need to remove the indexing of 0/1
+    %to the original term
+    %For x:
+%     if TRKS_IN.header.invert_x ==1
+%         pos(:,1)=pos(:,1)-1;
+%     end
+%     %For y:
+%     if TRKS_IN.header.invert_y ==1
+%         pos(:,2)=pos(:,2)-1;
+%     end
+%     %For z:
+%     if TRKS_IN.header.invert_z ==1
+%         pos(:,3)=pos(:,3)-1;
+%     end
+%!!!!!!!!!!!!!!!!!!!!!!!!!END OF EXCLAMATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
     
     %DUE TO INDEXING ISSUES STARTING AT 1 or 0...
     %Same replacing but for extreme values (based of header.dim(x/y/z)
@@ -121,34 +146,46 @@ for ii = 1:numel(tracts)
                 break
             end
         end
-        try
-            %Values will change depending on the minimun number of decimals
-            min_dec = numel(num2str(max(tracts.vox_coord(:,3+idx_diffM))));
-            %For FA, min_dec is 6. For AxD, min_dec is 10 so...
-            if min_dec < 8 %7 or fewer... 
-                new_ROI(ind)=1000*tracts.vox_coord(:,3+idx_diffM);
-            else % 10 or more (e.g. sassuming AxD, MD or RD)
-                new_ROI(ind)=1000000*tracts.vox_coord(:,3+idx_diffM);
-            end
-%             if (strcmp('FA',metric) || strcmp('NQA0',metric) ) || (strcmp('proj1_FA',metric) || strcmp('proj1_NQA0',metric) )
-%                 new_ROI(ind)=1000*tracts.vox_coord(:,3+idx_diffM);
-%             else %sassuming AxD, MD or RD
-%                 new_ROI(ind)=1000000*tracts.vox_coord(:,3+idx_diffM);
-%             end
-        catch
-            error(['No metric ' metric ' found. Cannot put values on it']);
-        end
+%         try
+          %~~~~~~THESE LINES AREN'T NEEDED AS NO PROBLEM WITH INTEGER
+            %                               VALUES ARE FOUND:   ~~~~~~~~~~~
+            %             %Values will change depending on the minimun number of decimals
+            %             if flag_decimals == 0
+            %                 min_dec = numel(num2str(max(tracts.vox_coord(:,3+idx_diffM))));
+            %                 flag_decimals = 1 ;
+            %             end
+            %             %For FA, min_dec is 6. For AxD, min_dec is 10 so...
+            %             if min_dec < 8 %7 or fewer...
+            %                 new_ROI(ind)=1000*tracts.vox_coord(:,3+idx_diffM);
+            %             else % 10 or more (e.g. sassuming AxD, MD or RD)
+            %                 new_ROI(ind)=1000000*tracts.vox_coord(:,3+idx_diffM);
+            %             end
+            %~~~~~~~~~~END OF COMMENT
+            
+            %~~>TODEBUG: display(num2str(ii));
+            new_ROI(ind)=tracts(ii).vox_coord(:,3+idx_diffM);
+
+            %             if (strcmp('FA',metric) || strcmp('NQA0',metric) ) || (strcmp('proj1_FA',metric) || strcmp('proj1_NQA0',metric) )
+            %                 new_ROI(ind)=1000*tracts.vox_coord(:,3+idx_diffM);
+            %             else %sassuming AxD, MD or RD
+            %                 new_ROI(ind)=1000000*tracts.vox_coord(:,3+idx_diffM);
+            %             end
+%         catch
+%             error(['No metric ' metric ' found. Cannot put values on it']);
+%         end
     end
 end
-    %Writing into a file (all of the streamlines, that's why this if statements
-    %are outside the for loop...
-    H_vol.fname = nii_name;
-    dir_exist=fileparts(H_vol.fname);
-    if ~isempty(dir_exist)
-        system([ 'mkdir -p ' fileparts(H_vol.fname) ] );
-    end
-    clear dir_exist
-    spm_write_vol(H_vol,new_ROI);
-    display(['The nii: ' H_vol.fname ' was successfully generated ' ]);
-    %%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+%Writing into a file (all of the streamlines, that's why this if statements
+%are outside the for loop...
+H_vol.fname = nii_name;
+dir_exist=fileparts(H_vol.fname);
+if ~isempty(dir_exist)
+    system([ 'mkdir -p ' fileparts(H_vol.fname) ] );
+end
+clear dir_exist
+spm_write_vol(H_vol,new_ROI);
+display(['The nii: ' H_vol.fname ' was successfully generated ' ]);
+%%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+if strcmp(roii_ext,'.gz')
+   system(['gzip ' H_vol.fname ]);
+end

@@ -3,7 +3,8 @@ function  rotrk_trk2nii(TRKS_IN, vol_input,nii_name,metric)
 %  Created by Rodrigo Perea
 %  If 3 arguments are passed:
 %   IN ->
-%     TRKS_IN:     TRKS_IN trks in TRKS.sstr TRKS.header format
+%     TRKS_IN:     TRKS_IN trks in TRKS.sstr TRKS.header format (or
+%                  filename)
 %     vol_input:   (volume)  in *.nii format
 %     nii_name:     Filename to save (optional. default name: new_ROI.nii)
 %     metric:       (Optional) Metric value to get values from (e.g. 'FA')
@@ -13,7 +14,14 @@ function  rotrk_trk2nii(TRKS_IN, vol_input,nii_name,metric)
 %
 
 
-%TRKS_IN into .headre and .tracts
+%Check whether TRKS_IN is a filename:
+%If so, use rotrk_read to read it...
+if ischar(TRKS_IN)
+    TRKS_IN_fname=TRKS_IN; %move TRKS_IN to a filename instead
+    TRKS_IN=rotrk_read(TRKS_IN_fname,'no_identifier',vol_input); %replace TRKS_IN with the specific format used.
+end
+
+%TRKS_IN into .header and .tracts
 header=TRKS_IN.header;
 tracts=TRKS_IN.sstr;
 
