@@ -1,6 +1,6 @@
 function [ ROIformat ] = rotrk_list(DIRECTORY, FILE_PREFIX, FILE_SUFFIX,opt1,IDENTIFIER)
 %function [ ROIformat ] = rotrk_list(DIRECTORY, FILE_PREFIX, FILE_SUFFIX,IDENTIFIER,opt1
-%if opt1==1, then treat it as a single variable
+% if opt1==1, then treat it as a single variable
 if nargin < 4
     opt1='';
     IDENTIFIER='';
