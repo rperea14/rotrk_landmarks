@@ -1,7 +1,7 @@
 function [TRKS_OUT, pt_start] = rotrk_flip(TRKS_IN,pt_start,vox_coord,opt)
 %function [TRKS_OUT, pt_start] = rotrk_flip(TRKS_IN,pt_start,vox_coord,opt)
 %TRK_FLIP - Flip the ordering of tracks
-%When TrackVis stores .trk files, the ordering of the points are not always
+% When TrackVis stores .trk files, the ordering of the points are not always
 %optimal (e.g. the corpus callosum will have some tracks starting on the left
 %and some on the right). TRK_FLIP solves this problem by reordering streamlines
 %so that the terminal points nearest to point 'pt_start' will be the starting
