@@ -17,12 +17,17 @@ function [ TRKS_OUT ] = rotrk_interp(TRKS_IN, number_coordinates)
 %OUT:
 %           TRKS_OUT
 
+
 %%%%%%%%SPLITTING THTE TRACTS_STRUCT FORM INTO TRACTS AND HEADER
-if isempty(TRKS_IN.sstr)
-    warning('TRKS_IN.sstr is empty. CANNOT interpolate an empty string')
+if isempty(TRKS_IN.sstr) 
+    warning('TRKS_IN.sstr is empty. CANNOT interpolate an empty string. If in sstr form, set opt=1 (4th argument)')
     TRKS_OUT=TRKS_IN;
 else
-    TRKS_OUT.id=TRKS_IN.id;
+    if ~isfield(TRKS_IN,'id')
+        TRKS_OUT.id='rotrk_interp: No ID';
+    else
+        TRKS_OUT.id=TRKS_IN.id;
+    end
     if isfield(TRKS_IN,'filename')
         TRKS_OUT.filename=TRKS_IN.filename;
     end

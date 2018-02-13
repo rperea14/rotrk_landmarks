@@ -19,7 +19,7 @@ for tohide=1:1
     for jj=1:numel(ROIS_IN)
         if ischar(ROIS_IN{jj})
             %roi_in=rotrk_ROIxyz(ROI_IN,WHAT_TOI,ROI_ORIENTATION);
-            roi_in{jj}=rotrk_ROIxyz(ROIS_IN{jj},WHAT_TOI);
+            roi_in{jj}=rotrk_ROIxyz(ROIS_IN{jj}); %FIXED ISSUE, NOT LONGER NEEDED A 2nd ARGUMENT--> WHAT_TOI);
         else
             display('Not impoemented yet (easy fix!)...')
             error([ 'In: ' mfilename ' ROI_IN has only been implemented to use char types. Please implement otherwise']);
@@ -71,9 +71,9 @@ switch WHAT_TOI
     case {'fx_lh','fx_rh'}
         for tohide=1:1
             display('Trimming trks based on the hippocampus/thalamus (for the fornix bundle)');
-           %FLIP VALUES TO START LEFT/RIGHT MOST ventral-anterior point of the HIPPOCAMPUS:
+            %FLIP VALUES TO START LEFT/RIGHT MOST ventral-anterior point of the HIPPOCAMPUS:
             if strcmp(WHAT_TOI,'fx_lh')
-                flipped_trks_in = rotrk_flip(trks_in,[roi_vlim{1}(1) roi_vlim{1}(4) roi_vlim{1}(5)],true); %true denotes using vox_coord instead of trk coord! 
+                flipped_trks_in = rotrk_flip(trks_in,[roi_vlim{1}(1) roi_vlim{1}(4) roi_vlim{1}(5)],true); %true denotes using vox_coord instead of trk coord!
             else
                 flipped_trks_in = rotrk_flip(trks_in,[roi_vlim{1}(2) roi_vlim{1}(4) roi_vlim{1}(5)],true);
             end
@@ -81,17 +81,17 @@ switch WHAT_TOI
             
             %CRITERIA FOR TRIMMING THE VALUES
             %(STARTING NEAR THE HIPPOCAMPUS):
-            %   0) Remove strlines that start 
-            %      above the HIPPOCAMPUS max. 
+            %   0) Remove strlines that start
+            %      above the HIPPOCAMPUS max.
             %      z-value (below 1 voxel)
-            %   1) Trim sstrlines below the 
+            %   1) Trim sstrlines below the
             %      midpoint of zy-HIPPOCAMPUS axis
             %      (tolerance of 2 voxel y-posteriorly)
-            %   hippocampus (posterior - 2 voxels) 
+            %   hippocampus (posterior - 2 voxels)
             %   2) Trim strlines based on the THALAMUS
             %      anterior-axis (tol. 2 voxels)
             %   3) Some tracts are AC projections, to avoid
-            %      this, remove strlines that max-z values 
+            %      this, remove strlines that max-z values
             %      is below the midpoint z-axis of the THALAMUS
             
             %   All other values:
@@ -114,7 +114,7 @@ switch WHAT_TOI
             end
             todebug=1;
             
-            %Criteria 1 and 2) 
+            %Criteria 1 and 2)
             for itrk=1:numel(temp_trks_out.sstr)
                 trim_first = false ;
                 trim_second = false;
@@ -159,7 +159,7 @@ switch WHAT_TOI
                         end
                     end
                     %If first or second trim don't happened, then remove
-                    %streamline. 2 conditions are always necessary! 
+                    %streamline. 2 conditions are always necessary!
                     if trim_second == false || trim_first == false
                         temp_trks_out.sstr(itrk).matrix = [];
                         temp_trks_out.sstr(itrk).vox_coord = [];
@@ -183,19 +183,111 @@ switch WHAT_TOI
                 end
             end
             
-          
-            %REMOVE EMPTY *.matrix and *.sstr columns (where trimming did
-            %not occur:
-            trk_count=1;
-            %trks_out.sstr.vox_coord = [];
-            for itrk=1:numel(temp_trks_out.sstr)
-                if ~isempty(temp_trks_out.sstr(itrk).matrix)
-                    trks_out.sstr(trk_count).matrix=temp_trks_out.sstr(itrk).matrix;
-                    trks_out.sstr(trk_count).vox_coord=temp_trks_out.sstr(itrk).vox_coord;
-                    trk_count=trk_count+1;
+            
+            
+            %REMOVED AS CRITERIA 4 WILL TAKE CARE OF THIS ISSUE!!
+%             %REMOVE EMPTY *.matrix and *.sstr columns (where trimming did
+%             %not occur:
+%             trk_count=1;
+%             %trks_out.sstr.vox_coord = [];
+%             for itrk=1:numel(temp_trks_out.sstr)
+%                 if ~isempty(temp_trks_out.sstr(itrk).matrix)
+%                     trks_out.sstr(trk_count).matrix=temp_trks_out.sstr(itrk).matrix;
+%                     trks_out.sstr(trk_count).vox_coord=temp_trks_out.sstr(itrk).vox_coord;
+%                     trk_count=trk_count+1;
+%                 end
+%             end
+            
+            %%
+            %Criteria 4 (updated 2/12/2018). The idea here is to split the
+            %stria terminalis from the fornix.
+            %
+            %ONE: First, we will select the top 10 percentile of points closer
+            %to the body of the fornix AND select the MAX-Z coordinate
+            %
+            %TWO: We will then select that steamline and compare its HDorff to
+            %all the others.\
+            %
+            %THREE: Finally, we will remove the ones the ones that are further
+            %away and dont follow a normal distribution
+            
+            %ONE: Getting extreme values
+            for ijk=1:numel(temp_trks_out.sstr)
+                %%display(num2str(ijk));
+                if ~isempty(temp_trks_out.sstr(ijk).matrix)
+                    crit4(ijk).sstr = temp_trks_out.sstr(ijk).matrix(end-round(0.1*numel(temp_trks_out.sstr(ijk).matrix)):end,:);
+                    crit4(ijk).max_z = max(crit4(ijk).sstr(:,3));
+                    if strcmp(WHAT_TOI,'fx_lh')
+                        crit4(ijk).extreme_x = trks_out.header.dim(1)*trks_out.header.voxel_size(1)-min(crit4(ijk).sstr(:,1));
+                    else
+                        crit4(ijk).extreme_x = max(crit4(ijk).sstr(:,1));
+                    end
+                else
+                    crit4(ijk).sstr = [];
+                    crit4(ijk).max_z = [];
+                    crit4(ijk).extreme_x = [];
                 end
             end
-          end
+            
+            for ijk=1:numel(crit4)
+                %display(num2str(ijk))
+                if ~isempty(crit4(ijk).sstr)
+                    c4_extreme(ijk,:) = double(crit4(ijk).max_z) ;
+                    c4_size_nsstrs(ijk,:)=double(size(crit4(ijk).sstr,1));
+                else
+                    c4_extreme(ijk,:) = NaN  ;
+                    c4_size_nsstrs(ijk,:)= NaN;
+                end
+            end
+            
+            %SELECT IDX WITH HIGHEST Z-AXIS (IN THE 10 PERCENTILE OF
+            %POINTS):
+            [~, C4_sstr_idx ] = max(c4_extreme);
+            
+            C4_ninterp=round(nanmean(c4_size_nsstrs));
+            
+            %TWO
+            %Interpolating based on c4_size_nsstrs and finding the
+            %Hausdorff
+            for ijk=1:numel(crit4)
+                if ~isempty(crit4(ijk).sstr)
+                    c4_hdorff(ijk,:) = [ ijk rotrk_get_distance_HDorff(crit4(C4_sstr_idx).sstr,crit4(ijk).sstr) ];
+                else
+                    c4_hdorff(ijk,:) = [ ijk 1000 ]; %All these should be cancel out
+                end
+            end
+            
+            %THREE: HDorff Normality test
+            test_c4=sortrows(c4_hdorff,2);
+            h = lillietest(test_c4(:,2),'alpha',0.05);
+            while h==1
+                %If I never yield a normal distribution (of HDistance)
+                %and I keep removing data points, then
+                %most likely the fiber populations that
+                %we want already exist. We will quit
+                %this while loop and remove those that
+                %are > 2*std from the mean.
+                test_c4=test_c4(1:end-1,:);
+                h = lillietest(test_c4(:,2),'alpha',0.05);
+                if size(test_c4,1) > 10
+                    h=0;
+                end
+            end
+            
+            %FOUR:
+            %Replaces those trimmed tracts with the respective ones in the
+            %test_c4(:,1) index.
+            for ijk=1:size(test_c4,1)
+                trks_out.sstr(ijk).matrix=temp_trks_out.sstr(test_c4(ijk,1)).matrix;
+                trks_out.sstr(ijk).vox_coord=temp_trks_out.sstr(test_c4(ijk,1)).vox_coord;
+            end
+            
+        end
+        
+         
+        
+        
+        
     case {'postcing_lh', 'postcing_rh'}
         for tohide=1:1
             display('Trimming trks based on the hippocampal cingulum modification');
@@ -209,7 +301,7 @@ switch WHAT_TOI
             %   1) Remove everything below the z-axis midpoint of
             %   hippocampus once it reaches it
             %   2) Remove everything above the yz-axis midpoint of the
-            %   posterior cingulate 
+            %   posterior cingulate
             %   ** Then,
             %   3) a for loop will check and replace those
             %   streamlines that arent posterior to the hippocampus
@@ -265,7 +357,7 @@ switch WHAT_TOI
                     end
                 end
                 %If first or second trim don't happened, then remove
-                %streamline 
+                %streamline
                 if trim_second == false || trim_first == false
                     temp_trks_out.sstr(itrk).matrix = [];
                     temp_trks_out.sstr(itrk).vox_coord = [];
@@ -315,19 +407,19 @@ switch WHAT_TOI
                     end
                     
                     %Y-axis criteria:
-                     if trks_in.header.invert_y == 1
-                         [minYval minYidx ] = min(temp_trks_out.sstr(itrk).vox_coord(:,2));
-                         if temp_trks_out.sstr(itrk).vox_coord(minYidx,2) > roi_vlim{1}(3)
-                             temp_trks_out.sstr(itrk).matrix = [];
-                             temp_trks_out.sstr(itrk).vox_coord = [];
-                         end
-                     else
-                         [maxYval maxYidx ] = max(temp_trks_out.sstr(itrk).vox_coord(:,2));
-                         if temp_trks_out.sstr(itrk).vox_coord(maxYidx,2) < roi_vlim{1}(4)
-                             temp_trks_out.sstr(itrk).matrix = [];
-                             temp_trks_out.sstr(itrk).vox_coord = [];
-                         end
-                     end
+                    if trks_in.header.invert_y == 1
+                        [minYval minYidx ] = min(temp_trks_out.sstr(itrk).vox_coord(:,2));
+                        if temp_trks_out.sstr(itrk).vox_coord(minYidx,2) > roi_vlim{1}(3)
+                            temp_trks_out.sstr(itrk).matrix = [];
+                            temp_trks_out.sstr(itrk).vox_coord = [];
+                        end
+                    else
+                        [maxYval maxYidx ] = max(temp_trks_out.sstr(itrk).vox_coord(:,2));
+                        if temp_trks_out.sstr(itrk).vox_coord(maxYidx,2) < roi_vlim{1}(4)
+                            temp_trks_out.sstr(itrk).matrix = [];
+                            temp_trks_out.sstr(itrk).vox_coord = [];
+                        end
+                    end
                 end
             end
             
@@ -342,7 +434,7 @@ switch WHAT_TOI
                     trk_count=trk_count+1;
                 end
             end
-
+            
         end
     case {'cingulum_lh', 'cingulum_rh'}
         for tohide=1:1
@@ -434,35 +526,35 @@ switch WHAT_TOI
                 end
             end
             for tohide_criteria3=1:1
-%             %Criteria 3) - Under development if needed. 
-%             for itrk=1:numel(temp_trks_out.sstr)
-%                 if ~isempty(temp_trks_out.sstr(itrk).vox_coord)
-%                     %X-axis criteria:
-%                     if strcmp(WHAT_TOI,'cingulum_lh') %Check if its way beyond
-%                         [Xval Xidx ] = min(temp_trks_out.sstr(itrk).vox_coord(:,1));
-%                         if temp_trks_out.sstr(itrk).vox_coord(Xidx,1) < roi_vmidpoint{1}(1) - 5 %tolerance of 5
-%                             temp_trks_out.sstr(itrk).matrix = [];
-%                             temp_trks_out.sstr(itrk).vox_coord = [];
-%                             continue
-%                         end
-%                     else
-%                         [Xval Xidx ] = max(temp_trks_out.sstr(itrk).vox_coord(:,1));
-%                         if temp_trks_out.sstr(itrk).vox_coord(Xidx,1) > roi_vmidpoint{1}(1) + 5 %tolerance of 5
-%                             temp_trks_out.sstr(itrk).matrix = [];
-%                             temp_trks_out.sstr(itrk).vox_coord = [];
-%                             continue
-%                         end
-%                     end
-%                     
-%                     %Y-axis criteria:
-%                     [minYval minYidx ] = min(temp_trks_out.sstr(itrk).vox_coord(:,2));
-%                     if temp_trks_out.sstr(itrk).vox_coord(minYidx,2) > roi_vlim{1}(3)
-%                         temp_trks_out.sstr(itrk).matrix = [];
-%                         temp_trks_out.sstr(itrk).vox_coord = [];
-%                     end
-%                 end
-%             end
-%             
+                %             %Criteria 3) - Under development if needed.
+                %             for itrk=1:numel(temp_trks_out.sstr)
+                %                 if ~isempty(temp_trks_out.sstr(itrk).vox_coord)
+                %                     %X-axis criteria:
+                %                     if strcmp(WHAT_TOI,'cingulum_lh') %Check if its way beyond
+                %                         [Xval Xidx ] = min(temp_trks_out.sstr(itrk).vox_coord(:,1));
+                %                         if temp_trks_out.sstr(itrk).vox_coord(Xidx,1) < roi_vmidpoint{1}(1) - 5 %tolerance of 5
+                %                             temp_trks_out.sstr(itrk).matrix = [];
+                %                             temp_trks_out.sstr(itrk).vox_coord = [];
+                %                             continue
+                %                         end
+                %                     else
+                %                         [Xval Xidx ] = max(temp_trks_out.sstr(itrk).vox_coord(:,1));
+                %                         if temp_trks_out.sstr(itrk).vox_coord(Xidx,1) > roi_vmidpoint{1}(1) + 5 %tolerance of 5
+                %                             temp_trks_out.sstr(itrk).matrix = [];
+                %                             temp_trks_out.sstr(itrk).vox_coord = [];
+                %                             continue
+                %                         end
+                %                     end
+                %
+                %                     %Y-axis criteria:
+                %                     [minYval minYidx ] = min(temp_trks_out.sstr(itrk).vox_coord(:,2));
+                %                     if temp_trks_out.sstr(itrk).vox_coord(minYidx,2) > roi_vlim{1}(3)
+                %                         temp_trks_out.sstr(itrk).matrix = [];
+                %                         temp_trks_out.sstr(itrk).vox_coord = [];
+                %                     end
+                %                 end
+                %             end
+                %
             end
             %REMOVE EMPTY *.matrix and *.sstr columns (where trimming did
             %not occur:
@@ -728,12 +820,11 @@ switch WHAT_TOI
                     end
                 end
             end
-            
         end
-        
         
     otherwise
         error(['WHAT_TOI argument: ' WHAT_TOI ' in ' mfilename ' is not implemented. Either check input or implement!' ]);
+        
 end
 
 
@@ -760,7 +851,7 @@ end
 trks_out.header.n_count = numel(trks_out.sstr);
 
 if isempty(trks_out.sstr)
-      
+    
     %Moving TRKS_OUT to exit...
     TRKS_OUT=trks_out;
     warning(['Cannot do ' WHAT_TOI 'trimming!']);

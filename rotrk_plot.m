@@ -239,6 +239,24 @@ for numtrks = 1:size(single_TRKS_IN.sstr,2)
         %Check if single_TRKS_IN.plotparams exists (if not go with defaults...)
         hold on
         switch color
+            case 'r.end10'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'r')
+                plot3(matrix(end-round(numel(matrix)*0.10),1),matrix(end-round(numel(matrix)*0.10),2), ...
+                    matrix(end-round(numel(matrix)*0.10),3),'c.','markersize',20);
+            case 'r.end5'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'r')
+                AA=1;
+                plot3(matrix(end-round(numel(matrix)*0.05),1),matrix(end-round(numel(matrix)*0.05),2), ...
+                    matrix(end-round(numel(matrix)*0.05),3),'k.','markersize',20)
+            case 'r.top10'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'r')
+                plot3(matrix(round(numel(matrix)*0.10),1),matrix(round(numel(matrix)*0.10),2), ...
+                    matrix(round(numel(matrix)*0.10),3),'c.','markersize',20);
+            case 'r.top5'
+                plot3(matrix(:,1), matrix(:,2), matrix(:,3),'r')
+                AA=1;
+                plot3(matrix(round(numel(matrix)*0.05),1),matrix(round(numel(matrix)*0.05),2), ...
+                    matrix(round(numel(matrix)*0.05),3),'k.','markersize',20);
             case 'rainbow'
                 [maxpts, maxidx ]  = max(arrayfun(@(x) size(x.matrix, 1), single_TRKS_IN.sstr));
                 cline(matrix(:,1), matrix(:,2), matrix(:,3), (0:(size(matrix, 1)-1))/(maxpts))

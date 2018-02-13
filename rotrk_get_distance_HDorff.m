@@ -6,7 +6,7 @@ function [ mhd ] = rotrk_get_distance_HDorff( A, B )
 %   Input:
 %       A --> n-dimensional matrix points
 %       B --> n-dimnesional matrix points
-%       *A and B should be the same size
+%       *A and B should be the same dimension
 %   Output: 
 %       mhd --> Modified disntace 
 % % M. P. Dubuisson and A. K. Jain. A Modified Hausdorff distance for object 
