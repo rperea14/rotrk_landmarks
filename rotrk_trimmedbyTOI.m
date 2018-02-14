@@ -185,109 +185,19 @@ switch WHAT_TOI
             
             
             
-            %REMOVED AS CRITERIA 4 WILL TAKE CARE OF THIS ISSUE!!
 %             %REMOVE EMPTY *.matrix and *.sstr columns (where trimming did
 %             %not occur:
-%             trk_count=1;
-%             %trks_out.sstr.vox_coord = [];
-%             for itrk=1:numel(temp_trks_out.sstr)
-%                 if ~isempty(temp_trks_out.sstr(itrk).matrix)
-%                     trks_out.sstr(trk_count).matrix=temp_trks_out.sstr(itrk).matrix;
-%                     trks_out.sstr(trk_count).vox_coord=temp_trks_out.sstr(itrk).vox_coord;
-%                     trk_count=trk_count+1;
-%                 end
-%             end
-            
-            %%
-            %Criteria 4 (updated 2/12/2018). The idea here is to split the
-            %stria terminalis from the fornix.
-            %
-            %ONE: First, we will select the top 10 percentile of points closer
-            %to the body of the fornix AND select the MAX-Z coordinate
-            %
-            %TWO: We will then select that steamline and compare its HDorff to
-            %all the others.\
-            %
-            %THREE: Finally, we will remove the ones the ones that are further
-            %away and dont follow a normal distribution
-            
-            %ONE: Getting extreme values
-            for ijk=1:numel(temp_trks_out.sstr)
-                %%display(num2str(ijk));
-                if ~isempty(temp_trks_out.sstr(ijk).matrix)
-                    crit4(ijk).sstr = temp_trks_out.sstr(ijk).matrix(end-round(0.1*numel(temp_trks_out.sstr(ijk).matrix)):end,:);
-                    crit4(ijk).max_z = max(crit4(ijk).sstr(:,3));
-                    if strcmp(WHAT_TOI,'fx_lh')
-                        crit4(ijk).extreme_x = trks_out.header.dim(1)*trks_out.header.voxel_size(1)-min(crit4(ijk).sstr(:,1));
-                    else
-                        crit4(ijk).extreme_x = max(crit4(ijk).sstr(:,1));
-                    end
-                else
-                    crit4(ijk).sstr = [];
-                    crit4(ijk).max_z = [];
-                    crit4(ijk).extreme_x = [];
+            trk_count=1;
+            %trks_out.sstr.vox_coord = [];
+            for itrk=1:numel(temp_trks_out.sstr)
+                if ~isempty(temp_trks_out.sstr(itrk).matrix)
+                    trks_out.sstr(trk_count).matrix=temp_trks_out.sstr(itrk).matrix;
+                    trks_out.sstr(trk_count).vox_coord=temp_trks_out.sstr(itrk).vox_coord;
+                    trk_count=trk_count+1;
                 end
             end
-            
-            for ijk=1:numel(crit4)
-                %display(num2str(ijk))
-                if ~isempty(crit4(ijk).sstr)
-                    c4_extreme(ijk,:) = double(crit4(ijk).max_z) ;
-                    c4_size_nsstrs(ijk,:)=double(size(crit4(ijk).sstr,1));
-                else
-                    c4_extreme(ijk,:) = NaN  ;
-                    c4_size_nsstrs(ijk,:)= NaN;
-                end
-            end
-            
-            %SELECT IDX WITH HIGHEST Z-AXIS (IN THE 10 PERCENTILE OF
-            %POINTS):
-            [~, C4_sstr_idx ] = max(c4_extreme);
-            
-            C4_ninterp=round(nanmean(c4_size_nsstrs));
-            
-            %TWO
-            %Interpolating based on c4_size_nsstrs and finding the
-            %Hausdorff
-            for ijk=1:numel(crit4)
-                if ~isempty(crit4(ijk).sstr)
-                    c4_hdorff(ijk,:) = [ ijk rotrk_get_distance_HDorff(crit4(C4_sstr_idx).sstr,crit4(ijk).sstr) ];
-                else
-                    c4_hdorff(ijk,:) = [ ijk 1000 ]; %All these should be cancel out
-                end
-            end
-            
-            %THREE: HDorff Normality test
-            test_c4=sortrows(c4_hdorff,2);
-            h = lillietest(test_c4(:,2),'alpha',0.05);
-            while h==1
-                %If I never yield a normal distribution (of HDistance)
-                %and I keep removing data points, then
-                %most likely the fiber populations that
-                %we want already exist. We will quit
-                %this while loop and remove those that
-                %are > 2*std from the mean.
-                test_c4=test_c4(1:end-1,:);
-                h = lillietest(test_c4(:,2),'alpha',0.05);
-                if size(test_c4,1) > 10
-                    h=0;
-                end
-            end
-            
-            %FOUR:
-            %Replaces those trimmed tracts with the respective ones in the
-            %test_c4(:,1) index.
-            for ijk=1:size(test_c4,1)
-                trks_out.sstr(ijk).matrix=temp_trks_out.sstr(test_c4(ijk,1)).matrix;
-                trks_out.sstr(ijk).vox_coord=temp_trks_out.sstr(test_c4(ijk,1)).vox_coord;
-            end
-            
         end
-        
-         
-        
-        
-        
+            
     case {'postcing_lh', 'postcing_rh'}
         for tohide=1:1
             display('Trimming trks based on the hippocampal cingulum modification');
