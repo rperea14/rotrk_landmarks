@@ -29,13 +29,17 @@ std_crit4  = std(ref_n_coords(:,2));
 
 %IDX to repopulate streamlines
 cc=1;
-%Loop at select those sstr MODE+-STD
-for ijk=1:numel(ref_n_coords(:,2))
-    if ref_n_coords(ijk,2) > mode_crit4-std_crit4-10 && ref_n_coords(ijk,2) < mode_crit4+std_crit4+10
-        temp_trks_out_crit4.sstr(cc)=temp_trks_out.sstr(ref_n_coords(ijk,1));
-        temp_trks_out_crit4.sstr(cc).nPoints=size(temp_trks_out.sstr(ref_n_coords(ijk,1)).matrix,1);
-        cc=cc+1;
+%Loop at select those sstr MODE+-STD if there are > 10 streamlines
+if numel(ref_n_coords(:,2)) > 10
+    for ijk=1:numel(ref_n_coords(:,2))
+        if ref_n_coords(ijk,2) > mode_crit4-std_crit4-10 && ref_n_coords(ijk,2) < mode_crit4+std_crit4+10
+            temp_trks_out_crit4.sstr(cc)=temp_trks_out.sstr(ref_n_coords(ijk,1));
+            temp_trks_out_crit4.sstr(cc).nPoints=size(temp_trks_out.sstr(ref_n_coords(ijk,1)).matrix,1);
+            cc=cc+1;
+        end
     end
+else
+    temp_trks_out_crit4=TRKS_IN; %Nothing to do, not that many fibers. 
 end
 %Header info:
 temp_trks_out_crit4.header=TRKS_IN.header;
@@ -96,22 +100,24 @@ end
 test_c4=sortrows(c4_hdorff,2);
 %Include all values that distance is not 1000:
 test_c4=test_c4(find(test_c4(:,2)~=1000),:);
-h = lillietest(test_c4(:,2),'alpha',0.05);
-while h==1
-    %If I never yield a normal distribution (of HDistance)
-    %and I keep removing data points, then
-    %most likely the fiber populations that
-    %we want already exist. We will quit
-    %this while loop and remove those that
-    %are > 2*std from the mean.
-    test_c4=test_c4(1:end-1,:);
+
+if size(test_c4,1) > 10
     h = lillietest(test_c4(:,2),'alpha',0.05);
-    if size(test_c4,1) < 6
-        display('ending with less than 5 streamlines when applying TRKLAND_fx');
-        h=0;
+    while h==1
+        %If I never yield a normal distribution (of HDistance)
+        %and I keep removing data points, then
+        %most likely the fiber populations that
+        %we want already exist. We will quit
+        %this while loop and remove those that
+        %are > 2*std from the mean.
+        test_c4=test_c4(1:end-1,:);
+        h = lillietest(test_c4(:,2),'alpha',0.05);
+        if size(test_c4,1) < 6
+            display('ending with less than 5 streamlines when applying TRKLAND_fx');
+            h=0;
+        end
     end
 end
-
 %FOUR:
 %Replaces those trimmed tracts with the respective ones in the
 %test_c4(:,1) index.
