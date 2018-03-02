@@ -13,24 +13,27 @@ function [ TRKS_OUT ] = rotrk_trimmedbyROI_fx_crit4(TRKS_IN, ROIS_IN, WHAT_TOI, 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %FIRST STEP:
 temp_trks_out=TRKS_IN;
-%Selecting the number of coordinates per streamline
-for ijk=1:numel(temp_trks_out.sstr)
-    if ~isempty(temp_trks_out.sstr(ijk).matrix)
-        n_coords(ijk,:) = [ijk size(temp_trks_out.sstr(ijk).matrix,1) ] ;
-    else
-        n_coords(ijk,:) = [ijk 0 ];
+%do we have enough coordinate points to apply C4?
+
+if numel(TRKS_IN.sstr) > 10
+    %Selecting the number of coordinates per streamline
+    for ijk=1:numel(temp_trks_out.sstr)
+        if ~isempty(temp_trks_out.sstr(ijk).matrix)
+            n_coords(ijk,:) = [ijk size(temp_trks_out.sstr(ijk).matrix,1) ] ;
+        else
+            n_coords(ijk,:) = [ijk 0 ];
+        end
     end
-end
-
-%Removing empty cells, finding the MODE and STD of the data
-ref_n_coords=n_coords(find(n_coords(:,2)~=0),:);
-mode_crit4 = mode(ref_n_coords(:,2));
-std_crit4  = std(ref_n_coords(:,2));
-
-%IDX to repopulate streamlines
-cc=1;
-%Loop at select those sstr MODE+-STD if there are > 10 streamlines
-if numel(ref_n_coords(:,2)) > 10
+    
+    %Removing empty cells, finding the MODE and STD of the data
+    ref_n_coords=n_coords(find(n_coords(:,2)~=0),:);
+    mode_crit4 = mode(ref_n_coords(:,2));
+    std_crit4  = std(ref_n_coords(:,2));
+    
+    %IDX to repopulate streamlines
+    cc=1;
+    %Loop at select those sstr MODE+-STD if there are > 10 streamlines
+    
     for ijk=1:numel(ref_n_coords(:,2))
         if ref_n_coords(ijk,2) > mode_crit4-std_crit4-10 && ref_n_coords(ijk,2) < mode_crit4+std_crit4+10
             temp_trks_out_crit4.sstr(cc)=temp_trks_out.sstr(ref_n_coords(ijk,1));
