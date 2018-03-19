@@ -60,12 +60,16 @@ else
                     %Assigned metric to do the cut....
                     assigned_diffmetric='';
                     assigned_col='';
-                    for pp=1:numel(TRKS_IN.header.scalar_IDs)
-                        if strcmp(selected_metric,TRKS_IN.header.scalar_IDs(pp))
-                            assigned_diffmetric=TRKS_IN.header.scalar_IDs(pp);
-                            assigned_col=3+pp; %This will assign the column we'll use to describe the method used
-                        end
-                    end
+                    %Assign what diffmetric to use:
+                    match_diffM=find(ismember(TRKS_IN.header.scalar_IDs(:),selected_metric));
+                    assigned_diffmetric=TRKS_IN.header.scalar_IDs(match_diffM(1));
+                    assigned_col=3+match_diffM(1);
+%                     for pp=1:numel(TRKS_IN.header.scalar_IDs)
+%                         if strcmp(selected_metric,TRKS_IN.header.scalar_IDs(pp))
+%                             assigned_diffmetric=TRKS_IN.header.scalar_IDs(pp);
+%                             assigned_col=3+pp; %This will assign the column we'll use to describe the method used
+%                         end
+%                     end
                     %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 end
             catch

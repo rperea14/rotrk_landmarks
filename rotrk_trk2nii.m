@@ -47,7 +47,7 @@ for checkinggzip=1:1
     else
         [ ronii_dirpath, ronii_filename, ronii_ext ] = fileparts(vol_input);
     end
-    if strcmp(ronii_ext,'.gz')
+    if strcmp(strtrim(ronii_ext),'.gz')
         disp(['Gunzipping...' vol_input ]);
         system([ 'gunzip ' vol_input ] );
         if isempty(ronii_dirpath)
@@ -58,7 +58,7 @@ for checkinggzip=1:1
     
     %ROI_NAME:
     [ roii_folder, roii_name, roii_ext ] = fileparts(nii_name);
-    if strcmp(roii_ext,'.gz')
+    if strcmp(strtrim(roii_ext),'.gz')
         if isempty(roii_folder)
             nii_name = [ '.' filesep roii_name ] ;
         else
@@ -184,8 +184,10 @@ if ~isempty(dir_exist)
 end
 clear dir_exist
 spm_write_vol(H_vol,new_ROI);
-display(['The nii: ' H_vol.fname ' was successfully generated ' ]);
 %%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-if strcmp(roii_ext,'.gz')
+if strcmp(strtrim(roii_ext),'.gz')
    system(['gzip ' H_vol.fname ]);
+   display(['The nii: ' H_vol.fname '.gz was successfully generated ' ]);
+else
+    display(['The nii: ' H_vol.fname ' was successfully generated ' ]);
 end

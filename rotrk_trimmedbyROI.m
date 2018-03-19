@@ -21,7 +21,7 @@ TRKS_OUT.trk_name=strrep(TRKS_OUT.trk_name,'trimmed_trimmed_','trimmedx2_');
 
 %~~~
   
-if strcmp(whatflag,'above_dot') || ( strcmp(whatflag,'below') || strcmp(whatflag,'above_dotfimbria')) 
+if (strcmp(whatflag,'above_dot')   || strcmp(whatflag,'above_v2') ) || ( strcmp(whatflag,'below') || strcmp(whatflag,'above_dotfimbria'))
     xyz_flag=rotrk_ROImean(theROI.filename);
 elseif strcmp(whatflag,'above')
       xyz_flag=rotrk_ROImean(theROI.filename);
@@ -80,6 +80,26 @@ for ii=1:numel(tracts)
         if minidx~=size(tracts(ii).matrix,1) 
             new_tracts(newii).nPoints=counter-1;
         end
+        
+    elseif strcmp(whatflag,'above_v2')
+            for ij=1:size(tracts(ii).matrix,1)
+                %Computing the eucledian distance
+                tmp_distance(ij)=sqrt( (xyz_flag(1)-tracts(ii).matrix(ij,1))^2 + (xyz_flag(2)-tracts(ii).matrix(ij,2))^2  + (xyz_flag(3)-tracts(ii).matrix(ij,3))^2);
+            end
+            %What coordinate of the streamline is closer to the ROI (min_distance)?
+            [minvalue minidx ] = min(tmp_distance);
+            counter=1;
+            for ik=minidx:size(tracts(ii).matrix,1) %<--the key for filetering out streamlines
+                if minidx ~= size(tracts(ii).matrix,1)
+                    new_tracts(newii).matrix(counter,:)=tracts(ii).matrix(ik,:);
+                    new_tracts(newii).vox_coord(counter,:)=tracts(ii).vox_coord(ik,:);
+                    counter=counter+1;
+                    success=1;
+                end
+            end
+            if minidx~=size(tracts(ii).matrix,1)
+                new_tracts(newii).nPoints=counter-1;
+            end
           
     elseif strcmp(whatflag,'above_dot')
         %Dealing with shorter streamline coming from the opposite

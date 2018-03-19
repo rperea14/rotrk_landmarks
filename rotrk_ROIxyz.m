@@ -71,6 +71,21 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ind=find(V_vol~=0);
 [ x, y, z ]  = ind2sub(size(V_vol),ind);
+%Check signs now (SOMETIMES WORKS, SOMETIMES IT DOESNT. PLEASE DOUBLEC CHECk!!!):
+AA=1;
+% if mat2(1,1) < 0 
+%     x = H_vol.dim(1) - x ;
+% end
+% 
+% if mat2(2,2) < 0 
+%     y = H_vol.dim(2) - y ;
+% end
+% 
+% if mat2(3,3) < 0 
+%     z = H_vol.dim(3) - z ;
+% end
+
+
 %Verified and Oked on 4/18/17 by RDP20:
 %All in Voxel coordinate space:
 tmp_xyz = [ x y z ];
@@ -89,6 +104,11 @@ roi_xyz.num_uvox=size(roi_xyz.unique_voxels,1);
 %   THE APPROXIMATION CAN BE MATHEMATICALLY DONE.
 %IDEAL APPROXIMATION IS BEING WORKED AS A SOLUTION
 tmp2_xyz = [ tmp_xyz-1 ones(numel(x),1) ] ; %NOT SURE ABOUT THIS STEP. rdp20 11_01_2017 (INDEXING ALWAYS AN ISSUE)
-additional_step = abs(tmp2_xyz*mat2);
-roi_xyz.approx_trk_coord = additional_step(:,1:3);
+%additional_step = abs(tmp2_xyz*mat2);
+%temp_roi_xyz.approx_trk_coord = additional_step(:,1:3);
+
+roi_xyz.approx_trk_coord(:,1) = tmp2_xyz(:,1)*abs(mat2(1,1));
+roi_xyz.approx_trk_coord(:,2) = tmp2_xyz(:,2)*abs(mat2(2,2));
+roi_xyz.approx_trk_coord(:,3) = tmp2_xyz(:,3)*abs(mat2(3,3));
+
 roi_xyz.header= H_vol ; 

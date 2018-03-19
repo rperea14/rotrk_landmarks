@@ -49,7 +49,9 @@ for args_mgmt1=1:1
     %If one structure is passed only, then convert it to cell so it can act as
     %a list
     if numel(TRKS_IN) < 2
-        TRKS_IN={TRKS_IN};
+        if ~iscell(TRKS_IN)
+            TRKS_IN={TRKS_IN};
+        end
         if ischar(first_roi)
             first_roi=rotrk_list(first_roi,'','',1);
         end
