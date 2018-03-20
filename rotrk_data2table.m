@@ -5,6 +5,8 @@ function  newTable  = rotrk_data2table(OBJs,vars)
 % variables in "vars".
 % e.g. : 
 % myTable = rotrk_data2table(obj_HAB, { 'Trkland.fx.data.clineFAHDorff_lh_FA' 'Trkland.fx.data.clineFAHDorff_rh_FA' '...'} )
+%
+% *Make sure  'ALL FIELDS' assigned exist on every obj_HAB iteration! 
 
 
 AA=1;
@@ -12,6 +14,7 @@ AA=1;
 for ii=1:numel(OBJs)
     
     newS.id{ii} = OBJs{ii}.obj.sessionname;
+    display(['In ' newS.id{ii} ]);
     %Iterate within vars:
     for jj=1:numel(vars)
         splits=strsplit(vars{jj},'.');
