@@ -1,4 +1,4 @@
-function  newTable  = rotrk_data2table(OBJs,vars)
+function  newTable  = rotrk_data2table(OBJs,vars,b_id)
 %function newTable  = rotrk_data2table(OBJs,variables)
 % The objective of this function is to generate a table "newTable" with
 % data coming from the struct array of objects "OBJs" and requesting the
@@ -8,13 +8,22 @@ function  newTable  = rotrk_data2table(OBJs,vars)
 %
 % *Make sure  'ALL FIELDS' assigned exist on every obj_HAB iteration! 
 
-
-AA=1;
+if nargin <3
+    b_id = false;
+end
+    AA=1;
 %Iterate within OBJs:
 for ii=1:numel(OBJs)
-    
-    newS.id{ii} = OBJs{ii}.obj.sessionname;
-    display(['In ' newS.id{ii} ]);
+    if b_id 
+        ID_NAME='MRI_Session_ID';
+        dctl_cmd = [ 'SELECT MRI_Session_ID FROM Sessions.MRI  WHERE ' ' MRI_Session_Name = ''' OBJs{ii}.obj.sessionname '''' ];
+        cur_DC_ID = DataCentral(dctl_cmd);
+        newS.(ID_NAME){ii} = cur_DC_ID.MRI_Session_ID;
+    else
+        ID_NAME='Id';
+        newS.(ID_NAME){ii} = OBJs{ii}.obj.sessionname;
+    end
+    display(['In ' OBJs{ii}.obj.sessionname ]);
     %Iterate within vars:
     for jj=1:numel(vars)
         splits=strsplit(vars{jj},'.');
@@ -22,7 +31,7 @@ for ii=1:numel(OBJs)
         
         %Check for empty cells:
         if isempty(getfield(OBJs{ii}.obj,splits{:}))
-            newS.(cur_name){ii}  = NaN;
+            newS.(cur_name){ii}  = '\N';
         else
             newS.(cur_name){ii} = getfield(OBJs{ii}.obj,splits{:});
         end
@@ -32,7 +41,7 @@ end
 %Transpose fields
 all_fields=fields(newS);
 for  ii =1:numel(all_fields)
-    newS.(all_fields{ii})=newS.(all_fields{ii})'
+    newS.(all_fields{ii})=newS.(all_fields{ii})';
 end
 newTable = struct2table(newS);
 AA=1;
