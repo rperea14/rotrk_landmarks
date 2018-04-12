@@ -1,7 +1,7 @@
 function [ mhd ] = rotrk_get_distance_HDorff( A, B )
 %function [ mhd ] = rotrk_get_distance_HDorff( A, B )
 %   Ouputs the modified Hausdorff distance that shows best results  
-%   for object matcheing based on their edge points:
+%   for object matching based on its edge points:
 %   
 %   Input:
 %       A --> n-dimensional matrix points

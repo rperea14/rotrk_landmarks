@@ -1,5 +1,7 @@
 function [ TRKS_OUT ] = rotrk_interp(TRKS_IN, number_coordinates)
 %function [ TRKS_OUT ] = rotrk_interp(TRKS_IN, number_coordinates)
+%   GOAL --> To interpolate the number of coordinates points in the streamlines
+%            located in TRKS_IN to `number_coordinates` number
 %IN:
 %           TRKS_IN.header      : header file  (header structure format)
 %           TRKS_IN.tracts      : tracts file  (trk structure format)
@@ -13,7 +15,6 @@ function [ TRKS_OUT ] = rotrk_interp(TRKS_IN, number_coordinates)
 %                                   argument!
 %           *diffmetric         :if method=high_sc then we need scalars
 %                               that can be passed as [ GFA NQA0 ]
-
 %OUT:
 %           TRKS_OUT
 

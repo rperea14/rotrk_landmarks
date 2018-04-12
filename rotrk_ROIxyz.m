@@ -1,15 +1,14 @@
-function [ roi_xyz ] = rotrk_ROIxyz(roi_input,file_name)
-% function [ roi_xyz ] = rotrk_ROIxyz(roi_input,file_name)
+function [ roi_xyz ] = rotrk_ROIxyz(roi_input,fname_id)
+% function [ roi_xyz ] = rotrk_ROIxyz(roi_input,fname_id)
+% Goal: To extract the voxel coordinates of `roi_input` 
 %
 %   IN ->
 %           roi_input       : roi niftii file with the needed information
-%           file_name       : (optional) selects the file name for the XYz
-
-%                             warning if not specified
+%           fname_id       : (optional) uses this argument as the roi_xyz.id 
 %   OUTPUT:
 %               roixyz  : output with a 3xn matrix of xyz coordinates in
 %               trk space
-
+%   Created by Rodrigo Perea
 
 
 roi_xyz.filename=roi_input;
@@ -31,8 +30,8 @@ else
     if nargin < 2
         roi_xyz.id='No ID, since roi_input.filename was not input (no in struct form)!';
     else
-        roi_xyz.id={file_name};
-        roi_xyz.id = {file_name};
+        roi_xyz.id={fname_id};
+        roi_xyz.id = {fname_id};
     end
 end
 

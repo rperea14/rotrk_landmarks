@@ -1,6 +1,13 @@
 function [ TRKS_OUT ] = rotrk_trimmedbyROI(TRKS_IN, ROIS_IN, WHAT_TOI, ID)
 %function [ TRKS_OUT ] = rotrk_trimmedbyROI(TRKS_IN, ROIS_IN, WHAT_TOI, ID)
-
+%Goal: To trimmed TRKS_IN streamlines based on the `WHAT_TOI` tract of
+%interest, using `ROI_IN` as the necessary parameters to be used. 
+%Currently,
+%   ROIS_IN should be:
+%       for the Fornix: { 'dwi_Hippocampus' 'dwi_Thalamus' }
+%       for the Hippocampal cinglum: { 'dwi_Hippocampus' 'dwi_PosteriorCingululate' }
+%       for the Cinglum: { 'dwi_PosteriorCingululate' 'dwi_RostralAntCingululate' }
+%       for ... <To implement> 
 %Created by Rodrigo Perea
 
 

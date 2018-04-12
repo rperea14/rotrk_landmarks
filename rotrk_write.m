@@ -1,22 +1,26 @@
-function rotrk_write(header,tracks,savePath)
-%function rotrk_write(header,tracks,savePath)
+function rotrk_write(header,sstr,savePath)
+%function rotrk_write(header,sstr,savePath)
+% Goal: To write out TRKS.header and TRKS.sstr into the `savePath.trk` file
+% format
+%
 % Inputs:
 %    header   - Header information for .trk file [struc]
-%    tracks   - Track data struc array [1 x nTracks]
+%    sstr   - Track data struc array [1 x nTracks]
 %    savePath - Path where .trk file will be saved [char]
 %
 % Output files:
 %    Saves .trk file to disk at location given by 'savePath'.
+%Created by Rodrigo Perea
 
-%First check that tracks.sstr is not empty. If so, just send a warning:
-if numel(tracks) <= 1 
-    if numel(tracks) == 0 
+%First check that sstr.sstr is not empty. If so, just send a warning:
+if numel(sstr) <= 1 
+    if numel(sstr) == 0 
         warning('In trk_write(): Refusing to write a trk_file since header.sstr is empty')
         return
     end
     %Since it could be a centerline, we need to check if its empty, se we
     %added another if statement...
-    if isempty(tracks.matrix)
+    if isempty(sstr.matrix)
         warning('In trk_write(): Refusing to write a trk_file since header.sstr is empty')
         return
     end
@@ -146,7 +150,7 @@ for iTrk = 1:header.n_count
     % Modify orientation back to LPS for display in TrackVis
     header.dim        = header.dim([ix iy iz]);
     header.voxel_size = header.voxel_size([ix iy iz]);
-    coords = tracks(iTrk).matrix(:,1:3);
+    coords = sstr(iTrk).matrix(:,1:3);
     coords = coords(:,[ix iy iz]);
      if header.invert_x == 1
          coords(:,ix) = header.dim(ix)*header.voxel_size(ix) - coords(:,ix);
@@ -158,13 +162,13 @@ for iTrk = 1:header.n_count
          coords(:,iz) = header.dim(iz)*header.voxel_size(iz) - coords(:,iz);
      end
     
-    tracks(iTrk).matrix(:,1:3) = coords;
+    sstr(iTrk).matrix(:,1:3) = coords;
     
-    fwrite(fid, tracks(iTrk).nPoints, 'int');
-    fwrite(fid, tracks(iTrk).matrix', 'float');
-    %REmove as the tracks.props field will never exist!
+    fwrite(fid, sstr(iTrk).nPoints, 'int');
+    fwrite(fid, sstr(iTrk).matrix', 'float');
+    %REmove as the sstr.props field will never exist!
     %    if header.n_properties
-    %       fwrite(fid, tracks(iTrk).props, 'float');
+    %       fwrite(fid, sstr(iTrk).props, 'float');
     %  end
 end
 fclose(fid);
