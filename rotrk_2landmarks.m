@@ -102,7 +102,7 @@ for ii=1:numel(TRKS_IN)
   
     %ADDING THE SCALARS TO THE TRIMMED INTERP TRKS...
     for pp=1:size(diffmetric,2)
-        if strcmp(cell2char(diffmetric{1,pp}.id), TRKS_trimmed_interp{ii}.header.id)
+        if strcmp(cell2char_rdp(diffmetric{1,pp}.id), TRKS_trimmed_interp{ii}.header.id)
             TRKS_trimmed_interp{ii} = rotrk_add_sc(TRKS_trimmed_interp{ii}, diffmetric(:,pp));
         end
     end
@@ -116,7 +116,7 @@ for ii=1:numel(TRKS_IN)
     %%##############################
 %     %FINALLY ADDING SCALARS TO CENTERLIENS
 %      for pp=1:size(diffmetric,2)
-%         if strcmp(cell2char(diffmetric{1,pp}.id), TRKS_centerline{ii}.header.id)
+%         if strcmp(cell2char_rdp(diffmetric{1,pp}.id), TRKS_centerline{ii}.header.id)
 %             TRKS_centerline{ii} = rotrk_add_sc(TRKS_centerline{ii}, diffmetric(:,pp));
 %         end
 %     end

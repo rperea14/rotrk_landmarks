@@ -21,7 +21,7 @@ end
 %NaNing the values that it's age matched pair is a Nana
 for ii=start_after:size(fields_table,1)-1
     %ToDebug ~~> disp(['in ii: ' num2str(ii) ' ' fields_table(ii)])
-    [idx_nan , ~ ] = find (isnan(unclean_Table.(cell2char(fields_table(ii)))));
+    [idx_nan , ~ ] = find (isnan(unclean_Table.(cell2char_rdp(fields_table(ii)))));
     pair_matched=zeros(size(idx_nan,1),1);
     for jj=1:size(pair_matched,1)
         pair_matched(jj)=unclean_Table.(agematched_id)(idx_nan(jj));

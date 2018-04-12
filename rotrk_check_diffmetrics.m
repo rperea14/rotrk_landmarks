@@ -13,8 +13,8 @@ for ii=2:size(AA,2) %change every TRKS
         if ~strcmp(AA{1,ii}.id,AA{jj,ii}.id)
             flag_ok=ii;
             error( [ 'Mismatch found in: DIFFMETRICS{1,' num2str(ii) '}  and '...
-                'DIFFMETRICS{' num2str(jj) ',' num2str(ii) '} : ' cell2char(AA{1,ii}.id) ...
-                ' and ' cell2char(AA{jj,ii}.id) ' differ!' ])
+                'DIFFMETRICS{' num2str(jj) ',' num2str(ii) '} : ' cell2char_rdp(AA{1,ii}.id) ...
+                ' and ' cell2char_rdp(AA{jj,ii}.id) ' differ!' ])
             diff_bad=jj;
         end
     end

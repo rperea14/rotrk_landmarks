@@ -2,7 +2,7 @@
 
 % %Tracts from the dotfornix only:
 % for ii=1:numel(TRKS_DOT)
-%     [ hdr_DOT{ii}, sstr_DOT{ii} ] = trk_read(cell2char(TRKS_DOT{ii}.filename));
+%     [ hdr_DOT{ii}, sstr_DOT{ii} ] = trk_read(cell2char_rdp(TRKS_DOT{ii}.filename));
 % end
 
 %For orientation purposes... (all ROIs should be in the same orientation e.g. LPS)

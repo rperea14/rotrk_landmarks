@@ -89,7 +89,7 @@ for ii=1:numel(fields_vals)
                 %DEALING WITH DIFFUSITIVY METRICS (IF EXISTS):
                 if exist('DIFF_name','var')
                     for pp=1:numel(DIFF_name)
-                        cur_diff=cell2char(DIFF_name{pp});
+                        cur_diff=cell2char_rdp(DIFF_name{pp});
                         var_fields.(cur_diff){kk} = mean(tmp_TRKs{ok_idx}.unique_voxels(:,3+pp));
                         clear cur_diff
                     end
@@ -108,7 +108,7 @@ for ii=1:numel(fields_vals)
         %Diff metrics:
         if exist('DIFF_name','var')
             for pp=1:size(tmp_TRKs{ok_idx}.header.scalar_IDs,2)
-                cur_diff=cell2char(DIFF_name{pp});
+                cur_diff=cell2char_rdp(DIFF_name{pp});
                 idxempty=cellfun('isempty',var_fields.(cur_diff)) ; var_fields.(cur_diff)(idxempty) = {NaN} ;
                 clear cur_diff;
             end
@@ -124,7 +124,7 @@ for ii=1:numel(fields_vals)
       
         if exist('DIFF_name','var')
             for pp=1:size(tmp_TRKs{ok_idx}.header.scalar_IDs,2)
-                cur_diff=cell2char(DIFF_name{pp});
+                cur_diff=cell2char_rdp(DIFF_name{pp});
                 var_fields.(cur_diff) =cell2mat(var_fields.(cur_diff)');
                 clear cur_diff;
             end

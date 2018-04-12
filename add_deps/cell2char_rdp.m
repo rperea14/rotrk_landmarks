@@ -1,4 +1,4 @@
-function X = cell2char_rdp(C)
+function X = cell2char(C)
 
 for ii = 1:numel(C)
     if isnumeric(C{ii})

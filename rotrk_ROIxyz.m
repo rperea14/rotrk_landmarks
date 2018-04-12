@@ -24,7 +24,7 @@ if isstruct(roi_input)
     roi_xyz.filename=roi_input.filename;
     roi_xyz.id=roi_input.id;
 elseif iscell(roi_input)
-    roi_xyz.filename=cell2char(roi_input);
+    roi_xyz.filename=cell2char_rdp(roi_input);
     roi_xyz.id='No ID!';
 else
     roi_xyz.filename= {roi_input};

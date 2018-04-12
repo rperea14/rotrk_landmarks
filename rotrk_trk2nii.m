@@ -72,12 +72,12 @@ end
 for check_structype=1:1
     if isstruct(vol_input)
         if iscell(vol_input.filename)
-            H_vol= spm_vol(cell2char(vol_input.filename));
+            H_vol= spm_vol(cell2char_rdp(vol_input.filename));
         else
             H_vol= spm_vol(vol_input.filename);
         end
     elseif iscell(vol_input)
-        H_vol= spm_vol(cell2char(vol_input));
+        H_vol= spm_vol(cell2char_rdp(vol_input));
     else
         H_vol= spm_vol(vol_input);
     end

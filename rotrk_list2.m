@@ -12,11 +12,11 @@ for ii=1:numel(roiLIST)
     rotrk_format{ii}.filename=roiLIST(ii);
     FILENAME=strrep(roiLIST(ii), [DIR filesep PREFIX  ],'');
     FILENAME=strrep(FILENAME, [ EXT  ],'');
-    FILENAME=cell2char(FILENAME);
+    FILENAME=cell2char_rdp(FILENAME);
     STRSPLIT=strsplit(FILENAME,'_');
-    rotrk_format{ii}.id=[ cell2char(STRSPLIT(2)) '_' cell2char(STRSPLIT(3))];
-    rotrk_format{ii}.trk_name=cell2char(STRSPLIT(4));
-    rotrk_format{ii}.method=cell2char(STRSPLIT(1));
+    rotrk_format{ii}.id=[ cell2char_rdp(STRSPLIT(2)) '_' cell2char_rdp(STRSPLIT(3))];
+    rotrk_format{ii}.trk_name=cell2char_rdp(STRSPLIT(4));
+    rotrk_format{ii}.method=cell2char_rdp(STRSPLIT(1));
     %Removing filename extensions to get "only" the subject name...
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

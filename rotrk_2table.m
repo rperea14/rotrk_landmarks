@@ -28,7 +28,7 @@ for pp=1:numel(varargin_w_TRKS_IN) %on every TRKS passed
         init_names=unique(tmp_init_names);
         
         for oo=1:numel(init_names)
-            trk_name=cell2char(init_names(oo));
+            trk_name=cell2char_rdp(init_names(oo));
             trk_name=strrep(trk_name,'-','_');              % will remove the '-' that is invalid for naming purposes
             numstr_varargin_w_TRKS_IN=strcat('numsstr_',trk_name);
             maxlen_varargin_w_TRKS_IN=strcat('maxlen_',trk_name);
@@ -40,7 +40,7 @@ for pp=1:numel(varargin_w_TRKS_IN) %on every TRKS passed
             %On every single mask (add diffmetrics:)
             if isfield(TRKS_IN{1}.header,'scalar_IDs')
                 for kk=1:size(TRKS_IN{1}.header.scalar_IDs,2)
-                    sc_name=cell2char(TRKS_IN{1}.header.scalar_IDs(kk));
+                    sc_name=cell2char_rdp(TRKS_IN{1}.header.scalar_IDs(kk));
                     sc_name=strrep(sc_name,'-','_');              % will remove the '-' that is invalid for naming purposes
                     mean_sc_name=strcat('mean',sc_name,'_',trk_name);
                     var_fields.(mean_sc_name)=nan(numel(init_subids),1); %%--> init variable fields
@@ -64,7 +64,7 @@ for pp=1:numel(varargin_w_TRKS_IN) %on every TRKS passed
         var_fields.(volume_varargin_w_TRKS_IN)=nan(numel(init_subids),1);
         if isfield(varargin_w_TRKS_IN{pp}{1}.header,'scalar_IDs')
             for kk=1:size(varargin_w_TRKS_IN{pp}{1}.header.scalar_IDs,2)
-                sc_name=cell2char(varargin_w_TRKS_IN{pp}{1}.header.scalar_IDs(kk));
+                sc_name=cell2char_rdp(varargin_w_TRKS_IN{pp}{1}.header.scalar_IDs(kk));
                 mean_sc_name=strcat('mean',sc_name,'_',trk_name);
                 var_fields.(mean_sc_name)=nan(numel(varargin_w_TRKS_IN{pp}),1); %%--> init variable fields
             end
@@ -103,7 +103,7 @@ for pp=1:numel(varargin_w_TRKS_IN)               %on every TRKS passed
             
             if isfield(varargin_w_TRKS_IN{pp}{1}.header,'scalar_IDs')
                 for kk=1:size(varargin_w_TRKS_IN{pp}{jj}.header.scalar_IDs,2)
-                    sc_name=cell2char(varargin_w_TRKS_IN{pp}{jj}.header.scalar_IDs(kk));
+                    sc_name=cell2char_rdp(varargin_w_TRKS_IN{pp}{jj}.header.scalar_IDs(kk));
                     sc_ref=3+kk;
                     mean_sc_name=strcat('mean',sc_name,'_',trk_name);
                     

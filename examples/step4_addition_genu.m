@@ -48,9 +48,9 @@ for genu_hide=1:1
     %Adding the scalar variables and creating a centerline...
     for ii=1:numel(TRKS_GENU_trimmed)
         for pp=1:size(DIFFMETRICS,2)
-            if strcmp(cell2char(DIFFMETRICS{1,pp}.id), TRKS_GENU_trimmed{ii}.id)
+            if strcmp(cell2char_rdp(DIFFMETRICS{1,pp}.id), TRKS_GENU_trimmed{ii}.id)
                 TRKS_GENU_trimmed{ii} = rotrk_add_sc(TRKS_GENU_trimmed{ii}, DIFFMETRICS(:,pp));
-                disp([ 'centerline trimming...' cell2char(DIFFMETRICS{1,pp}.id) ] )
+                disp([ 'centerline trimming...' cell2char_rdp(DIFFMETRICS{1,pp}.id) ] )
                 TRKS_GENU_centerline{ii} = rotrk_centerline(TRKS_GENU_trimmed{ii}, 'high_sc', 'GFA');
             end
         end

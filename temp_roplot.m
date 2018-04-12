@@ -45,10 +45,10 @@ if ~isstruct(tracts), error('tracts must be in structure form. Try running TRK_R
 %Dealing with Volumes passing arguments
 if ~isempty(volume)
     if isstruct(volume)
-        H_vol=spm_vol(cell2char(volume.filename));
+        H_vol=spm_vol(cell2char_rdp(volume.filename));
         
     elseif iscell(volume)
-        H_vol=spm_vol(cell2char(volume));
+        H_vol=spm_vol(cell2char_rdp(volume));
     else
         H_vol=spm_vol(volume);
     end

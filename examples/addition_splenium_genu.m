@@ -16,7 +16,7 @@ for genu_hide=1:1
     REF_VOL=ROI_GENU_L{1}; %Reference volume for image dimensions (the scripts assumes all the volumes have the same dimensions
     %Reading TRKS and trimming in the same loop:
     for ii=1:numel(TRKS_GENU)
-        [ hdr_GENU_tmp{ii},sstr_GENU_tmp{ii} ] = rotrk_read(cell2char(TRKS_GENU{ii}.filename),cell2char(TRKS_GENU{ii}.id),REF_VOL);
+        [ hdr_GENU_tmp{ii},sstr_GENU_tmp{ii} ] = rotrk_read(cell2char_rdp(TRKS_GENU{ii}.filename),cell2char_rdp(TRKS_GENU{ii}.id),REF_VOL);
       
         %Trimming will occur in the plane the ROIs were creates and assumes left
         %and right ROIs were created in the same plane
@@ -92,7 +92,7 @@ REF_VOL=ROI_SPL_L{1}; %Reference volume for image dimensions (the scripts assume
 
 %Reading TRKS and trimming in the same loop:
 for ii=1:numel(TRKS_DOT)
-    [ hdr_SPL_tmp{ii},sstr_SPL_tmp{ii} ] = rotrk_read(cell2char(TRKS_SPL{ii}.filename),cell2char(TRKS_SPL{ii}.id),REF_VOL);
+    [ hdr_SPL_tmp{ii},sstr_SPL_tmp{ii} ] = rotrk_read(cell2char_rdp(TRKS_SPL{ii}.filename),cell2char_rdp(TRKS_SPL{ii}.id),REF_VOL);
     %Trimming will occur in the plane the ROIs were creates and assumes left
     %and right ROIs were created in the same plane
     for jj=1:numel(ROI_SPL_L)

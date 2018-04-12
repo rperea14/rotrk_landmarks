@@ -102,9 +102,9 @@ else
     %IMPLEMENTATION CODE STARTS HERE:
     for pp=1:size(vol_input_diffmetric,1)
         if size(vol_input_diffmetric,1) ==1
-            H_vol= spm_vol(cell2char(vol_input_diffmetric{pp}.filename));
+            H_vol= spm_vol(cell2char_rdp(vol_input_diffmetric{pp}.filename));
         else
-            H_vol= spm_vol(cell2char(vol_input_diffmetric{pp}.filename));
+            H_vol= spm_vol(cell2char_rdp(vol_input_diffmetric{pp}.filename));
         end
         V_vol=spm_read_vols(H_vol);
         
