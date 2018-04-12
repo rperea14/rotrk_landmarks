@@ -1,20 +1,22 @@
 function [ TRKS_OUT ] = rotrk_trimmedbyROI_fx_crit4(TRKS_IN, ROIS_IN, WHAT_TOI, ID)
 %function [ TRKS_OUT ] = rotrk_trimmedbyROI_fx_crit4(TRKS_IN, ROIS_IN, WHAT_TOI, ID)
-
-%Created by Rodrigo Perea
-%This scripts will apply the separation between stria terminalis and fornix
+%Goal: This script will apply the separation between stria terminalis and fornix
 %in our TRKLAND algorithm called the CRITERIA 4 FOR TRKLAND 
 %How is this done? 
 % 1. First, we will remove those streamlines that have less than
-%    [MODE-=STD] number of coordinate points.
-% 2. 
+%    [MODE-+STD] +- 10(constant) number of coordinate points. This will
+%    remove steamlines that are shorter or longer in average!
+% 2. Select the streamline closer to the center (based on the x-coordinate)
+% 3. Include only those streamline that do not deviate from a normal
+%    distrubution of HDorff Distances. 
+%
+%Created by Rodrigo Perea
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %FIRST STEP:
 temp_trks_out=TRKS_IN;
-%do we have enough coordinate points to apply C4?
-
+%Do we have enough coordinate points to apply C4?
 if numel(TRKS_IN.sstr) > 10
     %Selecting the number of coordinates per streamline
     for ijk=1:numel(temp_trks_out.sstr)
@@ -24,7 +26,6 @@ if numel(TRKS_IN.sstr) > 10
             n_coords(ijk,:) = [ijk 0 ];
         end
     end
-    
     %Removing empty cells, finding the MODE and STD of the data
     ref_n_coords=n_coords(find(n_coords(:,2)~=0),:);
     mode_crit4 = mode(ref_n_coords(:,2));
@@ -33,7 +34,6 @@ if numel(TRKS_IN.sstr) > 10
     %IDX to repopulate streamlines
     cc=1;
     %Loop at select those sstr MODE+-STD if there are > 10 streamlines
-    
     for ijk=1:numel(ref_n_coords(:,2))
         if ref_n_coords(ijk,2) > mode_crit4-std_crit4-10 && ref_n_coords(ijk,2) < mode_crit4+std_crit4+10
             temp_trks_out_crit4.sstr(cc)=temp_trks_out.sstr(ref_n_coords(ijk,1));
@@ -51,7 +51,6 @@ clear cc;
 
 
 %STEP TWO: SELECTING THE MOST EXTREME X:
-
 %Looping to get the closer to the extreme_x region.
 %*Note: This will happen in 10th percentile of the coordinates closer to
 %       the end of the body of the fornix
@@ -59,7 +58,7 @@ for ijk=1:numel(temp_trks_out_crit4.sstr)
     %%display(num2str(ijk));
     if ~isempty(temp_trks_out_crit4.sstr(ijk).matrix)
         crit4(ijk).sstr = temp_trks_out_crit4.sstr(ijk).matrix(end-round(0.05*numel(temp_trks_out_crit4.sstr(ijk).matrix)):end,:);
-        crit4(ijk).max_z = max(crit4(ijk).sstr(:,3)); % THIS WONT BE NEEDE FOR NOW.
+        crit4(ijk).max_z = max(crit4(ijk).sstr(:,3)); 
         if strcmp(WHAT_TOI,'fx_rh')
             crit4(ijk).extreme_x = max(temp_trks_out_crit4.header.dim(1)*temp_trks_out_crit4.header.voxel_size(1)-crit4(ijk).sstr(end,1));
         else
@@ -84,7 +83,6 @@ for ijk=1:numel(crit4)
 end
 
 %Selec the indx of the extreme streamline
-
 [~, C4_sstr_idx ] = max(c4_extreme); %left vs. side hemisphere was taken care when selecting the extreme (earlier in the code)
 C4_ninterp=round(nanmean(c4_size_nsstrs)); %this will give us the value for interpolation
 
