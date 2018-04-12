@@ -41,11 +41,8 @@ else
     
     %Adding scalar name to the streamlines (for reference)
     if nargin < 2
-        number_coordinates=40
+        number_coordinates=40;
     end
-    
-    
-    
     nPoints_new=number_coordinates; %Changed to 60 based on the Fornix bundle # of volumes (mean for the n34 was 61).
     spacing=[];
     tie_at_center=[];
@@ -53,7 +50,6 @@ else
     %%
     tracts_interp   = zeros(nPoints_new, 3, length(TRKS_IN.sstr));
     pp = repmat({[]},length(TRKS_IN.sstr));
-    
     
     %%
     % Interpolate streamlines so that each has the same number of vertices, spread

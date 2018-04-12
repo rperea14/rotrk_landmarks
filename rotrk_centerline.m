@@ -17,9 +17,7 @@ function [ TRKS_OUT OPT_distance] = rotrk_centerline(TRKS_IN, method, selected_m
 %                                   This information should come from
 %                                   TRKS_IN.sstr.matrix{4:end}
 %
-
-%OUT:
-%           TRKS_OUT
+%        TRKS_OUT
 % *IMPORTANT:
 %               MAKE SURE YOU'VE INTERPOLATED THE TRKS_IN 1st input*
 % (Created by Rodrigo Perea)
