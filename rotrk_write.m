@@ -34,7 +34,7 @@ if strcmp(cur_ext,'.gz')
     end
 end
 %CHECKI DIRECTIONALITY FOR ORIENTATION
-%Now, we will always write withouth inversion happening so...
+%Now, we will always write without inversion happening so...
 
 %THE FOLLOWING LINES HAVE BEEN COMMENTED AS EVERYTHING SHOULD BE TAKEN CARE
 %WHEN READING THE TRKS (AND NOT WRITING). THE WRITING TRK AND TRK2NII
